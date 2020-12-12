@@ -30,7 +30,7 @@ void Logger::Log(const String& logText, LogVerbosity verbosity)
 	struct tm tstruct;
 	static char buf[80];
 	time_t now = time(0);
-	localtime_s(&tstruct, &now);
+	localtime_r(&now, &tstruct);
 	strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 	EngineIO << '[' << buf << "] " << type << " - " << logText << String::ENDL;
 	EngineInputOutput::SetTextColor(CONSOLE_DEFAULT);

@@ -1,7 +1,9 @@
 #include "IO/EngineIO.h"
 
 #include <fstream>
-#include <Windows.h>
+#if _WIN32
+	#include <Windows.h>
+#endif
 #include <filesystem>
 #include "IO/Log.h"
 
@@ -35,7 +37,9 @@ EngineInputOutput& EngineInputOutput::operator<<(char _Val)
 
 EngineInputOutput EngineInputOutput::IO = EngineInputOutput();
 
-HANDLE hConsoleout = GetStdHandle(STD_OUTPUT_HANDLE);
+#if _WIN32
+    HANDLE hConsoleout = GetStdHandle(STD_OUTPUT_HANDLE);
+#endif
 
 void EngineInputOutput::SetTextColor(const ConsoleColor& color) {
 	consoleColor = color;
@@ -63,7 +67,7 @@ String EngineInputOutput::FindNewLogfileName() const
 	time_t     now = time(0);
 	struct tm  tstruct;
 	char       buf[80];
-	localtime_s(&tstruct , &now);
+	localtime_r(&now, &tstruct);
 	strftime(buf, sizeof(buf), "%Y-%m-%d.%H.%M.%S", &tstruct);
 
 
@@ -113,7 +117,9 @@ void EngineInputOutput::TextToLog(const String& text)
 
 void EngineInputOutput::TextToScreen(const String& text)
 {
+#if _WIN32
 	SetConsoleTextAttribute(hConsoleout, consoleColor);
+#endif
 	printf(text.GetData());
 }
 

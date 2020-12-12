@@ -1,1 +1,3 @@
-cmake ./Intermediates
+#!/bin/bash
+
+cmake -B ./Intermediates
