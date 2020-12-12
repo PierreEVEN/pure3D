@@ -65,13 +65,23 @@ public:
 	inline String(float other) : String(ToString(other)) {}
 	inline String(double other) : String(ToString(other)) {}
 
+	/** Iterators */
+	typedef char* iterator;
+	typedef const char* const_iterator;
+	iterator begin() { return &data[0]; }
+	const_iterator begin() const { return &data[0]; }
+	const_iterator cbegin() const { return &data[0]; }
+	iterator end() { return &data[length]; }
+	const_iterator end() const { return &data[length]; }
+	const_iterator cend() const { return &data[length]; }
+
 	/* Getters */
 	inline const size_t& Length() const { return length; }
 	inline const char* GetData() const {
 		data[length] = '\0';
 		return data;
 	}
-
+	
 	/* Operator bool */
 	inline operator bool() const {
 		return *this != "";

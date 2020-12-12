@@ -36,7 +36,24 @@ function(module_definition TARGET)
 			${CMAKE_CURRENT_SOURCE_DIR}/Public	
 		PRIVATE
 			${CMAKE_CURRENT_SOURCE_DIR}/Private)
+endfunction()
 
+function(use_reflection)
+	get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+	message ("-- -- => Add reflection data for " ${TARGET})
+	set(REFLECTION_TARGET ${TARGET}_ReflectionGenerator)
+	add_custom_target(${REFLECTION_TARGET} ALL
+					COMMAND "${BINARIES_DIR}/PureHeaderGenerator/Debug/PureHeaderGenerator.exe" -ModuleName="${TARGET}" -ModulePath="${CMAKE_CURRENT_SOURCE_DIR}" -OutDir="${REFLECTION_DIR}/${TARGET}" )
+	set_target_properties(${REFLECTION_TARGET} PROPERTIES FOLDER "ReflectionData")
+	
+	add_dependencies(${REFLECTION_TARGET} PureHeaderGenerator)
+	add_dependencies(${TARGET} ${REFLECTION_TARGET})
+endfunction()
+
+# Set current project target catogory
+function(set_project_category CATEGORY)
+	get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+	set_target_properties(${TARGET} PROPERTIES FOLDER ${CATEGORY})
 endfunction()
 
 # Create a lib module

@@ -125,6 +125,9 @@ void EngineInputOutput::TextToScreen(const String& text)
 	SetConsoleTextAttribute(hConsoleout, consoleColor);
 #endif
 	printf(text.GetData());
+#if _WIN32
+	SetConsoleTextAttribute(hConsoleout, CONSOLE_DEFAULT);
+#endif
 }
 
 std::vector<char> ReadFile(const String& filePath)
