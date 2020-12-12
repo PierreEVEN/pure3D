@@ -13,3 +13,4 @@ _deps
 .vs
 *.vcxproj
 *.sln
+*.filters
