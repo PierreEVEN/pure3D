@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT PureHeaderTests)
-set(CMAKE_SUPPRESS_REGENERATION true)
 
 project(pure3D)
 
