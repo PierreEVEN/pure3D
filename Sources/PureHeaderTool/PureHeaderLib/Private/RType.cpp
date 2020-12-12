@@ -1,26 +1,17 @@
 #include "RType.h"
 
-inline static std::unordered_map<std::string, const RType*> types;
+#include <unordered_map>
+#include <iostream>
 
-const RType* RType::GetType(const char* typeName) {
-	const auto& value = types.find(typeName);
-	if (value == types.end()) return nullptr;
+inline static std::unordered_map<String, const RType*> Types;
+
+const RType* RType::GetType(const String& inTypeName) {
+	const auto& value = Types.find(inTypeName);
+	ReflEnsure(value != Types.end(), (String(inTypeName) + " is not a reflected type").GetData());
 	return value->second;
 }
 
-RType* RType::RegisterType(const char* inTypeName, size_t inTypeSize) {
-	if (GetType(inTypeName)) {
-		std::cout << inTypeName << " is already registered" << std::endl;
-		exit(1);
-	}
-	RType* NewType = new RType(inTypeName, inTypeSize);
-	types[inTypeName] = NewType;
-	return NewType;
-}
-
-void RType::DeleteTypes() {
-	for (const auto& item : types) {
-		delete item.second;
-	}
-	types.clear();
+void RType::RegisterType_Internal(const String& inTypeName, const RType* inType) {
+	ReflEnsure(Types.find(inTypeName) == Types.end(), (String("type ") + inTypeName + " is already registered").GetData());
+	Types[inTypeName] = inType;
 }

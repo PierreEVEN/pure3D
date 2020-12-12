@@ -10,10 +10,11 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
-.vs
+.vs/
 *.vcxproj
 *.sln
 *.filters
-Binaries
-*.dir
+Binaries/
+*.dir/
 *.user
+Saved/

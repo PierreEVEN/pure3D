@@ -1,2 +1,3 @@
 add_subdirectory(PureHeaderGenerator)
 add_subdirectory(PureHeaderLib)
+add_subdirectory(PureHeaderTests)

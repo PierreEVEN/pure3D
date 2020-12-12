@@ -2,55 +2,62 @@
 
 #include "ReflectionUtilities.h"
 
-#include <utility>
-#include <unordered_map>
-#include <iostream>
+#include "Types/String.h"
 
-class RType {
-public:
-
+struct RType : public ReflectionObject {
     /**
      * Get type name
      */
-    inline const char* GetName() const { return typeName; }
+    inline const String& GetName() const { return TypeName; }
+
+    /**
+     * Get type size
+     */
+    inline const size_t& GetSize() const { return TypeSize; }
 
     /**
      * Get type by class
      */
-    template<typename RClass>
-    inline static const RType* GetType() { return GetType(RTypeName<RClass>::Name); }
+    template<typename Type>
+	inline static const RType* GetType() {
+		static_assert(RIsReflected<Type>::Value, "Not a reflected type, please declare this type as a reflected type.");
+        return GetType(RTypeName<Type>::Name);
+    }
 
     /**
      * Get type by class name
      */
-    static const RType* GetType(const char* typeName);
+    static const RType* GetType(const String& inTypeName);
 
     /**
      * Register new reflected type
      */
-    static RType* RegisterType(const char* inTypeName, size_t inTypeSize);
+    template<typename Class, typename Type = RType>
+    inline static Type* RegisterType(const String& inTypeName) {
+		static_assert(RIsReflected<Class>::Value, "Not a reflected type, please declare this type as a reflected type.");
 
-    /**
-     * Clear all types
-     */
-    static void DeleteTypes();
+        Type* newType = new Type(inTypeName, sizeof(Class));
+        RegisterType_Internal(inTypeName, newType);
+        return newType;
+    }
+
+protected:
+
+    inline RType(const String& inTypeName, const size_t inTypeSize)
+        : TypeName(inTypeName), TypeSize(inTypeSize) {}
+	virtual ~RType() = default;
 
 private:
 
-	inline RType() = delete;
-	inline RType(const RType&) = delete;
-	inline RType(const RType&&) = delete;
-	inline RType(const char* inTypeName, const size_t inTypeSize)
-		: typeName(inTypeName), typeSize(inTypeSize) {}
-	virtual ~RType() {}
+    static void RegisterType_Internal(const String& inTypeName, const RType* newType);
 
     /**
      * Type name
      */
-    const char* typeName;
+    const String TypeName;
 
     /**
      * Type size
      */
-    const size_t typeSize;
+    const size_t TypeSize;
 };
