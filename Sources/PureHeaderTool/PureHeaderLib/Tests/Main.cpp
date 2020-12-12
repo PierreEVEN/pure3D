@@ -1,18 +1,13 @@
 
-using namespace std;
-
-
 #include "Examples/BasicObject.h"
-#include "Type.h"
-
+#include "RType.h"
 
 
 int main() {
 
-    Type::RegisterType("test", 16);
+    REFL_REGISTER_TYPE(BasicObject);
 
-    //Type::GetType<BasicObject>();
-
+    std::cout << RType::GetType<BasicObject>()->GetName() << std::endl;
 
     return 0;
 }

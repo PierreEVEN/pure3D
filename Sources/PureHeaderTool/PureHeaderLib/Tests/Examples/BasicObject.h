@@ -1,10 +1,12 @@
-#ifndef PURE3D_BASICOBJECT_H
-#define PURE3D_BASICOBJECT_H
+#pragma once
+
+
+#include "Reflectionutilities.h"
+#include "ReflectionMacros.h"
 
 
 class BasicObject {
 
 };
 
-
-#endif //PURE3D_BASICOBJECT_H
+REFL_DECLARE_TYPENAME(BasicObject)

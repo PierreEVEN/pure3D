@@ -16,3 +16,4 @@ _deps
 *.filters
 Binaries
 *.dir
+*.user

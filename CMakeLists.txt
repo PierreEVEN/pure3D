@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT PureHeaderLib)
 set(CMAKE_SUPPRESS_REGENERATION true)
-
-set(VS_STARTUP_PROJECT PureHeaderLibTest)
 
 project(pure3D)
 
@@ -36,14 +36,15 @@ function(module_definition TARGET)
 
 endfunction()
 
-# Create an exeutable module
+# Create an executable module
 function(create_executable)
-
-	get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
 	message("-- => Building module " ${TARGET})
 
-	file(GLOB SOURCES Private/*.cpp)
+	get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
+	file(GLOB_RECURSE SOURCES *.cpp *.hpp *.h *.c)
+	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 	add_executable(${TARGET} ${SOURCES} ${ARGN})
 
 	module_definition(${TARGET})
