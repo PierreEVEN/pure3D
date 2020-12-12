@@ -47,7 +47,7 @@ function(use_reflection)
 					COMMAND "${BINARIES_DIR}/PureHeaderGenerator/Debug/PureHeaderGenerator.exe" -ModuleName="${TARGET}" -ModulePath="${CMAKE_CURRENT_SOURCE_DIR}" -OutDir="${REFLECTION_DIR}/${TARGET}" )
 	else()
 	add_custom_target(${REFLECTION_TARGET} ALL
-					COMMAND "${BINARIES_DIR}/PureHeaderGenerator/Debug/PureHeaderGenerator" -ModuleName="${TARGET}" -ModulePath="${CMAKE_CURRENT_SOURCE_DIR}" -OutDir="${REFLECTION_DIR}/${TARGET}" )
+					COMMAND "${BINARIES_DIR}/PureHeaderGenerator/PureHeaderGenerator" -ModuleName="${TARGET}" -ModulePath="${CMAKE_CURRENT_SOURCE_DIR}" -OutDir="${REFLECTION_DIR}/${TARGET}" )
 	endif()
 	
 	set_target_properties(${REFLECTION_TARGET} PROPERTIES FOLDER "ReflectionData")
