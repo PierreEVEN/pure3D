@@ -1,0 +1,2 @@
+add_subdirectory(PureHeaderGenerator)
+add_subdirectory(PureHeaderLib)

@@ -1,0 +1,4 @@
+add_subdirectory(Editor)
+add_subdirectory(Engine)
+add_subdirectory(PureHeaderTool)
+add_subdirectory(ThirdParty)
