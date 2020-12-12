@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "ReflectionUtilities.h"
-#include "ReflectionMacros.h"
+#include "Reflection/ReflectionUtilities.h"
+#include "Reflection/ReflectionMacros.h"
 
 
 class BasicObject {
