@@ -3,11 +3,12 @@
 #include <iostream>
 #include <Types/Path.h>
 #include <filesystem>
+#include <chrono>
 #include "Parser/ClassParser.h"
 
 int main(int argc, const char* argv[]) {
 
-	auto& StartTime = std::chrono::steady_clock::now();
+	const auto& StartTime = std::chrono::steady_clock::now();
 
 	String ModulePathStr;
 	String ModuleName;
@@ -22,7 +23,7 @@ int main(int argc, const char* argv[]) {
 
 	for (const auto& File : ScannedFiles) Data.push_back(std::move(Parser::ParseFile(File)));
 
-	auto& Duration = std::chrono::steady_clock::now() - StartTime;
+	const auto& Duration = std::chrono::steady_clock::now() - StartTime;
 
 	Utils::Log("Running reflection tool on " + ModuleName + " (" + String(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count()) + " ms)");
 	Utils::Log("\t-Found " + String(Data.size()) + String(" headers."));

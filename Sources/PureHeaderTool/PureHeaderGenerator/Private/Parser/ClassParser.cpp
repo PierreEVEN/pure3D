@@ -64,7 +64,11 @@ const String Parser::SFileReference::GetName() const {
 
 String Parser::SFileReference::FormatDate(time_t inTime) {
 	std::tm* gmt = new std::tm();
+#if _WIN32
 	gmtime_s(gmt, &inTime);
+#else
+    gmtime_r(&inTime, gmt);
+#endif
 
 	std::stringstream TimeBuffer;
 	TimeBuffer << std::put_time(gmt, "%A, %d %B %Y %H:%M:%S");
