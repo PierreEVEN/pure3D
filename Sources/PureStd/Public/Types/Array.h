@@ -2,6 +2,8 @@
 
 #include <initializer_list>
 #include <xutility>
+#include <vector>
+#include "IO/Log.h"
 
 template<typename T>
 class TVector
@@ -11,8 +13,6 @@ public:
 	/** Default ctor */
 	TVector() = default;
 	~TVector() { if (data) delete data; }
-
-	TVector() { if (data) delete data; }
 
 	/** size ctor */
 	TVector(const std::vector<T>& right) {
@@ -56,6 +56,13 @@ public:
 	void Add(const T& elem) {
 		Resize(dataLength + 1);
 		data[dataLength - 1] = elem;
+	}
+
+	/** Add */
+	void AddAll(const TVector<T>& elems) {
+		if (elems.Length() == 0) return;
+		Resize(dataLength + elems.Length());
+		for (int i = 0; i < elems.Length(); ++i) data[dataLength - elems.Length() + i - 1] = elems[i];
 	}
 
 	/** Pop */
