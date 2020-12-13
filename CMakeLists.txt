@@ -62,7 +62,8 @@ function(use_reflection)
 	file(GLOB_RECURSE SOURCES ${REFLECTION_DIR}/${TARGET}/Private/*.refl.cpp)
 		
 	target_sources(${TARGET} PRIVATE ${SOURCES})
-	
+		
+	add_private_dependencies(PureHeaderLib)	
 endfunction()
 
 # Set current project target catogory
