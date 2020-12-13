@@ -28,6 +28,9 @@ int main(int argc, const char* argv[]) {
 	Utils::Log("\t-Found " + String(Data.size()) + String(" headers."));
 	for (const auto& File : Data) {
 		Utils::Log("\t\t-" + File->GetFile().GetName() + " : " + String(File->GetObjects().size()) + " objects");
+		for (const auto& Object : File->GetObjects()) {
+			Object->Log();
+		}
 	}
 
 	for (auto& Item : Data) delete Item;

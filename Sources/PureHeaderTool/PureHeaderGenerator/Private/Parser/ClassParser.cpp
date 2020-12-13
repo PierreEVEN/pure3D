@@ -1,9 +1,9 @@
 #include "Parser/ClassParser.h"
+#include "Utils/Utils.h"
 
 #include <sstream>
 #include <fstream>
 #include <iostream>
-#include "Utils/Utils.h"
 
 using namespace Parser;
 
@@ -38,7 +38,6 @@ SFileData* Parser::ParseFile(const SFileReference& inFile) {
 	Data->ParseContent();
 	return Data;
 }
-
 
 Parser::SFileReference::SFileReference(const std::filesystem::path& inFilePath, const std::filesystem::path& inReflectedPath)
 	: FilePath(inFilePath), ReflectedPath(inReflectedPath) {
@@ -120,29 +119,53 @@ void Parser::SFileData::SFileData::ParseContent() {
 
 void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure) {
 	SStateMachine Status;
+	EObjectType ObjectType = EObjectType::ObjType_None;
 	for (int i = 0; i < Structure.Content.Length(); ++i) {
 		const char* CurrentData = &Structure.Content.GetData()[i];
 
-		if (Status.DoesSkipChar(CurrentData)) continue;
-
 		if (CurrentData[0] == '{') break;
 
-		if (IsStartingWith(CurrentData, "enum")) {
-			SObject* NewObject = new SEnum("", EObjectType::ENUM);
-			NewObject->ParseContent(Structure.Content);
-			Objects.push_back(NewObject);
+		//Extract structure type
+		if (ObjectType == EObjectType::ObjType_None) {
+			if (IsStartingWith(CurrentData, "enum")) ObjectType = EObjectType::ObjType_Enum;
+			if (IsStartingWith(CurrentData, "class")) ObjectType = EObjectType::ObjType_Struct;
+			if (IsStartingWith(CurrentData, "struct"))  ObjectType = EObjectType::ObjType_Class;
+			continue;
 		}
-		if (IsStartingWith(CurrentData, "class")) {
-			SObject* NewObject = new SStruct("", EObjectType::STRUCT);
-			NewObject->ParseContent(Structure.Content);
-			Objects.push_back(NewObject);
+
+		//Then extract name
+		if (CurrentData[0] == ' ' || CurrentData[0] == '\t' || CurrentData[0] == '\n' || CurrentData[0] == '}') {
+			Status.PauseCapture = true;
 		}
-		if (IsStartingWith(CurrentData, "struct")) {
-			SObject* NewObject = new SClass("", EObjectType::CLASS);
-			NewObject->ParseContent(Structure.Content);
-			Objects.push_back(NewObject);
+		else if (Status.PauseCapture) {
+			if (IsStartingWith(CurrentData, "final")) {
+				i += String("final").Length() - 1;
+				continue;
+			}
+			Status.Content = "";
+			Status.PauseCapture = false;
 		}
+		if (!Status.PauseCapture) Status.Content << CurrentData[0];
 	}
+
+	SObject* NewObject = nullptr;
+	switch (ObjectType)
+	{
+	case Parser::EObjectType::ObjType_Enum:
+		NewObject = new SEnum(Status.Content, ObjectType);
+		break;
+	case Parser::EObjectType::ObjType_Struct:
+		NewObject = new SStruct(Status.Content, ObjectType);
+		break;
+	case Parser::EObjectType::ObjType_Class:
+		NewObject = new SStruct(Status.Content, ObjectType);
+		break;
+	}
+	
+	if (!NewObject) return;
+
+	NewObject->ParseContent(Structure.Content);
+	Objects.push_back(NewObject);
 }
 
 Parser::SFileData::~SFileData() {
@@ -222,4 +245,19 @@ void Parser::SEnum::ParseContent(const String& Content)
 		Status.Content << CurrentData[0];		
 	}
 	if (Status.Content != "") Fields.push_back(Status.Content);
+}
+
+void Parser::SStruct::ParseContent(const String& Content) {
+
+}
+
+
+
+void Parser::SEnum::Log() {
+	Utils::Log("\t\t\t-" + GetName() + " : " + String(Fields.size()) + " fields : { " + String::ConcatenateArray(Fields) + " }");
+}
+
+
+void Parser::SStruct::Log() {
+	Utils::Log("\t\t\t-" + GetName() + " : Not implemented yet");
 }

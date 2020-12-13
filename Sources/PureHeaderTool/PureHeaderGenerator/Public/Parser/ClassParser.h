@@ -6,9 +6,10 @@
 namespace Parser {
 
 	enum class EObjectType {
-		ENUM= 0,
-		CLASS = 1,
-		STRUCT = 2
+		ObjType_None = 0,
+		ObjType_Enum = 1,
+		ObjType_Struct = 2,
+		ObjType_Class = 3
 	};
 
 
@@ -30,6 +31,9 @@ namespace Parser {
 		SObject(const String& inObjectName, EObjectType inObjectType)
 			: ObjectName(inObjectName), ObjectType(inObjectType) {}
 		virtual void ParseContent(const String& Content) = 0;
+		virtual void Log() = 0;
+		const String& GetName() const { return ObjectName; }
+		const EObjectType& GetType() const { return ObjectType; }
 	private:
 		String ObjectName;
 		EObjectType ObjectType;
@@ -39,6 +43,7 @@ namespace Parser {
 	struct SEnum : public SObject {
 		using SObject::SObject;
 		void ParseContent(const String& Content);
+		virtual void Log();
 	private:
 		std::vector<String> Fields;
 	};
@@ -46,16 +51,8 @@ namespace Parser {
 
 	struct SStruct : public SObject {
 		using SObject::SObject;
-		void ParseContent(const String& Content) {
-
-		}
-	};
-
-	struct SClass : public SObject {
-		using SObject::SObject;
-		void ParseContent(const String& Content) {
-
-		}
+		void ParseContent(const String& Content);
+		virtual void Log();
 	};
 
 	struct SFileReference {

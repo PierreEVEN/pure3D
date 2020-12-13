@@ -4,7 +4,7 @@
 #include "Reflection/ReflectionMacros.h"
 
 REFLECT();
-enum class BasicEnum { BAISC_ONE, BASIC_TWO, BASIC_THREE };
+enum class BasicEnum { BASIC_ONE, BASIC_TWO, BASIC_THREE };
 
 REFLECT();
 enum class AdvancedEnum {
@@ -14,7 +14,7 @@ enum class AdvancedEnum {
 };
 
 REFLECT();
-struct BasicStructure {
+struct BasicStructure final {
 
 	REFLECT_BODY();
 
