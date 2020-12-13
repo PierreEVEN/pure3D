@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <chrono>
 #include "Parser/ClassParser.h"
+#include "Parser/SObject.h"
 
 int main(int argc, const char* argv[]) {
 
@@ -26,9 +27,9 @@ int main(int argc, const char* argv[]) {
 	const auto& Duration = std::chrono::steady_clock::now() - StartTime;
 
 	Utils::Log("Running reflection tool on " + ModuleName + " (" + String(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count()) + " ms)");
-	Utils::Log("\t-Found " + String(Data.size()) + String(" headers."));
+	Utils::Log("\t- Found " + String(Data.size()) + String(" headers."));
 	for (const auto& File : Data) {
-		Utils::Log("\t\t-" + File->GetFile().GetName() + " : " + String(File->GetObjects().size()) + " objects");
+		Utils::Log("\t\t-> " + File->GetFile().GetName() + " : " + String(File->GetObjects().size()) + " objects");
 		for (const auto& Object : File->GetObjects()) {
 			Object->Log();
 		}

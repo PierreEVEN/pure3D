@@ -2,6 +2,7 @@
 
 #include "Reflection/ReflectionUtilities.h"
 #include "Reflection/ReflectionMacros.h"
+#include <unordered_map>
 
 REFLECT();
 enum class BasicEnum { BASIC_ONE, BASIC_TWO, BASIC_THREE };
@@ -22,22 +23,22 @@ struct BasicStructure final {
 		BasicStructure() {}
 
 	RCONSTRUCTOR()
-		BasicStructure(int inA, float inB) : A(inA), B(inB) {}
+		BasicStructure(int inA, std::vector<double> inB) : A(inA), B(inB) {}
 
 	RPROPERTY()
 		int A = 10;
 
 	RPROPERTY()
-		float B = 5.5f;
+		std::vector<double> B = { 2.0, 5.185, 12.4 };
 
 	RPROPERTY()
-		double C = 3.4;
+		const double& C = 3.4;
 
 	RFUNCTION()
 		void TestFuncA() {}
 
 	RFUNCTION()
-		int TestFuncB(bool inA, int inB) { return 0;  }
+		int TestFuncB(bool inA, float inB, void* inC, std::vector<double> inD) { return 0;  }
 };
 
 REFLECT();
@@ -49,20 +50,20 @@ class BasicObject {
 		BasicObject() {}
 
 	RCONSTRUCTOR()
-		BasicObject(int inA, float inB) : A(inA), B(inB) {}
+		BasicObject(std::unordered_map<float, int> inA, float inB) : A(inA), B(inB) {}
 
 	RPROPERTY()
-		int A = 10;
+		std::unordered_map<float, int> A = { {10.f, 5}, {8.4f, 3} };
 
 	RPROPERTY()
 		float B = 5.5f;
 
 	RPROPERTY()
-		double C = 3.4;
+		double* C = nullptr;
 
 	RFUNCTION()
-		void TestFuncA() {}
+		void TestFuncA () {}
 
 	RFUNCTION()
-		int TestFuncB(bool inA, int inB) { return 0; }
+		const int* TestFuncB(std::unordered_map<float, int> inA, int inB) { return nullptr; }
 };
