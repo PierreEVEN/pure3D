@@ -26,7 +26,12 @@ void Writer::WriteFiles(Parser::SFileData* File, const String& ModulePath, const
 
 	String GeneratedHeaderPath = PublicDirectory / File->GetFile().GetName() + ".refl.h";
 	String GeneratedSourcePath = PrivateDirectory / File->GetFile().GetName() + ".refl.cpp";
-	
+
+	if (File->GetFile().IsUpToDate(GeneratedHeaderPath) && File->GetFile().IsUpToDate(GeneratedSourcePath)) {
+		File->SetUpToDate();
+		return;
+	}
+
 	// Generate data
 	String HeaderContent = GenerateHeader(File);
 	String SourceContent = GenerateSource(File, GeneratedHeaderPath);

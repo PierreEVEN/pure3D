@@ -39,10 +39,9 @@ int main(int argc, const char* argv[]) {
 	/**
 	 * Writting
 	 */
-	for (const auto& File : Parser::ReflectedFiles)
+	for (const auto& File : Parser::ReflectedFiles) {
 		Writer::WriteFiles(File.second, ModulePathStr, OutputPath);
-
-
+	}
 
 
 	/**
@@ -50,7 +49,12 @@ int main(int argc, const char* argv[]) {
 	 */
 	const auto& Duration = std::chrono::steady_clock::now() - StartTime;
 
-	Utils::Log("Running reflection tool on " + ModuleName + " (" + String(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count()) + " ms - " + String(Objects) + " objects)" + (Utils::PHT_DEBUG_MODE ? " - DEBUG MODE" : ""));
+	size_t UpToDates = Parser::ReflectedFiles.size();
+	for (const auto& File : Parser::ReflectedFiles) {
+		if (File.second->IsFileUpToDate()) UpToDates--;
+	}
+
+	Utils::Log("Running reflection tool on " + ModuleName + " (" + String(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count()) + " ms - " + String(Objects) + " objects)" + (Utils::PHT_DEBUG_MODE ? " - DEBUG MODE" : "") + " : " + UpToDates + " files updates.");
 	if (Utils::PHT_DEBUG_MODE)
 		for (const auto& Object : Parser::ReflectedObjects)
 			Object.second->Log();

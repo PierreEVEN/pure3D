@@ -20,6 +20,8 @@ namespace Parser {
 
 		String GetDateFormated() const;
 
+		bool IsUpToDate(const String& GeneratedFile) const;
+
 	private:
 
 		std::filesystem::path FilePath;
@@ -39,8 +41,12 @@ namespace Parser {
 
 		const std::vector<SObject*>& GetObjects() const { return Objects; }
 
+		inline bool IsFileUpToDate() const { return IsUpToDate; }
+		inline void SetUpToDate() { IsUpToDate = true; }
+
 	private:
 
+		bool IsUpToDate = false;
 		std::vector<SObject*> Objects;
 		SFileReference File;
 		String Content;

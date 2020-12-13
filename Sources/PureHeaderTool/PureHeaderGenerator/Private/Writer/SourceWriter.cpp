@@ -13,7 +13,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 	String HeaderPath = Data->GetFile().GetFilePath().u8string().c_str();
 	for (auto& Chr : HeaderPath) if (Chr == '\\') Chr = '/';
 
-	Result.Line("/// VERSION : " + Data->GetFile().GetDateFormated());
+	Result.Line(Data->GetFile().GetDateFormated());
 	Result.Br();
 	Result.Include(ReflHeaderPath);
 	Result.Include(HeaderPath);

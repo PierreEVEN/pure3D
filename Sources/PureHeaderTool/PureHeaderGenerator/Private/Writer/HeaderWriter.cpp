@@ -13,7 +13,7 @@ String Writer::GenerateHeader(Parser::SFileData* Data)
 	SCodeGenerator Result;
 
 
-	Result.Line("/// VERSION : " + Data->GetFile().GetDateFormated());
+	Result.Line(Data->GetFile().GetDateFormated());
 	Result.Br();
 	Result.PragmaOnce();
 	Result.Br();

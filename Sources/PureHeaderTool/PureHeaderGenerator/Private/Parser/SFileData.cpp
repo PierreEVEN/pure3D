@@ -5,6 +5,7 @@
 #include "Parser/STypes.h"
 #include "Parser/SObject.h"
 #include "Utils/Utils.h"
+#include "Types/String.h"
 
 using namespace Parser;
 
@@ -33,7 +34,18 @@ String Parser::SFileReference::GetDateFormated() const {
 	std::stringstream TimeBuffer;
 	TimeBuffer << std::put_time(gmt, "%A, %d %B %Y %H:%M:%S");
 	delete gmt;
-	return TimeBuffer.str().c_str();
+	return String("/// VERSION : ") + TimeBuffer.str().c_str();
+}
+
+bool Parser::SFileReference::IsUpToDate(const String& GeneratedFile) const {
+	bool UpToDate = false;
+	std::ifstream FileStream(GeneratedFile.GetData());
+	std::string Line;
+	if (std::getline(FileStream, Line)) {
+		UpToDate = String(Line.c_str()).IsStartingWith(GetDateFormated());
+	}
+	FileStream.close();
+	return UpToDate;
 }
 
 Parser::SFileData::SFileData(const SFileReference& inFilePath)
@@ -43,9 +55,9 @@ Parser::SFileData::SFileData(const SFileReference& inFilePath)
 
 	std::ifstream FileStream(File.GetFilePath());
 	Content = "";
-	std::string line;
-	while (std::getline(FileStream, line)) {
-		Content << line.c_str() << '\n';
+	std::string Line;
+	while (std::getline(FileStream, Line)) {
+		Content << Line.c_str() << '\n';
 	}
 	FileStream.close();
 }
