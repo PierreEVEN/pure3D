@@ -43,6 +43,9 @@ function(module_definition TARGET)
 endfunction()
 
 function(use_reflection)
+
+	add_private_dependencies(PureHeaderLib)	
+	
 	get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 	message ("-- -- => Add reflection data for " ${TARGET})
 	set(REFLECTION_TARGET ${TARGET}_ReflectionGenerator)
@@ -63,7 +66,6 @@ function(use_reflection)
 		
 	target_sources(${TARGET} PRIVATE ${SOURCES})
 		
-	add_private_dependencies(PureHeaderLib)	
 endfunction()
 
 # Set current project target catogory

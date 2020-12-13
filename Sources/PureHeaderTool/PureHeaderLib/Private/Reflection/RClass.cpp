@@ -13,7 +13,7 @@ void RClass::AddParent(const String& inParent)
 }
 
 const RClass* RClass::GetClass(const String& inClassName) {
-	if (!Classes) return nullptr;
+	if (!Classes) Classes = new std::unordered_map<String, const RClass*>();
 	const auto& value = Classes->find(inClassName);
 	ReflEnsure(value != Classes->end(), (String(inClassName) + " is not a reflected class").GetData());
 	return value->second;

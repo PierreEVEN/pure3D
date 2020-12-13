@@ -6,7 +6,7 @@
 inline static std::unordered_map<std::string, const RType*>* Types = nullptr;
 
 const RType* RType::GetType(const String& inTypeName) {
-	if (!Types) return nullptr;
+	if (!Types) Types = new std::unordered_map<std::string, const RType*>;
 	const auto& value = Types->find(inTypeName.GetData());
 	ReflEnsure(value != Types->end(), (String(inTypeName) + " is not a reflected type").GetData());
 	return value->second;
