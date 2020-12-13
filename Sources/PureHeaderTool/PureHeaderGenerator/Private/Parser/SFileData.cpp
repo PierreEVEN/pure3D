@@ -18,23 +18,14 @@ Parser::SFileReference::SFileReference(const std::filesystem::path& inFilePath, 
 	);
 }
 
-bool Parser::SFileReference::IsUpToDate() const {
-	std::ifstream FileStream(ReflectedPath);
-	char* LineData = new char[1000];
-	FileStream.getline(LineData, 1000);
-	String LineString(LineData);
-	delete LineData;
-	return LineString.IsStartingWith(FormatDate(LastEdit));
-}
-
 const String Parser::SFileReference::GetName() const {
-	return FilePath.filename().u8string().c_str();
+	return FilePath.stem().u8string().c_str();
 }
 
-String Parser::SFileReference::FormatDate(time_t inTime) {
+String Parser::SFileReference::GetDateFormated() const {
 	std::tm* gmt = new std::tm();
 #if _WIN32
-	gmtime_s(gmt, &inTime);
+	gmtime_s(gmt, &LastEdit);
 #else
 	gmtime_r(&inTime, gmt);
 #endif
@@ -42,11 +33,13 @@ String Parser::SFileReference::FormatDate(time_t inTime) {
 	std::stringstream TimeBuffer;
 	TimeBuffer << std::put_time(gmt, "%A, %d %B %Y %H:%M:%S");
 	delete gmt;
-	return String("//LAST UPDATE : ") + TimeBuffer.str().c_str();
+	return TimeBuffer.str().c_str();
 }
 
 Parser::SFileData::SFileData(const SFileReference& inFilePath)
 	: File(inFilePath) {
+
+	ReflectedFiles[inFilePath.GetFilePath().u8string().c_str()] = this;
 
 	std::ifstream FileStream(File.GetFilePath());
 	Content = "";
@@ -54,6 +47,7 @@ Parser::SFileData::SFileData(const SFileReference& inFilePath)
 	while (std::getline(FileStream, line)) {
 		Content << line.c_str() << '\n';
 	}
+	FileStream.close();
 }
 
 void Parser::SFileData::SFileData::ParseContent() {

@@ -2,12 +2,19 @@
 #include "Types/String.h"
 #include "STypes.h"
 #include "SStateMachine.h"
+#include <unordered_map>
 
 namespace Parser {
 
+	struct SObject;
+
+	inline std::unordered_map<String, SObject*> ReflectedObjects;
+
 	struct SObject {
 		SObject(const String& inObjectName, EObjectType inObjectType)
-			: ObjectName(inObjectName), ObjectType(inObjectType) {}
+			: ObjectName(inObjectName), ObjectType(inObjectType) {
+			ReflectedObjects[inObjectName] = this;
+		}
 		virtual void ParseContent(const String& Content) = 0;
 		virtual void Log() = 0;
 		const String& GetName() const { return ObjectName; }

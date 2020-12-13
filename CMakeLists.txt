@@ -48,12 +48,21 @@ function(use_reflection)
 	set(REFLECTION_TARGET ${TARGET}_ReflectionGenerator)
 	
 	add_custom_target(${REFLECTION_TARGET} ALL
-					COMMAND "$<TARGET_FILE:PureHeaderGenerator>" -ModuleName="${TARGET}" -ModulePath="${CMAKE_CURRENT_SOURCE_DIR}" -Debug=${PHT_DEBUG})
+					COMMAND "$<TARGET_FILE:PureHeaderGenerator>" -ModuleName="${TARGET}" -ModulePath="${CMAKE_CURRENT_SOURCE_DIR}" -Debug=${PHT_DEBUG} -OutputPath=${REFLECTION_DIR}/${TARGET})
 					
 	set_target_properties(${REFLECTION_TARGET} PROPERTIES FOLDER "ReflectionData")
 	
 	add_dependencies(${REFLECTION_TARGET} PureHeaderGenerator)
 	add_dependencies(${TARGET} ${REFLECTION_TARGET})
+	
+	target_include_directories(${TARGET}
+		PRIVATE
+			${REFLECTION_DIR}/${TARGET}/Public)
+			
+	file(GLOB_RECURSE SOURCES ${REFLECTION_DIR}/${TARGET}/Private/*.refl.cpp)
+		
+	target_sources(${TARGET} PRIVATE ${SOURCES})
+	
 endfunction()
 
 # Set current project target catogory

@@ -183,6 +183,19 @@ public:
 		return *this;
 	}
 
+	inline String SubString(int From) {
+		return SubString(From, Length() - 1);
+	}
+
+	inline String SubString(int From, int To) {
+		String Result = "";
+		if (From < 0) From = 0;
+		for (int i = From; i <= To && i < Length(); ++i) {
+			Result << data[i];
+		}
+		return Result;
+	}
+
 	inline bool IsStartingWith(const String& start) const {
 		if (start.length > length) return false;
 		for (size_t i = 0; i < start.length; ++i)

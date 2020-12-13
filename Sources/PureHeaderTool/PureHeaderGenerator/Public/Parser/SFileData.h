@@ -2,23 +2,25 @@
 #include <filesystem>
 #include "Types/String.h"
 #include "SStateMachine.h"
+#include <unordered_map>
 
 namespace Parser {
 
 	class SObject;
+	class SFileData;
+
+	inline std::unordered_map<String, SFileData*> ReflectedFiles;
 
 	struct SFileReference {
 		SFileReference(const std::filesystem::path& inFilePath, const std::filesystem::path& inReflectedPath);
 
 		const std::filesystem::path& GetFilePath() const { return FilePath; }
 
-		bool IsUpToDate() const;
-
 		const String GetName() const;
 
-	private:
+		String GetDateFormated() const;
 
-		static String FormatDate(time_t inTime);
+	private:
 
 		std::filesystem::path FilePath;
 		std::filesystem::path ReflectedPath;

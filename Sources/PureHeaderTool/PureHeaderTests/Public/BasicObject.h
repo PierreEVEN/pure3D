@@ -4,6 +4,8 @@
 #include "Reflection/ReflectionMacros.h"
 #include <unordered_map>
 
+#include "BasicObject.refl.h"
+
 REFLECT();
 enum class BasicEnum { BASIC_ONE, BASIC_TWO, BASIC_THREE };
 
