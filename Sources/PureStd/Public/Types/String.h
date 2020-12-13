@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <iosfwd>
+#include <iostream>
 
 #ifndef STRING_MINIMAL_LENGTH
 #define STRING_MINIMAL_LENGTH 16
@@ -294,9 +295,11 @@ private:
 
 namespace std {
 	template<> struct hash<String> {
+
 		std::size_t operator()(const String& t) const {
 			hash<std::string> chrHash;
-			return chrHash(t.GetData());
+			std::size_t result = chrHash(t.GetData());
+			return result;
 		}
 	};
 }

@@ -19,16 +19,20 @@ String Writer::GenerateHeader(Parser::SFileData* Data)
 	Result.Br();
 	Result.Include("Reflection/ReflectionMacros.h");
 
-	Result.Br(2);
-
 	for (const auto& Object : Data->GetObjects()) {
 
+		Result.Br(2);
+
+		Result.Line("/* ##############################  Reflection for " + Object->GetName() + "  ############################## */");
+
+		Result.Indent();
+		Result.Br(1);
 		Result.ForwardDeclaration(Object);
 
 		if (Object->GetType() == Parser::EObjectType::ObjType_Struct || Object->GetType() == Parser::EObjectType::ObjType_Class) {
 			Result.DeclareTypeName(Object->GetName());
 		}
-		Result.Br(2);
+		Result.UnIndent();
 	}
 	return Result.GetData();
 }

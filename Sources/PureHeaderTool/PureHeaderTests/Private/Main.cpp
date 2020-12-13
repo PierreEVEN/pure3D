@@ -21,10 +21,12 @@ int main() {
 	REFL_REGISTER_TYPE(float);
 	REFL_REGISTER_TYPE(double);
 
+	const RClass* str = RClass::GetClass<BasicStructure>();
 	const RClass* cl = RClass::GetClass<BasicObject>();
 	const RType* ty1 = RType::GetType<double>();
 	const RType* ty2 = RType::GetType("float");
 
+	LOG(str->GetName() + " size : " + str->GetSize());
 	LOG(cl->GetName() + " size : " + cl->GetSize());
 	LOG(ty1->GetName() + " size : " + ty1->GetSize());
 	LOG(ty2->GetName() + " size : " + ty2->GetSize());

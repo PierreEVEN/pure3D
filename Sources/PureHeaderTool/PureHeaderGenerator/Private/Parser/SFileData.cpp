@@ -95,8 +95,8 @@ void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure) {
 		//Extract structure type
 		if (ObjectType == EObjectType::ObjType_None) {
 			if (Utils::IsStartingWith(CurrentData, "enum")) ObjectType = EObjectType::ObjType_Enum;
-			if (Utils::IsStartingWith(CurrentData, "class")) ObjectType = EObjectType::ObjType_Struct;
-			if (Utils::IsStartingWith(CurrentData, "struct"))  ObjectType = EObjectType::ObjType_Class;
+			if (Utils::IsStartingWith(CurrentData, "struct")) ObjectType = EObjectType::ObjType_Struct;
+			if (Utils::IsStartingWith(CurrentData, "class"))  ObjectType = EObjectType::ObjType_Class;
 			continue;
 		}
 

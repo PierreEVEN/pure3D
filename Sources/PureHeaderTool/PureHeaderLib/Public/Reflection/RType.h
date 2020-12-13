@@ -35,7 +35,6 @@ struct RType : public ReflectionObject {
     template<typename Class, typename Type = RType>
     inline static Type* RegisterType(const String& inTypeName) {
 		static_assert(RIsReflected<Class>::Value, "Not a reflected type, please declare this type as a reflected type.");
-
         Type* newType = new Type(inTypeName, sizeof(Class));
         RegisterType_Internal(inTypeName, newType);
         return newType;

@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 
-inline static std::unordered_map<String, const RClass*> Classes;
+inline static std::unordered_map<String, const RClass*>* Classes = nullptr;
 
 
 void RClass::AddParent(const String& inParent)
@@ -12,15 +12,15 @@ void RClass::AddParent(const String& inParent)
 	//Parents.push_back(inParent);
 }
 
-const RClass* RClass::GetClass(const String& inClassName)
-{
-	const auto& value = Classes.find(inClassName);
-	ReflEnsure(value != Classes.end(), (String(inClassName) + " is not a reflected class").GetData());
+const RClass* RClass::GetClass(const String& inClassName) {
+	if (!Classes) return nullptr;
+	const auto& value = Classes->find(inClassName);
+	ReflEnsure(value != Classes->end(), (String(inClassName) + " is not a reflected class").GetData());
 	return value->second;
 }
 
-void RClass::RegisterClass_Internal(const String& inClassName, const RClass* inClass)
-{
-	ReflEnsure(Classes.find(inClassName) == Classes.end(), (String("class ") + inClassName + " is already registered").GetData());
-	Classes[inClassName] = inClass;
+void RClass::RegisterClass_Internal(const String& inClassName, const RClass* inClass) {
+	if (!Classes) Classes = new std::unordered_map<String, const RClass*>();
+	ReflEnsure(Classes->find(inClassName) == Classes->end(), (String("class ") + inClassName + " is already registered").GetData());
+	(*Classes)[inClassName] = inClass;
 }
