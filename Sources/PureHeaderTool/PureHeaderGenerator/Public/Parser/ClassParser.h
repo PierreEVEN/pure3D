@@ -5,54 +5,67 @@
 
 namespace Parser {
 
-	struct FileItem {
+	enum class EObjectType {
+		ENUM= 0,
+		CLASS = 1,
+		STRUCT = 2
+	};
 
-		FileItem(const String& inRawData, const String& inFileName, const String& inItemName, size_t inFromLine, size_t inToLine)
-			: RawData(inRawData), FileName(inFileName), ItemName(inItemName), FromLine(inFromLine), ToLine(inToLine) {}
 
+	struct SStateMachine {
+		size_t CurrentPos = 0;
+		bool IsReadingStructure = false;
+		bool IsInString = false;
+		bool IsInOneLineComment = false;
+		bool IsInMultiLineLineComment = false;
+		bool PauseCapture = false;
+		size_t IndentationLevel = 0;
+		String Content = "";
+
+		bool DoesSkipChar(const char* Position);
+	};
+
+
+	struct SObject {
+		SObject(const String& inObjectName, EObjectType inObjectType)
+			: ObjectName(inObjectName), ObjectType(inObjectType) {}
+		virtual void ParseContent(const String& Content) = 0;
 	private:
-		const String ItemName;
-		const String FileName;
-		size_t FromLine;
-		size_t ToLine;
-		String RawData;
-		std::vector<FileItem> ItemContent;
+		String ObjectName;
+		EObjectType ObjectType;
 	};
 
-	struct Object : public FileItem {
 
+	struct SEnum : public SObject {
+		using SObject::SObject;
+		void ParseContent(const String& Content);
+	private:
+		std::vector<String> Fields;
 	};
 
-	struct Struct : public Object {
 
+	struct SStruct : public SObject {
+		using SObject::SObject;
+		void ParseContent(const String& Content) {
+
+		}
 	};
 
-	struct Class : public Object {
+	struct SClass : public SObject {
+		using SObject::SObject;
+		void ParseContent(const String& Content) {
 
+		}
 	};
 
-	struct Enum : public FileItem {
-
-	};
-
-	struct Property : public FileItem {
-
-	};
-
-	struct Function : public FileItem {
-
-	};
-
-	struct Constructor : public Function {
-
-	};
-
-	struct FileReference {
-		FileReference(const std::filesystem::path& inFilePath, const std::filesystem::path& inReflectedPath);
+	struct SFileReference {
+		SFileReference(const std::filesystem::path& inFilePath, const std::filesystem::path& inReflectedPath);
 
 		const std::filesystem::path& GetFilePath() const { return FilePath; }
 
 		bool IsUpToDate() const;
+
+		const String GetName() const;
 
 	private:
 
@@ -63,32 +76,26 @@ namespace Parser {
 		std::time_t LastEdit;
 	};
 
-	struct FileData {
-		FileData(const FileReference& inFilePath);
+	struct SFileData final {
 
-		const FileReference& GetFile() const { return File; }
+		SFileData(const SFileReference& inFilePath);
+		~SFileData();
 
+		const SFileReference& GetFile() const { return File; }
+
+		bool IsStartingWith(const char* Data, const char* Start);
 		void ParseContent();
+		void ParseStructureHeader(const SStateMachine& Structure);
+
+		const std::vector<SObject*>& GetObjects() const { return Objects; }
 
 	private:
-		FileReference File;
+
+		std::vector<SObject*> Objects;
+		SFileReference File;
 		String Content;
 	};
+	std::vector<SFileReference> ScanFiles(const std::filesystem::path& inDirectory);
 
-	struct StateMachine {
-		size_t CurrentPos = 0;
-		bool IsReadingStructure = false;
-		bool ReflectBodyLevel = 0;
-		bool IsInString = false;
-		bool IsInOneLineComment = false;
-		bool IsInMultiLineLineComment = false;
-		size_t IndentationLevel = 0;
-	};
-
-	std::vector<FileReference> ScanFiles(const std::filesystem::path& inDirectory);
-
-	bool DetectStructure(const char* Data, const char* Structure);
-
-	void ParseFile(const FileReference& file);
-
+	SFileData* ParseFile(const SFileReference& file);
 }
