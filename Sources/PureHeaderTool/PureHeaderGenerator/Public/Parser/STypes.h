@@ -9,6 +9,8 @@ namespace Parser {
 		ObjType_Class = 3
 	};
 
+	String ObjectTypeToString(const EObjectType& inType);
+
 	struct SPropertyData {
 		String PropertyType;
 		String PropertyName;

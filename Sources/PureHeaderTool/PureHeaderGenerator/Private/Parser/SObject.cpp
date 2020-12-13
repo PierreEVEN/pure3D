@@ -39,7 +39,7 @@ void Parser::SEnum::ParseContent(const String& Content) {
 }
 
 void Parser::SEnum::Log() {
-	Utils::Log("\t\t\t-" + GetName() + " : " + String(Fields.size()) + " fields : { " + String::ConcatenateArray(Fields) + " }");
+	Utils::Log("\t\t\t- " + ObjectTypeToString(GetType()) + " " + GetName() + " : " + String(Fields.size()) + " fields : { " + String::ConcatenateArray(Fields) + " }");
 }
 
 
@@ -67,7 +67,7 @@ void Parser::SStruct::ParseContent(const String& Content) {
 
 
 void Parser::SStruct::Log() {
-	Utils::Log("\t\t\t-" + GetName() + " : " + String(Properties.size()) + " properties, " + String(Functions.size()) + " functions, " + String(Constructors.size()) + " constructors.");
+	Utils::Log("\t\t\t- " + ObjectTypeToString(GetType()) + " " + GetName() + " : " + String(Properties.size()) + " properties, " + String(Functions.size()) + " functions, " + String(Constructors.size()) + " constructors.");
 
 	Utils::Log("\t\t\t\t+ Constructors : ");
 	for (const auto& Constructor : Constructors) {

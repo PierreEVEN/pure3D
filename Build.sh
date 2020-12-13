@@ -1,3 +1,4 @@
 #!/bin/bash
 
-cmake -B ./Intermediates
+cd Tools
+./Build-Default.sh

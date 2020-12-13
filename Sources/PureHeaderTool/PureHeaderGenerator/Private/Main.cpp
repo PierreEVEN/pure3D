@@ -13,9 +13,13 @@ int main(int argc, const char* argv[]) {
 
 	String ModulePathStr;
 	String ModuleName;
+	String DebugMode;
 
 	Utils::Ensure(Utils::GetOption(argc, argv, "ModuleName", ModuleName), "Missing 'ModuleName' option");
 	Utils::Ensure(Utils::GetOption(argc, argv, "ModulePath", ModulePathStr), "Missing 'ModulePath' option");
+	if (Utils::GetOption(argc, argv, "Debug", DebugMode)) 
+		Utils::PHT_DEBUG_MODE = DebugMode == "ON";
+	else Utils::PHT_DEBUG_MODE = false;
 
 	std::filesystem::path ModulePath(ModulePathStr.GetData());
 
@@ -26,12 +30,17 @@ int main(int argc, const char* argv[]) {
 
 	const auto& Duration = std::chrono::steady_clock::now() - StartTime;
 
-	Utils::Log("Running reflection tool on " + ModuleName + " (" + String(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count()) + " ms)");
-	Utils::Log("\t- Found " + String(Data.size()) + String(" headers."));
-	for (const auto& File : Data) {
-		Utils::Log("\t\t-> " + File->GetFile().GetName() + " : " + String(File->GetObjects().size()) + " objects");
-		for (const auto& Object : File->GetObjects()) {
-			Object->Log();
+	size_t Objects = 0;
+	for (const auto& File : Data) for (const auto& Object : File->GetObjects()) Objects++;
+
+	Utils::Log("Running reflection tool on " + ModuleName + " (" + String(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count()) + " ms - " + String(Objects) + " objects)"  + (Utils::PHT_DEBUG_MODE ? " - DEBUG MODE" : ""));
+	if (Utils::PHT_DEBUG_MODE) {
+		Utils::Log("\t- Found " + String(Data.size()) + String(" headers."));
+		for (const auto& File : Data) {
+			Utils::Log("\t\t-> " + File->GetFile().GetName() + " : " + String(File->GetObjects().size()) + " objects");
+			for (const auto& Object : File->GetObjects()) {
+				Object->Log();
+			}
 		}
 	}
 

@@ -10,4 +10,6 @@ namespace Utils {
 	bool IsStartingWith(const char* Data, const char* Start);
 
 	bool IsVoidChar(const char Char);
+
+	inline static bool PHT_DEBUG_MODE;
 }

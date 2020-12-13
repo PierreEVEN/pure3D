@@ -9,6 +9,10 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 	message(FATAL_ERROR "32-bits is not supported")
 endif()
 
+# Options
+option(PHT_DEBUG "Enable debug mode for PureReflectionTool" OFF)
+
+
 # Set compiler options
 set(CMAKE_CXX_STANDARD 17)
 if (WIN32)
@@ -44,8 +48,8 @@ function(use_reflection)
 	set(REFLECTION_TARGET ${TARGET}_ReflectionGenerator)
 	
 	add_custom_target(${REFLECTION_TARGET} ALL
-					COMMAND "$<TARGET_FILE:PureHeaderGenerator>" -ModuleName="${TARGET}" -ModulePath="${CMAKE_CURRENT_SOURCE_DIR}" -OutDir="${REFLECTION_DIR}/${TARGET}" )
-	
+					COMMAND "$<TARGET_FILE:PureHeaderGenerator>" -ModuleName="${TARGET}" -ModulePath="${CMAKE_CURRENT_SOURCE_DIR}" -Debug=${PHT_DEBUG})
+					
 	set_target_properties(${REFLECTION_TARGET} PROPERTIES FOLDER "ReflectionData")
 	
 	add_dependencies(${REFLECTION_TARGET} PureHeaderGenerator)
