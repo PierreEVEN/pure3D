@@ -100,27 +100,24 @@ String String::RemoveBorderSpaces(const String& line)
 {
 	if (line.length <= 0) return "";
 	String out = "";
-	size_t start = 0, stop = line.length - 1;
+	int64_t start = 0, stop = line.length - 1;
 	for (size_t i = 0; i < line.length; ++i)
 	{
-		if (line[i] != ' ' && line[i] != '\t')
+		if (line[i] != ' ' && line[i] != '\t' && line[i] != '\n')
 		{
 			start = i;
 			break;
 		}
 	}
-	for (size_t i = line.length - 1; i > 0; --i)
-	{
-		if (line[i] != ' ' && line[i] != '\t')
-		{
-			stop = i;
-			break;
-		}
+	for (size_t i = line.length - 1; i >= 0; --i) {
+		if (line[i] == ' ' || line[i] == '\t' || line[i] == '\n') continue;
+		stop = i;
+		break;
 	}
 	if (start > stop) return "";
-	for (size_t i = start; i <= stop; ++i)
+	for (size_t i = start; i <= stop; ++i) {
 		out += line[i] == '\t' ? ' ' : line[i];
-
+	}
 	return out;
 }
 

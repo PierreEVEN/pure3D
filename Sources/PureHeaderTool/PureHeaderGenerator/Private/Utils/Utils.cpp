@@ -28,3 +28,14 @@ void Utils::Ensure(bool condition, const String& message) {
 	}
 }
 
+
+bool Utils::IsStartingWith(const char* Data, const char* Start) {
+	for (int i = 0; Start[i] != '\0'; ++i) {
+		if (Data[i] == '\0' || Data[i] != Start[i]) return false;
+	}
+	return true;
+}
+
+bool Utils::IsVoidChar(const char Char) {
+	return Char == ' ' || Char == '\n' || Char == '\t' || Char == '\r';
+}

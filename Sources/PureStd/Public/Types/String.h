@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <iosfwd>
+#include <iostream>
 
 #ifndef STRING_MINIMAL_LENGTH
 #define STRING_MINIMAL_LENGTH 16
@@ -109,54 +110,54 @@ public:
 	inline const char& operator[](size_t pos) const { return data[pos]; }
 
 	/* Operator -= */
-	inline String& operator-=(const size_t& _Val) { SetLength(length - _Val); return *this; }
+	inline String& operator-=(const size_t _Val) { SetLength(length - _Val); return *this; }
 
 	/* Operator << */
 	inline String& operator<<(const String& _Val) { return Append(_Val); }
 	inline String& operator<<(const char* _Val) { return Append(_Val); }
-	inline String& operator<<(const char& _Val) { return Append(_Val); }
+	inline String& operator<<(const char _Val) { return Append(_Val); }
 	inline String& operator<<(void* _Val) { return Append("ptr"); }
-	inline String& operator<<(const int64_t& _Val) { return Append(ToString(_Val)); }
-	inline String& operator<<(const uint64_t& _Val) { return Append(ToString(_Val)); }
-	inline String& operator<<(const int32_t& _Val) { return Append(ToString(_Val)); }
-	inline String& operator<<(const uint32_t& _Val) { return Append(ToString(_Val)); }
-	inline String& operator<<(const float& _Val) { return Append(ToString(_Val)); }
-	inline String& operator<<(const double& _Val) { return Append(ToString(_Val)); }
+	inline String& operator<<(const int64_t _Val) { return Append(ToString(_Val)); }
+	inline String& operator<<(const uint64_t _Val) { return Append(ToString(_Val)); }
+	inline String& operator<<(const int32_t _Val) { return Append(ToString(_Val)); }
+	inline String& operator<<(const uint32_t _Val) { return Append(ToString(_Val)); }
+	inline String& operator<<(const float _Val) { return Append(ToString(_Val)); }
+	inline String& operator<<(const double _Val) { return Append(ToString(_Val)); }
 	inline String& operator<<(const IStringable& _Val) { return Append(_Val.ToString()); }
 
 	/* Operator += */
 	inline String& operator+=(const String& _Val) { return Append(_Val); }
 	inline String& operator+=(const char* _Val) { return Append(_Val); }
-	inline String& operator+=(const char& _Val) { return Append(_Val); }
+	inline String& operator+=(const char _Val) { return Append(_Val); }
 	inline String& operator+=(void* _Val) { return Append("ptr"); }
-	inline String& operator+=(const int64_t& _Val) { return Append(ToString(_Val)); }
-	inline String& operator+=(const uint64_t& _Val) { return Append(ToString(_Val)); }
-	inline String& operator+=(const int32_t& _Val) { return Append(ToString(_Val)); }
-	inline String& operator+=(const uint32_t& _Val) { return Append(ToString(_Val)); }
-	inline String& operator+=(const float& _Val) { return Append(ToString(_Val)); }
-	inline String& operator+=(const double& _Val) { return Append(ToString(_Val)); }
+	inline String& operator+=(const int64_t _Val) { return Append(ToString(_Val)); }
+	inline String& operator+=(const uint64_t _Val) { return Append(ToString(_Val)); }
+	inline String& operator+=(const int32_t _Val) { return Append(ToString(_Val)); }
+	inline String& operator+=(const uint32_t _Val) { return Append(ToString(_Val)); }
+	inline String& operator+=(const float _Val) { return Append(ToString(_Val)); }
+	inline String& operator+=(const double _Val) { return Append(ToString(_Val)); }
 	inline String& operator+=(const IStringable& _Val) { return Append(_Val.ToString()); }
 
 	/* Operator + */
 	inline String operator+(const String& _Val) const { return Concatenate(String(GetData()), String(_Val)); }
 	inline String operator+(const char* _Val) const { return Concatenate(String(GetData()), String(_Val)); }
-	inline String operator+(const char& _Val) const { return Concatenate(String(GetData()), String(_Val)); }
-	inline String operator+(const int64_t& _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
-	inline String operator+(const uint64_t& _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
-	inline String operator+(const int32_t& _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
-	inline String operator+(const uint32_t& _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
-	inline String operator+(const double& _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
-	inline String operator+(const float& _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
+	inline String operator+(const char _Val) const { return Concatenate(String(GetData()), String(_Val)); }
+	inline String operator+(const int64_t _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
+	inline String operator+(const uint64_t _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
+	inline String operator+(const int32_t _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
+	inline String operator+(const uint32_t _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
+	inline String operator+(const double _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
+	inline String operator+(const float _Val) const { return Concatenate(String(GetData()), ToString(_Val)); }
 	inline String operator+(const IStringable& _Val) const { return Concatenate(String(GetData()), _Val.ToString()); }
 
 	/* Operator = */
 	inline String operator=(const String& other) { return CopyTo(other, this); }
-	inline String operator=(const char& other) { return CopyTo(other, this); }
+	inline String operator=(const char other) { return CopyTo(other, this); }
 	inline String operator=(const char* other) { return CopyTo(other, this); }
-	inline String operator=(const int64_t& other) { return CopyTo(ToString(other), this); }
-	inline String operator=(const int32_t& other) { return CopyTo(ToString(other), this); }
-	inline String operator=(const double& other) { return CopyTo(ToString(other), this); }
-	inline String operator=(const float& other) { return CopyTo(ToString(other), this); }
+	inline String operator=(const int64_t other) { return CopyTo(ToString(other), this); }
+	inline String operator=(const int32_t other) { return CopyTo(ToString(other), this); }
+	inline String operator=(const double other) { return CopyTo(ToString(other), this); }
+	inline String operator=(const float other) { return CopyTo(ToString(other), this); }
 	inline String operator=(const IStringable& other) { return CopyTo(other.ToString(), this); }
 
 	/* Tests */
@@ -181,6 +182,19 @@ public:
 		for (size_t i = thisLength; i < length; ++i)
 			data[i] = other.data[i - thisLength];
 		return *this;
+	}
+
+	inline String SubString(int From) {
+		return SubString(From, Length() - 1);
+	}
+
+	inline String SubString(int From, int To) {
+		String Result = "";
+		if (From < 0) From = 0;
+		for (int i = From; i <= To && i < Length(); ++i) {
+			Result << data[i];
+		}
+		return Result;
 	}
 
 	inline bool IsStartingWith(const String& start) const {
@@ -281,9 +295,11 @@ private:
 
 namespace std {
 	template<> struct hash<String> {
+
 		std::size_t operator()(const String& t) const {
 			hash<std::string> chrHash;
-			return chrHash(t.GetData());
+			std::size_t result = chrHash(t.GetData());
+			return result;
 		}
 	};
 }

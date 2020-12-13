@@ -6,4 +6,10 @@ namespace Utils {
 
 	void Log(const String& message);
 	void Ensure(bool condition, const String& message);
+
+	bool IsStartingWith(const char* Data, const char* Start);
+
+	bool IsVoidChar(const char Char);
+
+	inline static bool PHT_DEBUG_MODE;
 }
