@@ -15,9 +15,10 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 
 	Result.Line(Data->GetFile().GetDateFormated());
 	Result.Br();
-	Result.Include(ReflHeaderPath);
+	Result.Include(ReflHeaderPath); 
 	Result.Include(HeaderPath);
 	Result.Include("Reflection/RProperty.h");
+	Result.Include("Reflection/RFunction.h");
 
 	for (const auto& Object : Data->GetObjects()) {
 
@@ -43,6 +44,14 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 			
 			for (const auto& Property : ((Parser::SStruct*)Object)->GetProperties()) {
 				Result.Line(StaticClassName + "->AddProperty(new RProperty(nullptr, \"" + Property.PropertyName + "\", offsetof(" + Object->GetName() + ", " + Property.PropertyName + ")));");
+			}
+			for (const auto& Function : ((Parser::SStruct*)Object)->GetFunctions()) {
+				String Params = Function.Parameters.size() == 0 ? "" : ", ";
+				for (int i = 0; i < Function.Parameters.size(); ++i)
+					Params << Function.Parameters[i].PropertyType << (i == Function.Parameters.size() - 1 ? "" : ", ");
+				
+				Result.Line(StaticClassName + "->AddFunction(new RFunction<" + Function.ReturnType + ", " + Object->GetName() + Params + ">(\"" + Function.FunctionName + "\", &" + Object->GetName() + "::" + Function.FunctionName + ", nullptr, {}));");
+				//RFunction<double, ChildOneTwo, int, int, int>* Func = new RFunction<double, ChildOneTwo, int, int, int>("MyFunc", &ChildOneTwo::FunctionB, nullptr, {});
 			}
 			Result.UnIndent();
 			Result.Line("}");

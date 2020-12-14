@@ -4,8 +4,10 @@
 
 #include <vector>
 #include <unordered_map>
+#include "RFunction.h"
 
 struct RProperty;
+struct IFunctionPointer;
 
 struct RClass : public RType {
 
@@ -46,6 +48,18 @@ struct RClass : public RType {
      */
     void AddProperty(RProperty* inProperty);
 
+    /**
+     * Add reflected property for this class
+     */
+    void AddFunction(IFunctionPointer* inProperty);
+
+    template<typename ReturnType, typename Class, typename... Arguments>
+    RFunction<ReturnType, Class, Arguments...>* GetFunction(const String& PropertyName) const {
+        return (RFunction<ReturnType, Class, Arguments...>*)GetFunction(PropertyName);
+    }
+
+	IFunctionPointer* GetFunction(const String& PropertyName) const;
+
     RProperty* GetProperty(const String& PropertyName) const;
 
 private:
@@ -60,6 +74,10 @@ private:
      */
     std::unordered_map<String, RProperty*> Properties;
 
+    /**
+     * Class properties
+     */
+    std::unordered_map<String, IFunctionPointer*> Functions;
     /**
      * Parent classes
      */

@@ -142,6 +142,12 @@ SFunctionData Parser::SStruct::ParseFunction(SStateMachine Content) {
 				TempIndentationLevel--;
 			}			
 		}
+		else {
+			if (Utils::IsStartingWith(CurrentData, "virtual")) {
+				Content.CurrentPos += String("virtual").Length();
+				continue;
+			}
+		}
 
 
 		if (Utils::IsVoidChar(CurrentData[0])) {

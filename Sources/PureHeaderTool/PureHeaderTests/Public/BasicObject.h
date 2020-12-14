@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "BasicObject.refl.h"
+#include "IO/Log.h"
 
 REFLECT();
 enum class BasicEnum { BASIC_ONE, BASIC_TWO, BASIC_THREE };
@@ -66,7 +67,7 @@ class BasicObject {
 	RFUNCTION()
 		void TestFuncA () {}
 
-	RFUNCTION()
+	//RFUNCTION()
 		const int* TestFuncB(std::unordered_map<float, int> inA, int inB) { return nullptr; }
 };
 
@@ -188,8 +189,10 @@ struct ChildOneTwo : public ParentOne, public ParentTwo {
 		BasicStructure D;
 
 	RFUNCTION()
-		virtual void FunctionA() {}
+		virtual void FunctionA() {
+		LOG("CALL FUNCTION A");
+	}
 
 	RFUNCTION()
-		virtual double FunctionB(int A, int B, int C) { return A + B + C; }
+		virtual double FunctionB(int inA, int inB, int inC) { return A + inB + inC; }
 };
