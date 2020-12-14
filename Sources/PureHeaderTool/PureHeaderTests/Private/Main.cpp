@@ -2,34 +2,28 @@
 #include "BasicObject.h"
 #include "Reflection/RType.h"
 #include "IO/Log.h"
-
-REFL_DECLARE_TYPENAME(bool);
-REFL_DECLARE_TYPENAME(int32_t);
-REFL_DECLARE_TYPENAME(uint32_t);
-REFL_DECLARE_TYPENAME(int64_t);
-REFL_DECLARE_TYPENAME(uint64_t);
-REFL_DECLARE_TYPENAME(float);
-REFL_DECLARE_TYPENAME(double);
+#include "Reflection/RProperty.h"
+#include "Reflection/RFunction.h"
 
 int main() {
+	RClass* Class1 = BasicStructure().GetClass();
+	RClass* Class2 = BasicObject::GetStaticClass();
 
-	REFL_REGISTER_TYPE(bool);
-	REFL_REGISTER_TYPE(int32_t);
-	REFL_REGISTER_TYPE(uint32_t);
-	REFL_REGISTER_TYPE(int64_t);
-	REFL_REGISTER_TYPE(uint64_t);
-	REFL_REGISTER_TYPE(float);
-	REFL_REGISTER_TYPE(double);
+	ChildOneTwo Object(40, 28.4598, 32.5f);
+	RProperty* A = Object.GetClass()->GetProperty("A");
+	RProperty* B = Object.GetClass()->GetProperty("B");
+	RProperty* C = Object.GetClass()->GetProperty("C");
+	RProperty* D = Object.GetClass()->GetProperty("D");
 
-	const RClass* str = RClass::GetClass<BasicStructure>();
-	const RClass* cl = RClass::GetClass<BasicObject>();
-	const RType* ty1 = RType::GetType<double>();
-	const RType* ty2 = RType::GetType("float");
+	LOG(Class1->GetName() + " size : " + Class1->GetSize());
+	LOG(Class2->GetName() + " size : " + Class2->GetSize());
+	LOG(A->GetName() + " : " + *A->Get<int>(&Object));
+	LOG(B->GetName() + " : " + *B->Get<double>(&Object));
+	LOG(C->GetName() + " : " + *C->Get<float>(&Object));
+	LOG(D->GetName() + " : " + D->Get<BasicStructure>(&Object)->A);
 
-	LOG(str->GetName() + " size : " + str->GetSize());
-	LOG(cl->GetName() + " size : " + cl->GetSize());
-	LOG(ty1->GetName() + " size : " + ty1->GetSize());
-	LOG(ty2->GetName() + " size : " + ty2->GetSize());
-	
+	RFunction<double, ChildOneTwo, int, int, int>* Func = new RFunction<double, ChildOneTwo, int, int, int>("MyFunc", &ChildOneTwo::FunctionB, nullptr, {});
+	LOG(Func->GetName() + " : " + Func->Execute(Object, 10, 20, 30));
+
     return 0;
-}
+}	

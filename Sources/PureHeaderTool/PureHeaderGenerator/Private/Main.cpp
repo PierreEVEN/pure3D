@@ -56,8 +56,12 @@ int main(int argc, const char* argv[]) {
 
 	Utils::Log("Running reflection tool on " + ModuleName + " (" + String(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count()) + " ms - " + String(Objects) + " objects)" + (Utils::PHT_DEBUG_MODE ? " - DEBUG MODE" : "") + " : " + UpToDates + " files updates.");
 	if (Utils::PHT_DEBUG_MODE)
-		for (const auto& Object : Parser::ReflectedObjects)
-			Object.second->Log();
+		for (const auto& File : Parser::ReflectedFiles) {
+			Utils::Log("\t-> file : " + File.second->GetFile().GetName() + ".h");
+			for (const auto& Object : File.second->GetObjects()) {
+				Object->Log();
+			}
+		}
 
 
 	for (const auto& Object : Parser::ReflectedFiles) delete Object.second;

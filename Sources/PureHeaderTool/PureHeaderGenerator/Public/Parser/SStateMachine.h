@@ -12,7 +12,10 @@ namespace Parser {
 		bool PauseCapture = false;
 		size_t IndentationLevel = 0;
 		String Content = "";
+		size_t CurrentLine = 0;
 
 		bool DoesSkipChar(const char* Position);
+
+		void CountLine(const char CurrentChar);
 	};
 }

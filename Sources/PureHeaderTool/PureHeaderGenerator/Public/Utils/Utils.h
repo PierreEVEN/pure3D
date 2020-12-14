@@ -12,4 +12,5 @@ namespace Utils {
 	bool IsVoidChar(const char Char);
 
 	inline static bool PHT_DEBUG_MODE;
+	size_t GenURID();
 }

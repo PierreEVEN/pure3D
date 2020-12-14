@@ -12,7 +12,11 @@ namespace Writer {
 
 		void Include(const String& file);
 		void Line(const String& Content, const String& Comment = "");
-		void PragmaOnce();
+		void Define(const String& Key, const String& Def = "", const String& Comment = "");
+		void UnDef(const String& Def);
+		void IfNDef(const String& Def);
+		void EndIf(String Comment = "");
+		void PragmaOnce(const String& FileName);
 		void ForwardDeclaration(Parser::SObject* Object);
 		void DeclareTypeName(const String& TypeName);
 		void Br(int Number = 1);

@@ -3,6 +3,7 @@
 #include "RType.h"
 
 #include <vector>
+#include <unordered_map>
 
 struct RProperty;
 
@@ -30,7 +31,6 @@ struct RClass : public RType {
     template<typename Class>
     static RClass* RegisterClass(const String& inClassName) {
         static_assert(RIsReflected<Class>::Value, "Not a reflected class, please declare this class as a reflected class.");
-
         RClass* RegisteredClass = RType::RegisterType<Class, RClass>(inClassName);
         RegisterClass_Internal(inClassName, RegisteredClass);
         return RegisteredClass;
@@ -44,9 +44,9 @@ struct RClass : public RType {
     /**
      * Add reflected property for this class
      */
-    inline void AddProperty(RProperty* inProperty) {
-        Properties.push_back(inProperty);
-    }
+    void AddProperty(RProperty* inProperty);
+
+    RProperty* GetProperty(const String& PropertyName) const;
 
 private:
 
@@ -58,7 +58,7 @@ private:
     /**
      * Class properties
      */
-    std::vector<RProperty*> Properties;
+    std::unordered_map<String, RProperty*> Properties;
 
     /**
      * Parent classes

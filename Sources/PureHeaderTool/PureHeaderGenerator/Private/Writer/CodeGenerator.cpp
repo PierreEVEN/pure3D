@@ -12,7 +12,25 @@ void Writer::SCodeGenerator::Line(const String& Content, const String& Comment) 
 	Data << Content << (Comment == "" ? "" : " // " + Comment) + '\n';
 }
 
-void Writer::SCodeGenerator::PragmaOnce() {
+void Writer::SCodeGenerator::Define(const String& Key, const String& Def, const String& Comment) {
+	Line("#define " + Key + " " + Def, Comment);
+}
+
+void Writer::SCodeGenerator::UnDef(const String& Def) {
+	Line("#undef " + Def);
+}
+
+void Writer::SCodeGenerator::IfNDef(const String& Def) {
+	Line("#ifndef " + Def);
+}
+
+void Writer::SCodeGenerator::EndIf(String Comment /*= ""*/)
+{
+	Line("#endif ", Comment);
+}
+
+void Writer::SCodeGenerator::PragmaOnce(const String& FileName) {
+	Line("#pragma once", "pragma once");
 	Line("#pragma once", "pragma once");
 }
 

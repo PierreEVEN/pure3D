@@ -17,6 +17,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 	Result.Br();
 	Result.Include(ReflHeaderPath);
 	Result.Include(HeaderPath);
+	Result.Include("Reflection/RProperty.h");
 
 	for (const auto& Object : Data->GetObjects()) {
 
@@ -33,11 +34,16 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 			String BuilderFunction = "_Refl_Register_Function_" + Object->GetName();
 
 			Result.Line("RClass* " + StaticClassName + " = nullptr;", "static class reference");
-
+			Result.Line("RClass* " + Object->GetName() + "::GetStaticClass() { return " + StaticClassName + "; }");
+			Result.Line("RClass* " + Object->GetName() + "::GetClass() const { return " + StaticClassName + "; }");
 			Result.Br();
 			Result.Line("void " + BuilderFunction + "() {", "Builder function");
 			Result.Indent();
-			Result.Line("REFL_REGISTER_CLASS(" + Object->GetName() + ");");
+			Result.Line(StaticClassName + " = REFL_REGISTER_CLASS(" + Object->GetName() + ");");
+			
+			for (const auto& Property : ((Parser::SStruct*)Object)->GetProperties()) {
+				Result.Line(StaticClassName + "->AddProperty(new RProperty(nullptr, \"" + Property.PropertyName + "\", offsetof(" + Object->GetName() + ", " + Property.PropertyName + ")));");
+			}
 			Result.UnIndent();
 			Result.Line("}");
 
