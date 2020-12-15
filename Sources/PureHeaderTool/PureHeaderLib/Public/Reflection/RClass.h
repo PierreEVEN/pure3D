@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include "RFunction.h"
+#include "RConstructor.h"
 
 struct RProperty;
 struct IFunctionPointer;
@@ -56,7 +57,9 @@ struct RClass : public RType {
     /**
      * Add reflected property for this class
      */
-    void AddConstructor(IFunctionPointer* inConstructor);
+    void AddConstructor(RConstructor* inConstructor) {
+        Constructors.push_back(inConstructor);
+    }
 
     template<typename ReturnType, typename Class, typename... Arguments>
     RFunction<ReturnType, Class, Arguments...>* GetFunction(const String& PropertyName) const {
@@ -64,15 +67,15 @@ struct RClass : public RType {
     }
 
 	IFunctionPointer* GetFunction(const String& PropertyName) const;
-	IFunctionPointer* GetConstructor(const String& PropertyName) const;
 
     RProperty* GetProperty(const String& PropertyName) const;
 
-    template<typename Type = void, typename... Arguments>
-    inline Type* InstantiateNew(Arguments&&... inArguments) {
-
-
-        //return static_cast<T*>()
+    template<typename... Arguments>
+    inline void* InstantiateNew(Arguments&&... inArguments) {
+        for (const auto& Ctor : Constructors) {
+            if (void* InstanciedObject = Ctor->InstanciateNew<Arguments...>(std::forward<Arguments>(inArguments)...))
+                return InstanciedObject;
+        }
         return nullptr;
     }
 
@@ -96,7 +99,8 @@ private:
     /**
      * Class properties
      */
-    std::unordered_map<String, IFunctionPointer*> Constructors;
+    std::vector<RConstructor*> Constructors;
+
     /**
      * Parent classes
      */

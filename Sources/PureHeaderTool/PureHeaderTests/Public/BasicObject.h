@@ -52,7 +52,6 @@ class BasicObject {
 	RCONSTRUCTOR()
 		BasicObject() {}
 
-	RCONSTRUCTOR()
 		BasicObject(std::unordered_map<float, int> inA, float inB) : A(inA), B(inB) {}
 
 	RPROPERTY()
@@ -174,7 +173,9 @@ struct ChildOneTwo : public ParentOne, public ParentTwo {
 	RCONSTRUCTOR()
 		ChildOneTwo() = default;
 	RCONSTRUCTOR()
-	ChildOneTwo(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {}
+	ChildOneTwo(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {
+		LOG("create ChildOneTwo : " + String(A) + " " + B + " " + C);
+	}
 
 	RPROPERTY()
 		int A = 18;

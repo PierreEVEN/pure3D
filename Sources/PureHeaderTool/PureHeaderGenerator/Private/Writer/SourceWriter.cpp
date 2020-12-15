@@ -53,6 +53,15 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 				Result.Line(StaticClassName + "->AddFunction(new RFunction<" + Function.ReturnType + ", " + Object->GetName() + Params + ">(\"" + Function.FunctionName + "\", &" + Object->GetName() + "::" + Function.FunctionName + ", nullptr, {}));");
 				//RFunction<double, ChildOneTwo, int, int, int>* Func = new RFunction<double, ChildOneTwo, int, int, int>("MyFunc", &ChildOneTwo::FunctionB, nullptr, {});
 			}
+
+			for (const auto& Constructor : ((Parser::SStruct*)Object)->GetConstructors()) {
+				String Params = Constructor.Parameters.size() == 0 ? "" : ", ";
+				for (int i = 0; i < Constructor.Parameters.size(); ++i)
+					Params << Constructor.Parameters[i].PropertyType << (i == Constructor.Parameters.size() - 1 ? "" : ", ");
+				Result.Line(StaticClassName + "->AddConstructor(RConstructor::MakeConstructor<" + Object->GetName() + Params + ">());");
+			}
+
+
 			Result.UnIndent();
 			Result.Line("}");
 

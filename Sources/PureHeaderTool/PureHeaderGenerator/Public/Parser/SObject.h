@@ -40,7 +40,7 @@ namespace Parser {
 		const size_t& GetReflectionBodyLine() const { return ReflectionBodyLine; }
 		const std::vector<SPropertyData>& GetProperties() const { return Properties; }
 		const std::vector<SFunctionData>& GetFunctions() const { return Functions; }
-		const std::vector<SFunctionData>& GetCnostructors() const { return Constructors; }
+		const std::vector<SFunctionData>& GetConstructors() const { return Constructors; }
 
 	private:
 		SFunctionData ParseFunction(SStateMachine Content);

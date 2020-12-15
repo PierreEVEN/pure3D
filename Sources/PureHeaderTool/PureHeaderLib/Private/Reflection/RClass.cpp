@@ -25,20 +25,9 @@ void RClass::AddFunction(IFunctionPointer* inFunction)
 	Functions[inFunction->GetName()] = inFunction;
 }
 
-void RClass::AddConstructor(IFunctionPointer* inConstructor) {
-	ReflEnsure(Constructors.find(inConstructor->GetName()) == Constructors.end(), inConstructor->GetName() + " is already registered.");
-	Constructors[inConstructor->GetName()] = inConstructor;
-}
-
 IFunctionPointer* RClass::GetFunction(const String& FunctionName) const {
 	const auto& Value = Functions.find(FunctionName);
 	if (Value == Functions.end()) return nullptr;
-	return Value->second;
-}
-
-IFunctionPointer* RClass::GetConstructor(const String& ConstructorName) const {
-	const auto& Value = Constructors.find(ConstructorName);
-	if (Value == Constructors.end()) return nullptr;
 	return Value->second;
 }
 
