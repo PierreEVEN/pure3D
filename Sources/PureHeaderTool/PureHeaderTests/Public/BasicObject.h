@@ -52,6 +52,7 @@ class BasicObject {
 	RCONSTRUCTOR()
 		BasicObject() {}
 
+	RCONSTRUCTOR()
 		BasicObject(std::unordered_map<float, int> inA, float inB) : A(inA), B(inB) {}
 
 	RPROPERTY()
@@ -66,7 +67,7 @@ class BasicObject {
 	RFUNCTION()
 		void TestFuncA () {}
 
-	//RFUNCTION()
+	RFUNCTION()
 		const int* TestFuncB(std::unordered_map<float, int> inA, int inB) { return nullptr; }
 };
 

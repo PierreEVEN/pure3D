@@ -164,7 +164,7 @@ SFunctionData Parser::SStruct::ParseFunction(SStateMachine Content) {
 		}
 
 		if (Status.IsReadingStructure) {
-			if (CurrentData[0] == ',') {
+			if (TempIndentationLevel == 0 && CurrentData[0] == ',') {
 				if (Status.Content != "") {
 					Properties.push_back(ParseVariable(Status));
 					Status.Content = "";
@@ -221,7 +221,9 @@ Parser::SPropertyData Parser::SStruct::ParseVariable(SStateMachine Content) {
 			Status.IndentationLevel--;
 
 		//Stop when encountering =,;
-		if (Status.IndentationLevel == 0 && (CurrentData[0] == '=' || CurrentData[0] == ';' || CurrentData[0] == ',')) break;
+		if (Status.IndentationLevel == 0 && (CurrentData[0] == '=' || CurrentData[0] == ';' || CurrentData[0] == ',')) {
+			break;
+		}
 
 		if (Utils::IsVoidChar(CurrentData[0])) {
 			Status.PauseCapture = true;
