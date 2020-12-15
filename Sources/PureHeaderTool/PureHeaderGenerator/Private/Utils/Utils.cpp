@@ -39,3 +39,10 @@ bool Utils::IsStartingWith(const char* Data, const char* Start) {
 bool Utils::IsVoidChar(const char Char) {
 	return Char == ' ' || Char == '\n' || Char == '\t' || Char == '\r';
 }
+
+inline size_t REFLECTION_UNIQUE_ID = 0;
+
+size_t Utils::GenURID()
+{
+	return REFLECTION_UNIQUE_ID++;
+}

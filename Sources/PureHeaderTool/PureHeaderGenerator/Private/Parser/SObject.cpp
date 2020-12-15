@@ -8,7 +8,7 @@ using namespace Parser;
 /* SEnum                                                                */
 /************************************************************************/
 
-void Parser::SEnum::ParseContent(const String& Content) {
+void Parser::SEnum::ParseContent(const String& Content, size_t LineIndex) {
 	SStateMachine Status;
 
 	for (Status.CurrentPos = 0; Status.CurrentPos < Content.Length(); ++Status.CurrentPos) {
@@ -47,18 +47,21 @@ void Parser::SEnum::Log() {
 /* SStruct                                                              */
 /************************************************************************/
 
-void Parser::SStruct::ParseContent(const String& Content) {
+void Parser::SStruct::ParseContent(const String& Content, size_t LineIndex) {
 	SStateMachine Status;
 	Status.Content = Content;
 
 	for (Status.CurrentPos = 0; Status.CurrentPos < Status.Content.Length(); ++Status.CurrentPos) {
 		const char* CurrentData = &Status.Content.GetData()[Status.CurrentPos];
 
+		Status.CountLine(CurrentData[0]);
+
 		//Wait for structure beginning
 		if (!Status.IsReadingStructure) {
 			if (CurrentData[0] == '{') Status.IsReadingStructure = true;
 			continue;
 		}
+		if (Utils::IsStartingWith(CurrentData, "REFLECT_BODY()")) ReflectionBodyLine = Status.CurrentLine + LineIndex;
 		if (Utils::IsStartingWith(CurrentData, "RPROPERTY(")) Properties.push_back(ParseProperty(Status));
 		else if (Utils::IsStartingWith(CurrentData, "RFUNCTION(")) Functions.push_back(ParseFunction(Status));
 		else if (Utils::IsStartingWith(CurrentData, "RCONSTRUCTOR(")) Constructors.push_back(ParseConstructor(Status));
@@ -139,6 +142,12 @@ SFunctionData Parser::SStruct::ParseFunction(SStateMachine Content) {
 				TempIndentationLevel--;
 			}			
 		}
+		else {
+			if (Utils::IsStartingWith(CurrentData, "virtual")) {
+				Content.CurrentPos += String("virtual").Length();
+				continue;
+			}
+		}
 
 
 		if (Utils::IsVoidChar(CurrentData[0])) {
@@ -155,7 +164,7 @@ SFunctionData Parser::SStruct::ParseFunction(SStateMachine Content) {
 		}
 
 		if (Status.IsReadingStructure) {
-			if (CurrentData[0] == ',') {
+			if (TempIndentationLevel == 0 && CurrentData[0] == ',') {
 				if (Status.Content != "") {
 					Properties.push_back(ParseVariable(Status));
 					Status.Content = "";
@@ -212,7 +221,9 @@ Parser::SPropertyData Parser::SStruct::ParseVariable(SStateMachine Content) {
 			Status.IndentationLevel--;
 
 		//Stop when encountering =,;
-		if (Status.IndentationLevel == 0 && (CurrentData[0] == '=' || CurrentData[0] == ';' || CurrentData[0] == ',')) break;
+		if (Status.IndentationLevel == 0 && (CurrentData[0] == '=' || CurrentData[0] == ';' || CurrentData[0] == ',')) {
+			break;
+		}
 
 		if (Utils::IsVoidChar(CurrentData[0])) {
 			Status.PauseCapture = true;

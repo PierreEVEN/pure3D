@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "BasicObject.refl.h"
+#include "IO/Log.h"
 
 REFLECT();
 enum class BasicEnum { BASIC_ONE, BASIC_TWO, BASIC_THREE };
@@ -68,4 +69,132 @@ class BasicObject {
 
 	RFUNCTION()
 		const int* TestFuncB(std::unordered_map<float, int> inA, int inB) { return nullptr; }
+};
+
+REFLECT();
+struct ParentOne {
+	REFLECT_BODY();
+
+	RCONSTRUCTOR()
+		ParentOne() = default;
+	RCONSTRUCTOR()
+		ParentOne(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {}
+
+	RPROPERTY()
+		int A = 24;
+
+	RPROPERTY()
+		double B = 32.897;
+
+	RPROPERTY()
+		float C = 8.4f;
+
+	RFUNCTION()
+		virtual void FunctionA() {}
+
+	RFUNCTION()
+		virtual double FunctionB(int A, int B, int C) { return 12.87; }
+};
+
+REFLECT();
+struct ParentTwo {
+	REFLECT_BODY();
+
+	RCONSTRUCTOR()
+		ParentTwo() = default;
+
+	RCONSTRUCTOR()
+		ParentTwo(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {}
+
+	RPROPERTY()
+		int A = 25;
+
+	RPROPERTY()
+		double B = 38.897;
+
+	RPROPERTY()
+		float C = 7.4f;
+
+	RFUNCTION()
+		virtual void FunctionA() {}
+
+	RFUNCTION()
+		virtual double FunctionB(int A, int B, int C) { return 12.87; }
+};
+
+REFLECT();
+struct ChildOne : public ParentOne {
+	REFLECT_BODY();
+
+	RCONSTRUCTOR()
+		ChildOne() = default;
+	RCONSTRUCTOR()
+		ChildOne(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {}
+
+	RPROPERTY()
+		int A = 18;
+
+	RPROPERTY()
+		double B = 16.897;
+
+	RPROPERTY()
+		float C = 5.4f;
+};
+
+REFLECT();
+struct ChildTwo : public ParentTwo {
+	REFLECT_BODY();
+
+	RCONSTRUCTOR()
+		ChildTwo() = default;
+	RCONSTRUCTOR()
+		ChildTwo(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {}
+
+	RPROPERTY()
+		int A = 18;
+
+	RPROPERTY()
+		double B = 16.897;
+
+	RPROPERTY()
+		float C = 5.4f;
+
+	RFUNCTION()
+		virtual void FunctionA() {}
+
+	RFUNCTION()
+		virtual double FunctionB(int A, int B, int C) { return 12.87; }
+};
+
+REFLECT();
+struct ChildOneTwo : public ParentOne, public ParentTwo {
+
+	REFLECT_BODY();
+
+	RCONSTRUCTOR()
+		ChildOneTwo() = default;
+	RCONSTRUCTOR()
+	ChildOneTwo(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {
+		LOG("create ChildOneTwo : " + String(A) + " " + B + " " + C);
+	}
+
+	RPROPERTY()
+		int A = 18;
+
+	RPROPERTY()
+		double B = 16.897;
+
+	RPROPERTY()
+		float C = 5.4f;
+
+	RPROPERTY()
+		BasicStructure D;
+
+	RFUNCTION()
+		virtual void FunctionA() {
+		LOG("CALL FUNCTION A");
+	}
+
+	RFUNCTION()
+		virtual double FunctionB(int inA, int inB, int inC) { return A + inB + inC; }
 };

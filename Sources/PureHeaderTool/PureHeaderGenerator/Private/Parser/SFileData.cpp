@@ -64,31 +64,36 @@ Parser::SFileData::SFileData(const SFileReference& inFilePath)
 
 void Parser::SFileData::SFileData::ParseContent() {
 	SStateMachine Status;
+	Status.CurrentLine = 1;
 
 	String Simplified = Content;
+	size_t StructureBeginning = 0;
 
 
 	for (Status.CurrentPos = 0; Status.CurrentPos < Simplified.Length(); ++Status.CurrentPos) {
-		const char* currentData = &Simplified.GetData()[Status.CurrentPos];
+		const char* CurrentData = &Simplified.GetData()[Status.CurrentPos];
 
-		if (Status.DoesSkipChar(currentData)) continue;
+		Status.CountLine(CurrentData[0]);
+
+		if (Status.DoesSkipChar(CurrentData)) continue;
 
 		if (!Status.IsReadingStructure) {
-			if (Utils::IsStartingWith(currentData, "REFLECT(")) {
+			if (Utils::IsStartingWith(CurrentData, "REFLECT(")) {
+				StructureBeginning = Status.CurrentLine;
 				Status.IsReadingStructure = true;
 				Status.Content = "";
 			}
 		}
 
 		if (Status.IsReadingStructure) {
-			Status.Content << currentData[0];
-			if (currentData[0] == '{') {
+			Status.Content << CurrentData[0];
+			if (CurrentData[0] == '{') {
 				Status.IndentationLevel++;
 			}
-			else if (currentData[0] == '}') {
+			else if (CurrentData[0] == '}') {
 				Status.IndentationLevel--;
 				if (Status.IndentationLevel == 0) {
-					ParseStructureHeader(Status);
+					ParseStructureHeader(Status, StructureBeginning);
 					Status.IsReadingStructure = false;
 				}
 			}
@@ -96,13 +101,13 @@ void Parser::SFileData::SFileData::ParseContent() {
 	}
 }
 
-void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure) {
+void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure, const size_t StructureBeginning) {
 	SStateMachine Status;
 	EObjectType ObjectType = EObjectType::ObjType_None;
 	for (int i = 0; i < Structure.Content.Length(); ++i) {
 		const char* CurrentData = &Structure.Content.GetData()[i];
 
-		if (CurrentData[0] == '{') break;
+		if (CurrentData[0] == '{' || CurrentData[0] == ':') break;
 
 		//Extract structure type
 		if (ObjectType == EObjectType::ObjType_None) {
@@ -143,7 +148,7 @@ void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure) {
 
 	if (!NewObject) return;
 
-	NewObject->ParseContent(Structure.Content);
+	NewObject->ParseContent(Structure.Content, StructureBeginning);
 	Objects.push_back(NewObject);
 }
 

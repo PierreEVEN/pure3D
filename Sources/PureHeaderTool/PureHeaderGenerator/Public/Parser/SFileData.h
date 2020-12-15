@@ -37,7 +37,7 @@ namespace Parser {
 		const SFileReference& GetFile() const { return File; }
 
 		void ParseContent();
-		void ParseStructureHeader(const SStateMachine& Structure);
+		void ParseStructureHeader(const SStateMachine& Structure, const size_t StructureBeginning);
 
 		const std::vector<SObject*>& GetObjects() const { return Objects; }
 

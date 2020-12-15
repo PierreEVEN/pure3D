@@ -3,8 +3,12 @@
 #include "RType.h"
 
 #include <vector>
+#include <unordered_map>
+#include "RFunction.h"
+#include "RConstructor.h"
 
 struct RProperty;
+struct IFunctionPointer;
 
 struct RClass : public RType {
 
@@ -30,7 +34,6 @@ struct RClass : public RType {
     template<typename Class>
     static RClass* RegisterClass(const String& inClassName) {
         static_assert(RIsReflected<Class>::Value, "Not a reflected class, please declare this class as a reflected class.");
-
         RClass* RegisteredClass = RType::RegisterType<Class, RClass>(inClassName);
         RegisterClass_Internal(inClassName, RegisteredClass);
         return RegisteredClass;
@@ -44,9 +47,38 @@ struct RClass : public RType {
     /**
      * Add reflected property for this class
      */
-    inline void AddProperty(RProperty* inProperty) {
-        Properties.push_back(inProperty);
+    void AddProperty(RProperty* inProperty);
+
+    /**
+     * Add reflected property for this class
+     */
+    void AddFunction(IFunctionPointer* inProperty);
+
+    /**
+     * Add reflected property for this class
+     */
+    void AddConstructor(RConstructor* inConstructor) {
+        Constructors.push_back(inConstructor);
     }
+
+    template<typename ReturnType, typename Class, typename... Arguments>
+    RFunction<ReturnType, Class, Arguments...>* GetFunction(const String& PropertyName) const {
+        return (RFunction<ReturnType, Class, Arguments...>*)GetFunction(PropertyName);
+    }
+
+	IFunctionPointer* GetFunction(const String& PropertyName) const;
+
+    RProperty* GetProperty(const String& PropertyName) const;
+
+    template<typename... Arguments>
+    inline void* InstantiateNew(Arguments&&... inArguments) {
+        for (const auto& Ctor : Constructors) {
+            if (void* InstanciedObject = Ctor->InstanciateNew<Arguments...>(std::forward<Arguments>(inArguments)...))
+                return InstanciedObject;
+        }
+        return nullptr;
+    }
+
 
 private:
 
@@ -58,7 +90,16 @@ private:
     /**
      * Class properties
      */
-    std::vector<RProperty*> Properties;
+    std::unordered_map<String, RProperty*> Properties;
+
+    /**
+     * Class properties
+     */
+    std::unordered_map<String, IFunctionPointer*> Functions;
+    /**
+     * Class properties
+     */
+    std::vector<RConstructor*> Constructors;
 
     /**
      * Parent classes

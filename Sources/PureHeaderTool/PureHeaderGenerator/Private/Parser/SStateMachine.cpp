@@ -45,3 +45,7 @@ bool Parser::SStateMachine::DoesSkipChar(const char* Position) {
 	}
 	return false;
 }
+
+void Parser::SStateMachine::CountLine(const char CurrentChar) {
+	if (CurrentChar == '\n') CurrentLine++;
+}

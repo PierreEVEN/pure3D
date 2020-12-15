@@ -15,7 +15,7 @@ namespace Parser {
 			: ObjectName(inObjectName), ObjectType(inObjectType) {
 			ReflectedObjects[inObjectName] = this;
 		}
-		virtual void ParseContent(const String& Content) = 0;
+		virtual void ParseContent(const String& Content, size_t LineIndex) = 0;
 		virtual void Log() = 0;
 		const String& GetName() const { return ObjectName; }
 		const EObjectType& GetType() const { return ObjectType; }
@@ -26,7 +26,7 @@ namespace Parser {
 
 	struct SEnum : public SObject {
 		using SObject::SObject;
-		void ParseContent(const String& Content);
+		void ParseContent(const String& Content, size_t LineIndex);
 		virtual void Log();
 	private:
 		std::vector<String> Fields;
@@ -35,14 +35,20 @@ namespace Parser {
 
 	struct SStruct : public SObject {
 		using SObject::SObject;
-		void ParseContent(const String& Content);
+		void ParseContent(const String& Content, size_t LineIndex);
 		virtual void Log();
+		const size_t& GetReflectionBodyLine() const { return ReflectionBodyLine; }
+		const std::vector<SPropertyData>& GetProperties() const { return Properties; }
+		const std::vector<SFunctionData>& GetFunctions() const { return Functions; }
+		const std::vector<SFunctionData>& GetConstructors() const { return Constructors; }
+
 	private:
 		SFunctionData ParseFunction(SStateMachine Content);
 		SPropertyData ParseProperty(SStateMachine Content);
 		SPropertyData ParseVariable(SStateMachine Content);
 		SFunctionData ParseConstructor(SStateMachine Content);
 
+		size_t ReflectionBodyLine = 0;
 		std::vector<SPropertyData> Properties;
 		std::vector<SFunctionData> Functions;
 		std::vector<SFunctionData> Constructors;
