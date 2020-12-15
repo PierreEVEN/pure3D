@@ -53,14 +53,29 @@ struct RClass : public RType {
      */
     void AddFunction(IFunctionPointer* inProperty);
 
+    /**
+     * Add reflected property for this class
+     */
+    void AddConstructor(IFunctionPointer* inConstructor);
+
     template<typename ReturnType, typename Class, typename... Arguments>
     RFunction<ReturnType, Class, Arguments...>* GetFunction(const String& PropertyName) const {
         return (RFunction<ReturnType, Class, Arguments...>*)GetFunction(PropertyName);
     }
 
 	IFunctionPointer* GetFunction(const String& PropertyName) const;
+	IFunctionPointer* GetConstructor(const String& PropertyName) const;
 
     RProperty* GetProperty(const String& PropertyName) const;
+
+    template<typename Type = void, typename... Arguments>
+    inline Type* InstantiateNew(Arguments&&... inArguments) {
+
+
+        //return static_cast<T*>()
+        return nullptr;
+    }
+
 
 private:
 
@@ -78,6 +93,10 @@ private:
      * Class properties
      */
     std::unordered_map<String, IFunctionPointer*> Functions;
+    /**
+     * Class properties
+     */
+    std::unordered_map<String, IFunctionPointer*> Constructors;
     /**
      * Parent classes
      */
