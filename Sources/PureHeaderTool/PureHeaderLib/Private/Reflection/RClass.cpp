@@ -42,7 +42,7 @@ RProperty* RClass::GetProperty(const String& PropertyName) const {
 const RClass* RClass::GetClass(const String& inClassName) {
 	if (!Classes) Classes = new std::unordered_map<String, const RClass*>();
 	const auto& value = Classes->find(inClassName);
-	ReflEnsure(value != Classes->end(), (String(inClassName) + " is not a reflected class").GetData());
+	if (value == Classes->end()) return nullptr;
 	return value->second;
 }
 

@@ -74,11 +74,13 @@ struct RClass : public RType {
      */
 	template<typename ThisClass, typename ParentClass>
     inline void AddCastFunction() {
-        CastFunctions[RClass::GetClass<ParentClass>()->GetName()] = RCastFunc(
-            [](const RClass* DesiredClass, void* FromPtr) -> void* {
-                return ParentClass::GetStaticClass()->CastTo(DesiredClass, reinterpret_cast<void*>(static_cast<ParentClass*>((ThisClass*)FromPtr)));
-            }
-        );
+        if constexpr (RIsReflected<ParentClass>::Value) {
+            CastFunctions[RClass::GetClass<ParentClass>()->GetName()] = RCastFunc(
+                [](const RClass* DesiredClass, void* FromPtr) -> void* {
+                    return ParentClass::GetStaticClass()->CastTo(DesiredClass, reinterpret_cast<void*>(static_cast<ParentClass*>((ThisClass*)FromPtr)));
+                }
+            );
+        }
     }
 
     /**
