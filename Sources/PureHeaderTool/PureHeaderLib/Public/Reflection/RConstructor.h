@@ -2,8 +2,6 @@
 
 #include <any>
 
-class RClass;
-
 struct RConstructor {
 
 	template<typename... Args>
@@ -50,8 +48,3 @@ private:
 
 	const std::any ConstructorFunction;
 };
-
-template<typename T, typename... Arguments>
-T* NewObject(RClass* inClass, Arguments... inArguments) {
-	return reinterpret_cast<T*>(inClass->InstantiateNew<Arguments...>(std::forward<Arguments>(inArguments)...));
-}

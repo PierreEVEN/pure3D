@@ -5,64 +5,33 @@
 #include "Reflection/RProperty.h"
 #include "Reflection/RFunction.h"
 #include "Reflection/RConstructor.h"
-
-
-
-
-
-
-struct RTestFunction {
-
-	template<typename Return, typename Class, typename... Arguments>
-	using RFunctionPtr = std::function<Return (Class, Arguments...)>;
-
-	/**
-	 * Register new constructor
-	 */
-	template<typename Return, typename Class, typename... Arguments>
-	inline static RTestFunction* MakeFunction(const RFunctionPtr<Return, Class, Arguments...>& Function) {
-		return new RTestFunction(std::make_any<RFunctionPtr<Return, Class, Arguments...>>(Function));
-	}
-
-	/**
-	 * Instantiate new object
-	 */
-	template<typename Return, typename Class, typename... Arguments>
-	inline Return Execute(Arguments&&... inArguments) {
-
-		// Are arguments valids
-		if (const InstantiateFunc<Arguments...>* Factory = std::any_cast<InstantiateFunc<Arguments...>>(&ConstructorFunction)) {
-
-			// Call instantiate func
-			return (*Factory) (std::forward<Arguments>(inArguments)...);
-		}
-
-		return (*Factory) (std::forward<Arguments>(inArguments)...);
-
-		// Wrong arguments, return null
-		return nullptr;
-	}
-
-private:
-
-	RTestFunction(const std::any& inFunction)
-		: Function(inFunction) {}
-
-	const std::any Function;
-};
-
+#include "Reflection/ReflectionMacros.h"
 
 int main() {
 	/**
 	 * Class tests
 	 */
 	RClass* MyClass = ChildOneTwo::GetStaticClass();
+	if (!MyClass) return 0;
 	LOG(MyClass->GetName() + " size : " + MyClass->GetSize());
 
 	/**
 	 * Instantiate tests
 	 */
 	void* MyObject = MyClass->InstantiateNew<int, double, float>(5, 20.4, 3.5f);
+	if (!MyObject) return 0;
+
+	/**
+	 * Inheritance test
+	 */
+	for (const auto& Parent : MyClass->GetParents()) {
+		RProperty* ParentPropertyA = Parent->GetProperty("A");
+		RProperty* ParentPropertyB = Parent->GetProperty("B");
+		RProperty* ParentPropertyC = Parent->GetProperty("C");
+		if (ParentPropertyA) LOG(Parent->GetName() + "->" + ParentPropertyA->GetName() + " : " + *ParentPropertyA->Get<int>(MyObject));
+		if (ParentPropertyB) LOG(Parent->GetName() + "->" + ParentPropertyB->GetName() + " : " + *ParentPropertyB->Get<double>(MyObject));
+		if (ParentPropertyC) LOG(Parent->GetName() + "->" + ParentPropertyC->GetName() + " : " + *ParentPropertyC->Get<float>(MyObject));
+	}
 
 	/**
 	 * Properties tests
@@ -71,25 +40,16 @@ int main() {
 	RProperty* PropertyB = MyClass->GetProperty("B");
 	RProperty* PropertyC = MyClass->GetProperty("C");
 	RProperty* PropertyD = MyClass->GetProperty("D");
-	LOG(PropertyA->GetName() + " : " + *PropertyA->Get<int>(MyObject));
-	LOG(PropertyB->GetName() + " : " + *PropertyB->Get<double>(MyObject));
-	LOG(PropertyC->GetName() + " : " + *PropertyC->Get<float>(MyObject));
-	LOG(PropertyD->GetName() + " : " + PropertyD->Get<BasicStructure>(MyObject)->A);
+	if (PropertyA) LOG(PropertyA->GetName() + " : " + *PropertyA->Get<int>(MyObject));
+	if (PropertyB) LOG(PropertyB->GetName() + " : " + *PropertyB->Get<double>(MyObject));
+	if (PropertyC) LOG(PropertyC->GetName() + " : " + *PropertyC->Get<float>(MyObject));
+	if (PropertyD) LOG(PropertyD->GetName() + " : " + PropertyD->Get<BasicStructure>(MyObject)->A);
 
 	/**
 	 * Function tests
 	 */	
 	RFunction<void, ChildOneTwo>* FuncA = MyClass->GetFunction<void, ChildOneTwo>("FunctionA");
 	RFunction<double, ChildOneTwo, int, int, int>* FuncB = MyClass->GetFunction<double, ChildOneTwo, int, int, int>("FunctionB");
-	LOG(FuncA->GetName()); FuncA->Execute((ChildOneTwo*)MyObject);
-	LOG(FuncB->GetName() + " : " + FuncB->Execute((ChildOneTwo*)MyObject, 10, 20, 30));
-
-
-
-	std::function<double(ChildOneTwo*, int, int, int)> test = &ChildOneTwo::FunctionB;
-	
-	double result = test((ChildOneTwo*)MyObject, 1, 2, 3);
-	LOG(result);
-
-	//test->Execute<void, ChildOneTwo, int, int, int>(this, );
+	if (FuncA) LOG(FuncA->GetName()); FuncA->Execute((ChildOneTwo*)MyObject);
+	if (FuncB) LOG(FuncB->GetName() + " : " + FuncB->Execute((ChildOneTwo*)MyObject, 10, 20, 30));
 }

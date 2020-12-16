@@ -42,6 +42,10 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 			Result.Indent();
 			Result.Line(StaticClassName + " = REFL_REGISTER_CLASS(" + Object->GetName() + ");");
 			
+			for (const auto& Parent : ((Parser::SStruct*)Object)->GetParents()) {
+				Result.Line(StaticClassName + "->AddParent(\"" + Parent + "\");");
+			}
+
 			for (const auto& Property : ((Parser::SStruct*)Object)->GetProperties()) {
 				Result.Line(StaticClassName + "->AddProperty(new RProperty(nullptr, \"" + Property.PropertyName + "\", offsetof(" + Object->GetName() + ", " + Property.PropertyName + ")));");
 			}

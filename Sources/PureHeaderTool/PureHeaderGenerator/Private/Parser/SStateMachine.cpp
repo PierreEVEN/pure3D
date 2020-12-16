@@ -1,4 +1,5 @@
 #include "Parser/SStateMachine.h"
+#include "Utils/Utils.h"
 
 using namespace Parser;
 
@@ -41,6 +42,14 @@ bool Parser::SStateMachine::DoesSkipChar(const char* Position) {
 	//Skip OneLine comments
 	if (IsInOneLineComment) {
 		if (Position[0] == '\n') IsInOneLineComment = false;
+		return true;
+	}
+	return false;
+}
+
+bool Parser::SStateMachine::SkipString(const char* Content, const String& inPattern) {
+	if (Utils::IsStartingWith(Content, inPattern.GetData())) {
+		CurrentPos += inPattern.Length();
 		return true;
 	}
 	return false;

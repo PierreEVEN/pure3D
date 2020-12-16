@@ -6,9 +6,13 @@
 #include <unordered_map>
 #include "RFunction.h"
 #include "RConstructor.h"
+#include "Events/EventManager.h"
 
 struct RProperty;
 struct IFunctionPointer;
+struct RClass;
+
+DECLARE_DELEGATE_MULTICAST(SOnRegisterClass, const RClass*);
 
 struct RClass : public RType {
 
@@ -19,7 +23,7 @@ struct RClass : public RType {
      */
     template<typename Class>
     inline static const RClass* GetClass() {
-		static_assert(RIsReflected<Class>::Value, "Not a reflected class, please declare this class as a reflected class.");
+		static_assert(RIsReflected<Class>::Value, "Failed to get class : not a reflected class. Please declare this class as a reflected class.");
         return GetClass(RTypeName<Class>::Name);
     }
 
@@ -33,7 +37,7 @@ struct RClass : public RType {
      */
     template<typename Class>
     static RClass* RegisterClass(const String& inClassName) {
-        static_assert(RIsReflected<Class>::Value, "Not a reflected class, please declare this class as a reflected class.");
+        static_assert(RIsReflected<Class>::Value, "Failed to register class : not a reflected class. Please declare this class as a reflected class.");
         RClass* RegisteredClass = RType::RegisterType<Class, RClass>(inClassName);
         RegisterClass_Internal(inClassName, RegisteredClass);
         return RegisteredClass;
@@ -77,8 +81,14 @@ struct RClass : public RType {
                 return InstanciedObject;
         }
         return nullptr;
+	}
+
+	template <typename WaitObjectName>
+    inline static void WaitClassRegistration(String inClassName, WaitObjectName* inObjPtr, void(WaitObjectName::* inFunc)(const RClass*)) {
+        ClassRegistrationDelegate[inClassName].Add(inObjPtr, inFunc);
     }
 
+    const std::vector<const RClass*>& GetParents() const { return Parents; }
 
 private:
 
@@ -86,6 +96,12 @@ private:
 		: RType(inTypeName, inTypeSize) {}
 
     static void RegisterClass_Internal(const String& inClassName, const RClass* inClass);
+
+    inline static std::unordered_map<String, SOnRegisterClass> ClassRegistrationDelegate;
+
+	inline static std::unordered_map<String, const RClass*>* Classes = nullptr;
+
+    inline void OnRegisterParentClass(const RClass* RegisteredClass);
 
     /**
      * Class properties
@@ -106,3 +122,8 @@ private:
      */
 	std::vector<const RClass*> Parents;
 };
+
+template<typename T, typename... Arguments>
+T* NewObject(RClass* inClass, Arguments... inArguments) {
+	return reinterpret_cast<T*>(inClass->InstantiateNew<Arguments...>(std::forward<Arguments>(inArguments)...));
+}

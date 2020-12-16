@@ -139,8 +139,6 @@ void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure, con
 		NewObject = new SEnum(Status.Content, ObjectType);
 		break;
 	case Parser::EObjectType::ObjType_Struct:
-		NewObject = new SStruct(Status.Content, ObjectType);
-		break;
 	case Parser::EObjectType::ObjType_Class:
 		NewObject = new SStruct(Status.Content, ObjectType);
 		break;

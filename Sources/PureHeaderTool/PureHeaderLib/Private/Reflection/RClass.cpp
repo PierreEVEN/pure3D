@@ -5,13 +5,15 @@
 #include "Reflection/RFunction.h"
 
 
-inline static std::unordered_map<String, const RClass*>* Classes = nullptr;
+void RClass::AddParent(const String& inParent) {
+	if (const RClass* FoundClass = RClass::GetClass(inParent))
+		Parents.push_back(FoundClass);
+	else
+		RClass::WaitClassRegistration(inParent, this, &RClass::OnRegisterParentClass);
+}
 
-
-void RClass::AddParent(const String& inParent)
-{
-	//ReflEnsure(std::find(Parents.begin(), Parents.end(), inParent) != Parents.end(), (std::string("Cannot add the same parent class ") + inParent->GetName() + " twice for " + GetName()).c_str());
-	//Parents.push_back(inParent);
+void RClass::OnRegisterParentClass(const RClass* RegisteredClass) {
+	Parents.push_back(RegisteredClass);
 }
 
 void RClass::AddProperty(RProperty* inProperty) {
@@ -48,4 +50,9 @@ void RClass::RegisterClass_Internal(const String& inClassName, const RClass* inC
 	if (!Classes) Classes = new std::unordered_map<String, const RClass*>();
 	ReflEnsure(Classes->find(inClassName) == Classes->end(), (String("class ") + inClassName + " is already registered").GetData());
 	(*Classes)[inClassName] = inClass;
+
+	const auto& FoundDelegate = ClassRegistrationDelegate.find(inClassName);
+	if (FoundDelegate != ClassRegistrationDelegate.end()) {
+		FoundDelegate->second.Execute(inClass);
+	}
 }
