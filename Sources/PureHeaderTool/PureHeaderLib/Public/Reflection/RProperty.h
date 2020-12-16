@@ -16,7 +16,7 @@ struct RProperty : public ReflectionObject {
 
 	inline const RType* GetType() const { return PropertyType; }
 	inline const String& GetName() const { return PropertyName; }
-
+	inline const size_t GetOffset() const { return PropertyOffset;  }
 private:
 
 	const RType* PropertyType;

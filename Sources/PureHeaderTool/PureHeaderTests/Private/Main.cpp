@@ -7,6 +7,33 @@
 #include "Reflection/RConstructor.h"
 #include "Reflection/ReflectionMacros.h"
 
+
+template<typename From, typename To>
+struct TCaster {
+	constexpr inline static bool IsCastable = false;
+};
+
+
+template<>
+struct TCaster<ChildOneTwo, ChildOne> {
+	constexpr inline static bool IsCastable = true;
+	ChildOne* Cast(ChildOneTwo* From) {
+		return dynamic_cast<ChildOne*>(From);
+	}
+};
+
+
+template<typename From, typename To>
+To* Cast(From* inFrom) {
+	return dynamic_cast<To*>(inFrom);
+}
+
+template<typename Class>
+Class* Cast(RClass* ObjectClass, void* Object) {
+	return nullptr;
+}
+
+
 int main() {
 	/**
 	 * Class tests
@@ -14,12 +41,14 @@ int main() {
 	RClass* MyClass = ChildOneTwo::GetStaticClass();
 	if (!MyClass) return 0;
 	LOG(MyClass->GetName() + " size : " + MyClass->GetSize());
-
+	
 	/**
 	 * Instantiate tests
 	 */
 	void* MyObject = MyClass->InstantiateNew<int, double, float>(5, 20.4, 3.5f);
 	if (!MyObject) return 0;
+
+	ParentTwo* CastedParent = Cast<ParentTwo>(MyClass, MyObject);
 
 	/**
 	 * Inheritance test
