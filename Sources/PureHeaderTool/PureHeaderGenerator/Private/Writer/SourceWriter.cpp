@@ -44,6 +44,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 			
 			for (const auto& Parent : ((Parser::SStruct*)Object)->GetParents()) {
 				Result.Line(StaticClassName + "->AddParent(\"" + Parent + "\");");
+				Result.Line(StaticClassName + "->AddCastFunction<" + Object->GetName() + ", " + Parent + ">();");
 			}
 
 			for (const auto& Property : ((Parser::SStruct*)Object)->GetProperties()) {

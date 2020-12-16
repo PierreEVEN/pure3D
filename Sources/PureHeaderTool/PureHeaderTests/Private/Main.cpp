@@ -8,32 +8,6 @@
 #include "Reflection/ReflectionMacros.h"
 
 
-template<typename From, typename To>
-struct TCaster {
-	constexpr inline static bool IsCastable = false;
-};
-
-
-template<>
-struct TCaster<ChildOneTwo, ChildOne> {
-	constexpr inline static bool IsCastable = true;
-	ChildOne* Cast(ChildOneTwo* From) {
-		return dynamic_cast<ChildOne*>(From);
-	}
-};
-
-
-template<typename From, typename To>
-To* Cast(From* inFrom) {
-	return dynamic_cast<To*>(inFrom);
-}
-
-template<typename Class>
-Class* Cast(RClass* ObjectClass, void* Object) {
-	return nullptr;
-}
-
-
 int main() {
 	/**
 	 * Class tests
@@ -48,18 +22,19 @@ int main() {
 	void* MyObject = MyClass->InstantiateNew<int, double, float>(5, 20.4, 3.5f);
 	if (!MyObject) return 0;
 
-	ParentTwo* CastedParent = Cast<ParentTwo>(MyClass, MyObject);
-
 	/**
 	 * Inheritance test
 	 */
-	for (const auto& Parent : MyClass->GetParents()) {
-		RProperty* ParentPropertyA = Parent->GetProperty("A");
-		RProperty* ParentPropertyB = Parent->GetProperty("B");
-		RProperty* ParentPropertyC = Parent->GetProperty("C");
-		if (ParentPropertyA) LOG(Parent->GetName() + "->" + ParentPropertyA->GetName() + " : " + *ParentPropertyA->Get<int>(MyObject));
-		if (ParentPropertyB) LOG(Parent->GetName() + "->" + ParentPropertyB->GetName() + " : " + *ParentPropertyB->Get<double>(MyObject));
-		if (ParentPropertyC) LOG(Parent->GetName() + "->" + ParentPropertyC->GetName() + " : " + *ParentPropertyC->Get<float>(MyObject));
+	for (const auto& ParentClass : MyClass->GetParents()) {
+		RProperty* ParentPropertyA = ParentClass->GetProperty("A");
+		RProperty* ParentPropertyB = ParentClass->GetProperty("B");
+		RProperty* ParentPropertyC = ParentClass->GetProperty("C");
+
+		void* ptr = MyClass->CastTo(ParentClass, MyObject);
+
+		if (ParentPropertyA) LOG(ParentClass->GetName() + "->" + ParentPropertyA->GetName() + " : " + *ParentPropertyA->Get<int>(ptr));
+		if (ParentPropertyB) LOG(ParentClass->GetName() + "->" + ParentPropertyB->GetName() + " : " + *ParentPropertyB->Get<double>(ptr));
+		if (ParentPropertyC) LOG(ParentClass->GetName() + "->" + ParentPropertyC->GetName() + " : " + *ParentPropertyC->Get<float>(ptr));
 	}
 
 	/**

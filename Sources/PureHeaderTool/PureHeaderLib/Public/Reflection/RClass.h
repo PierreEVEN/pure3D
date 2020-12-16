@@ -7,10 +7,12 @@
 #include "RFunction.h"
 #include "RConstructor.h"
 #include "Events/EventManager.h"
+#include "IO/Log.h"
 
 struct RProperty;
 struct IFunctionPointer;
 struct RClass;
+struct RCastFunction;
 
 DECLARE_DELEGATE_MULTICAST(SOnRegisterClass, const RClass*);
 
@@ -65,6 +67,32 @@ struct RClass : public RType {
         Constructors.push_back(inConstructor);
     }
 
+	using RCastFunc = std::function<void* (const RClass*, void*)>;
+
+    /**
+     * Add function that FromPtr from ThisClass to ParentClass
+     */
+	template<typename ThisClass, typename ParentClass>
+    inline void AddCastFunction() {
+        CastFunctions[RClass::GetClass<ParentClass>()->GetName()] = RCastFunc(
+            [](const RClass* DesiredClass, void* FromPtr) -> void* {
+                return ParentClass::GetStaticClass()->CastTo(DesiredClass, reinterpret_cast<void*>(static_cast<ParentClass*>((ThisClass*)FromPtr)));
+            }
+        );
+    }
+
+    /**
+     * Cast Ptr to To Object
+     * if ThisClass == To, return Ptr, else try to cast to one of the parent class
+     */
+    void* CastTo(const RClass* To, void* Ptr) {
+		if (To == this) return Ptr;
+        for (const auto& Parent : Parents)
+            if (void* ToPtr = (CastFunctions[Parent->GetName()]) (To, Ptr)) 
+                return ToPtr;
+        return nullptr;
+    }
+
     template<typename ReturnType, typename Class, typename... Arguments>
     RFunction<ReturnType, Class, Arguments...>* GetFunction(const String& PropertyName) const {
         return (RFunction<ReturnType, Class, Arguments...>*)GetFunction(PropertyName);
@@ -103,6 +131,7 @@ private:
 
     inline void OnRegisterParentClass(const RClass* RegisteredClass);
 
+    std::unordered_map<String, RCastFunc> CastFunctions;
     /**
      * Class properties
      */
@@ -123,7 +152,7 @@ private:
 	std::vector<const RClass*> Parents;
 };
 
-template<typename T, typename... Arguments>
+template<typename T = void, typename... Arguments>
 T* NewObject(RClass* inClass, Arguments... inArguments) {
 	return reinterpret_cast<T*>(inClass->InstantiateNew<Arguments...>(std::forward<Arguments>(inArguments)...));
 }
