@@ -3,6 +3,12 @@
 #include "ReflectionUtilities.h"
 
 #include "Types/String.h"
+#include "Serialization.h"
+
+struct RSerializer {
+	virtual SArchiveField Serialize(void* FromObject) = 0;
+	virtual void Deserialize(SArchiveField* FromField, void* ToObject) = 0;
+};
 
 struct RType : public ReflectionObject {
     /**
@@ -15,11 +21,15 @@ struct RType : public ReflectionObject {
      */
     inline const size_t& GetSize() const { return TypeSize; }
 
+    inline virtual void SetSerializer(RSerializer* Serializer) {
+        ClassSerializer = Serializer;
+    }
+
     /**
      * Get type by class
      */
     template<typename Type>
-	inline static const RType* GetType() {
+	inline static RType* GetType() {
 		static_assert(RIsReflected<Type>::Value, "Not a reflected type, please declare this type as a reflected type.");
         return GetType(RTypeName<Type>::Name);
     }
@@ -27,7 +37,7 @@ struct RType : public ReflectionObject {
     /**
      * Get type by class name
      */
-    static const RType* GetType(const String& inTypeName);
+    static RType* GetType(const String& inTypeName);
 
     /**
      * Register new reflected type
@@ -40,15 +50,22 @@ struct RType : public ReflectionObject {
         return newType;
     }
 
+    RSerializer* GetSerializer() const {
+        return ClassSerializer;
+    }
+
 protected:
 
     inline RType(const String& inTypeName, const size_t inTypeSize)
-        : TypeName(inTypeName), TypeSize(inTypeSize) {}
+        : TypeName(inTypeName), TypeSize(inTypeSize), ClassSerializer(nullptr) {}
+
 	virtual ~RType() = default;
 
 private:
 
-    static void RegisterType_Internal(const String& inTypeName, const RType* newType);
+    static void RegisterType_Internal(const String& inTypeName, RType* newType);
+
+    RSerializer* ClassSerializer;
 
     /**
      * Type name

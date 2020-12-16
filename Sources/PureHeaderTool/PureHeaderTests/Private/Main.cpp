@@ -7,8 +7,24 @@
 #include "Reflection/RConstructor.h"
 #include "Reflection/ReflectionMacros.h"
 
+REFL_DECLARE_TYPENAME(int);
+
+struct RSerializer_Int : RSerializer {
+	virtual SArchiveField Serialize(void* FromObject) override {
+		return SArchiveField("", 0, nullptr);
+	}
+
+	virtual void Deserialize(SArchiveField* FromField, void* ToObject) override {
+	}
+};
 
 int main() {
+
+	REFL_REGISTER_TYPE(int);
+
+	RType::GetType<int>()->SetSerializer(new RSerializer_Int());
+
+
 	/**
 	 * Class tests
 	 */
@@ -26,15 +42,13 @@ int main() {
 	 * Inheritance test
 	 */
 	for (const auto& ParentClass : MyClass->GetParents()) {
+		void* ParentClassPtr = MyClass->CastTo(ParentClass, MyObject);
 		RProperty* ParentPropertyA = ParentClass->GetProperty("A");
 		RProperty* ParentPropertyB = ParentClass->GetProperty("B");
 		RProperty* ParentPropertyC = ParentClass->GetProperty("C");
-
-		void* ptr = MyClass->CastTo(ParentClass, MyObject);
-
-		if (ParentPropertyA) LOG(ParentClass->GetName() + "->" + ParentPropertyA->GetName() + " : " + *ParentPropertyA->Get<int>(ptr));
-		if (ParentPropertyB) LOG(ParentClass->GetName() + "->" + ParentPropertyB->GetName() + " : " + *ParentPropertyB->Get<double>(ptr));
-		if (ParentPropertyC) LOG(ParentClass->GetName() + "->" + ParentPropertyC->GetName() + " : " + *ParentPropertyC->Get<float>(ptr));
+		if (ParentPropertyA) LOG(ParentClass->GetName() + "->" + ParentPropertyA->GetName() + " : " + *ParentPropertyA->Get<int>(ParentClassPtr));
+		if (ParentPropertyB) LOG(ParentClass->GetName() + "->" + ParentPropertyB->GetName() + " : " + *ParentPropertyB->Get<double>(ParentClassPtr));
+		if (ParentPropertyC) LOG(ParentClass->GetName() + "->" + ParentPropertyC->GetName() + " : " + *ParentPropertyC->Get<float>(ParentClassPtr));
 	}
 
 	/**
