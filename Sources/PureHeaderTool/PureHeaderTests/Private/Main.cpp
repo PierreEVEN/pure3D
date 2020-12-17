@@ -7,22 +7,30 @@
 #include "Reflection/RConstructor.h"
 #include "Reflection/ReflectionMacros.h"
 #include "Reflection/Serialization.h"
+#include <fstream>
 
 REFL_DECLARE_TYPENAME(int);
+REFL_DECLARE_TYPENAME(float);
+REFL_DECLARE_TYPENAME(double);
+REFL_DECLARE_TYPENAME(bool);
 
-#define DECLARE_STRUCT_SERIALIZER(Type) \
+#define DECLARE_PRIMITIVE_TYPE_SERIALIZER(Type) \
 struct RSerializerInterface_##Type : RSerializerInterface { \
 	virtual size_t GetPropertySize(void* TypePtr) override { return sizeof(Type); } \
 }
 
-DECLARE_STRUCT_SERIALIZER(int);
-DECLARE_STRUCT_SERIALIZER(float);
-DECLARE_STRUCT_SERIALIZER(double);
-DECLARE_STRUCT_SERIALIZER(bool);
+DECLARE_PRIMITIVE_TYPE_SERIALIZER(int);
+DECLARE_PRIMITIVE_TYPE_SERIALIZER(float);
+DECLARE_PRIMITIVE_TYPE_SERIALIZER(double);
+DECLARE_PRIMITIVE_TYPE_SERIALIZER(bool);
 
 int main() {
 
 	REFL_REGISTER_TYPE(int);
+	REFL_REGISTER_TYPE(float);
+	REFL_REGISTER_TYPE(double);
+	REFL_REGISTER_TYPE(bool);
+
 
 	/**
 	 * Class tests
@@ -36,6 +44,40 @@ int main() {
 	 */
 	void* MyObject = MyClass->InstantiateNew<int, double, float>(5, 20.4, 3.5f);
 	if (!MyObject) return 0;
+
+
+
+
+
+
+
+	std::ofstream output("test.txt");
+
+
+	SArchiveField Field;
+	Field.FieldName = "TestVar";
+	Field.ObjectPtr = MyObject;
+	Field.Type = MyClass;
+
+	MyClass::GetSerializer();
+
+
+
+	output.close();
+
+	std::ifstream input("test.txt");
+
+
+
+	input.close();
+
+
+
+
+
+
+
+
 
 	/**
 	 * Inheritance test

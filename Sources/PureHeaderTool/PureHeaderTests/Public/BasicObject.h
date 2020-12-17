@@ -71,7 +71,11 @@ class BasicObject {
 		virtual const int* TestFuncB(std::unordered_map<float, int> inA, int inB) { return nullptr; }
 };
 
+REFLECT();
 struct ParentOne {
+
+	REFLECT_BODY();
+
 	RCONSTRUCTOR()
 		ParentOne() = default;
 	RCONSTRUCTOR()

@@ -6,7 +6,7 @@ struct RClass;
 struct SArchiveField {
 	String FieldName;
 	RClass* Type;
-	char* ObjectPtr;
+	void* ObjectPtr;
 };
 
 
