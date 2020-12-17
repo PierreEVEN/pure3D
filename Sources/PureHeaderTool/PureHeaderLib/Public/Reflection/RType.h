@@ -5,11 +5,6 @@
 #include "Types/String.h"
 #include "Serialization.h"
 
-struct RSerializer {
-	virtual SArchiveField Serialize(void* FromObject) = 0;
-	virtual void Deserialize(SArchiveField* FromField, void* ToObject) = 0;
-};
-
 struct RType : public ReflectionObject {
     /**
      * Get type name
@@ -21,7 +16,7 @@ struct RType : public ReflectionObject {
      */
     inline const size_t& GetSize() const { return TypeSize; }
 
-    inline virtual void SetSerializer(RSerializer* Serializer) {
+    inline virtual void SetSerializer(RSerializerInterface* Serializer) {
         ClassSerializer = Serializer;
     }
 
@@ -50,7 +45,7 @@ struct RType : public ReflectionObject {
         return newType;
     }
 
-    RSerializer* GetSerializer() const {
+    RSerializerInterface* GetSerializer() const {
         return ClassSerializer;
     }
 
@@ -65,7 +60,7 @@ private:
 
     static void RegisterType_Internal(const String& inTypeName, RType* newType);
 
-    RSerializer* ClassSerializer;
+    RSerializerInterface* ClassSerializer;
 
     /**
      * Type name

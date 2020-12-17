@@ -6,24 +6,23 @@
 #include "Reflection/RFunction.h"
 #include "Reflection/RConstructor.h"
 #include "Reflection/ReflectionMacros.h"
+#include "Reflection/Serialization.h"
 
 REFL_DECLARE_TYPENAME(int);
 
-struct RSerializer_Int : RSerializer {
-	virtual SArchiveField Serialize(void* FromObject) override {
-		return SArchiveField("", 0, nullptr);
-	}
+#define DECLARE_STRUCT_SERIALIZER(Type) \
+struct RSerializerInterface_##Type : RSerializerInterface { \
+	virtual size_t GetPropertySize(void* TypePtr) override { return sizeof(Type); } \
+}
 
-	virtual void Deserialize(SArchiveField* FromField, void* ToObject) override {
-	}
-};
+DECLARE_STRUCT_SERIALIZER(int);
+DECLARE_STRUCT_SERIALIZER(float);
+DECLARE_STRUCT_SERIALIZER(double);
+DECLARE_STRUCT_SERIALIZER(bool);
 
 int main() {
 
 	REFL_REGISTER_TYPE(int);
-
-	RType::GetType<int>()->SetSerializer(new RSerializer_Int());
-
 
 	/**
 	 * Class tests

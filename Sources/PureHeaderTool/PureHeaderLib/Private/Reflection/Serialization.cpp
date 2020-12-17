@@ -1,26 +1,32 @@
 #include "Reflection/Serialization.h"
-#include "Reflection/RType.h"
+#include "Reflection/RClass.h"
 #include "IO/Log.h"
 
-SArchiveField::SArchiveField(const String& inTypeName, const size_t inDataLength, void* inData)
-	: TypeName(inTypeName), DataLength(inDataLength), Data(inData) {
-	if (const RType* ReflType = RType::GetType(TypeName)) {
-		if (!ReflType->GetSerializer())
-			LOG_ASSERT("Cannot serialize " + inTypeName + " because it doesn't have any serializer.");
-	}
-	LOG_ASSERT("Cannot serialize " + inTypeName + " because it's not a reflected type.");
+
+SArchive& SArchive::operator<<(const SArchiveField& Field) {
+	Fields.push_back(Field); 
+	return *this;
 }
 
-void SArchive::Serialize() {
+void SArchive::Serialize(std::ostream& OutputStream) {
 	for (const auto& Field : Fields) {
-		RType::GetType(Field.TypeName)->GetSerializer()->Serialize(Field.Data);
+		RSerializerInterface* Serializer = Field.Type->GetSerializer();
+		size_t PropertyLength = Serializer->GetPropertySize(Field.ObjectPtr);
+		OutputStream << Field.FieldName;
+		OutputStream << Field.Type->GetName();
+		OutputStream << PropertyLength;
+		OutputStream.write(Serializer->GetTypeData(Field.ObjectPtr), PropertyLength);
+		Serializer->PostSerializeData();
 	}
 }
 
-void SArchive::Deserialize() {
-	String TypeName;
-	size_t DataLength;
-	void* Data;
-
-	RType::GetType(TypeName)->GetSerializer();
+void SArchive::Deserialize(std::istream& InputStream) {
+// 	SArchiveField NewField;
+// 	InputStream >> NewField.FieldName;
+// 	InputStream >> NewField.TypeName;
+// 	InputStream >> NewField.DataLength;
+// 	NewField.Data = new char(NewField.DataLength);
+// 	InputStream.read(NewField.Data, NewField.DataLength);
+// 
+// 	RType::GetType(TypeName)->GetSerializer();
 }

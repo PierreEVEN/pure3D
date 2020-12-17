@@ -160,6 +160,17 @@ public:
 	inline String operator=(const float other) { return CopyTo(ToString(other), this); }
 	inline String operator=(const IStringable& other) { return CopyTo(other.ToString(), this); }
 
+
+	friend std::ostream& operator<<(std::ostream& output, const String& D) {
+		output.write(D.GetData(), D.Length() + 1);;
+		return output;
+	}
+
+	friend std::istream& operator>>(std::istream& input, String& D) {
+		D << (input.rdbuf()->sgetc());
+		return input;
+	}
+
 	/* Tests */
 	inline static bool IsAlpha(const char& chr) { return (chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z'); }
 	inline static bool IsNumeric(const char& chr) { return (chr >= '0' && chr <= '9'); }

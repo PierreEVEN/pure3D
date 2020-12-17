@@ -1,27 +1,34 @@
 #pragma once
 #include "Types/String.h"
 
+struct RClass;
+
 struct SArchiveField {
-
-	SArchiveField(const String& inTypeName, const size_t inDataLength, void* inData);
-
-	const String TypeName;
-	const size_t DataLength;
-	void* Data;
+	String FieldName;
+	RClass* Type;
+	char* ObjectPtr;
 };
 
 
 struct SArchive {
 
-	inline SArchive& operator<<(const SArchiveField& Field) {
-		Fields.push_back(Field); return *this;
-	}
+	inline SArchive& operator<<(const SArchiveField& Field);
 
-	void Serialize();
-	void Deserialize();
+	void Serialize(std::ostream& OutputStream);
+	void Deserialize(std::istream& InputStream);
 
 private:
 
 	std::vector<SArchiveField> Fields;
 };
 
+
+struct RSerializerInterface {
+	virtual size_t GetPropertySize(void* TypePtr) = 0;
+	virtual char* GetTypeData(void* TypePtr) { return (char*)TypePtr; }
+	virtual bool DeserializeType(size_t PropertySize, char* Data, void* TypePtr) {
+		memcpy(TypePtr, Data, PropertySize);
+		return true;
+	}
+	virtual void PostSerializeData();
+};
