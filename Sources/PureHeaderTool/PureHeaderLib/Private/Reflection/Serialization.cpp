@@ -3,20 +3,15 @@
 #include "IO/Log.h"
 
 
-SArchive& SArchive::operator<<(const SArchiveField& Field) {
-	Fields.push_back(Field); 
-	return *this;
-}
-
 void SArchive::Serialize(std::ostream& OutputStream) {
-	for (const auto& Field : Fields) {
-		RSerializerInterface* Serializer = Field.Type->GetSerializer();
-		size_t PropertyLength = Serializer->GetPropertySize(Field.ObjectPtr);
-		OutputStream << Field.FieldName;
-		OutputStream << Field.Type->GetName();
-		OutputStream << PropertyLength;
-		OutputStream.write(Serializer->GetTypeData(Field.ObjectPtr), PropertyLength);
-		Serializer->PostSerializeData();
+	for (const auto& Object : LinkedObjects) {
+		ISerializerInterface* Serializer = Object.second.ObjectType->GetSerializer();
+		if (!Serializer) {
+			LOG_WARNING("Cannot serialize " + Object.first + " : " + Object.second.ObjectType->GetName() + " is not serializable.");
+			continue;
+		}
+
+		Serializer->Serialize(Object.first, Object.second.ObjectType, Object.second.ObjectPtr, OutputStream);
 	}
 }
 
@@ -29,4 +24,8 @@ void SArchive::Deserialize(std::istream& InputStream) {
 // 	InputStream.read(NewField.Data, NewField.DataLength);
 // 
 // 	RType::GetType(TypeName)->GetSerializer();
+}
+
+void SArchive::LinkObject(const String& ObjectName, RType* ObjectType, void* ObjectPtr) {
+	LinkedObjects[ObjectName] = SArchiveObject { ObjectType, ObjectPtr };
 }

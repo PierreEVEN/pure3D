@@ -1,34 +1,31 @@
 #pragma once
 #include "Types/String.h"
+#include <unordered_map>
 
-struct RClass;
+struct RType;
 
-struct SArchiveField {
-	String FieldName;
-	RClass* Type;
+struct SArchiveObject {
+	RType* ObjectType;
 	void* ObjectPtr;
 };
 
-
 struct SArchive {
 
-	inline SArchive& operator<<(const SArchiveField& Field);
 
 	void Serialize(std::ostream& OutputStream);
 	void Deserialize(std::istream& InputStream);
 
+	void LinkObject(const String& ObjectName, RType* ObjectType, void* ObjectPtr);
+
 private:
 
-	std::vector<SArchiveField> Fields;
+	std::unordered_map<String, SArchiveObject> LinkedObjects;
 };
 
 
-struct RSerializerInterface {
-	virtual size_t GetPropertySize(void* TypePtr) = 0;
-	virtual char* GetTypeData(void* TypePtr) { return (char*)TypePtr; }
-	virtual bool DeserializeType(size_t PropertySize, char* Data, void* TypePtr) {
-		memcpy(TypePtr, Data, PropertySize);
-		return true;
-	}
-	virtual void PostSerializeData();
+struct ISerializerInterface {
+
+	virtual void Serialize(const String& PropertyName, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) = 0;
+	virtual void Deserialize(std::istream& InputStream) = 0;
+	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) = 0;
 };

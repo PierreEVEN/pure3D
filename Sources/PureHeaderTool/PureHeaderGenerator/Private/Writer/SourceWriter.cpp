@@ -48,7 +48,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 			}
 
 			for (const auto& Property : ((Parser::SStruct*)Object)->GetProperties()) {
-				Result.Line(StaticClassName + "->AddProperty(new RProperty(nullptr, \"" + Property.PropertyName + "\", offsetof(" + Object->GetName() + ", " + Property.PropertyName + ")));");
+				Result.Line(StaticClassName + "->AddProperty(new RProperty(\"" + Property.PropertyType + "\", \"" + Property.PropertyName + "\", offsetof(" + Object->GetName() + ", " + Property.PropertyName + ")));");
 			}
 			for (const auto& Function : ((Parser::SStruct*)Object)->GetFunctions()) {
 				String Params = Function.Parameters.size() == 0 ? "" : ", ";

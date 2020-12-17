@@ -16,4 +16,9 @@ void RType::RegisterType_Internal(const String& inTypeName, RType* inType) {
 	if (!Types) Types = new std::unordered_map<std::string, RType*>;
 	ReflEnsure(Types->find(inTypeName.GetData()) == Types->end(), "type " + inTypeName + " is already registered");
 	(*Types)[inTypeName.GetData()] = inType;
+
+	const auto& FoundDelegate = TypeRegistrationDelegate.find(inTypeName);
+	if (FoundDelegate != TypeRegistrationDelegate.end()) {
+		FoundDelegate->second.Execute(inType);
+	}
 }

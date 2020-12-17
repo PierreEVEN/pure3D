@@ -9,11 +9,11 @@ void RClass::AddParent(const String& inParent) {
 	if (const RClass* FoundClass = RClass::GetClass(inParent))
 		Parents.push_back(FoundClass);
 	else
-		RClass::WaitClassRegistration(inParent, this, &RClass::OnRegisterParentClass);
+		RType::WaitTypeRegistration(inParent, this, &RClass::OnRegisterParentClass);
 }
 
-void RClass::OnRegisterParentClass(const RClass* RegisteredClass) {
-	Parents.push_back(RegisteredClass);
+void RClass::OnRegisterParentClass(RType* RegisteredClass) {
+	Parents.push_back((RClass*)RegisteredClass);
 }
 
 void RClass::AddProperty(RProperty* inProperty) {
@@ -50,9 +50,4 @@ void RClass::RegisterClass_Internal(const String& inClassName, const RClass* inC
 	if (!Classes) Classes = new std::unordered_map<String, const RClass*>();
 	ReflEnsure(Classes->find(inClassName) == Classes->end(), (String("class ") + inClassName + " is already registered").GetData());
 	(*Classes)[inClassName] = inClass;
-
-	const auto& FoundDelegate = ClassRegistrationDelegate.find(inClassName);
-	if (FoundDelegate != ClassRegistrationDelegate.end()) {
-		FoundDelegate->second.Execute(inClass);
-	}
 }

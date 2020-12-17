@@ -7,14 +7,11 @@
 #include "RFunction.h"
 #include "RConstructor.h"
 #include "Events/EventManager.h"
-#include "IO/Log.h"
 
 struct RProperty;
 struct IFunctionPointer;
 struct RClass;
 struct RCastFunction;
-
-DECLARE_DELEGATE_MULTICAST(SOnRegisterClass, const RClass*);
 
 struct RClass : public RType {
 
@@ -95,6 +92,8 @@ struct RClass : public RType {
         return nullptr;
     }
 
+	inline virtual const ERType GetType() const override { return ERType::ERType_RClass; }
+
     template<typename ReturnType, typename Class, typename... Arguments>
     RFunction<ReturnType, Class, Arguments...>* GetFunction(const String& PropertyName) const {
         return (RFunction<ReturnType, Class, Arguments...>*)GetFunction(PropertyName);
@@ -103,6 +102,8 @@ struct RClass : public RType {
 	IFunctionPointer* GetFunction(const String& PropertyName) const;
 
     RProperty* GetProperty(const String& PropertyName) const;
+
+    std::unordered_map<String, RProperty*> GetProperties() { return Properties; }
 
     template<typename... Arguments>
     inline void* InstantiateNew(Arguments&&... inArguments) {
@@ -113,11 +114,6 @@ struct RClass : public RType {
         return nullptr;
 	}
 
-	template <typename WaitObjectName>
-    inline static void WaitClassRegistration(String inClassName, WaitObjectName* inObjPtr, void(WaitObjectName::* inFunc)(const RClass*)) {
-        ClassRegistrationDelegate[inClassName].Add(inObjPtr, inFunc);
-    }
-
     const std::vector<const RClass*>& GetParents() const { return Parents; }
 
 private:
@@ -127,11 +123,9 @@ private:
 
     static void RegisterClass_Internal(const String& inClassName, const RClass* inClass);
 
-    inline static std::unordered_map<String, SOnRegisterClass> ClassRegistrationDelegate;
-
 	inline static std::unordered_map<String, const RClass*>* Classes = nullptr;
 
-    inline void OnRegisterParentClass(const RClass* RegisteredClass);
+    inline void OnRegisterParentClass(RType* RegisteredClass);
 
     std::unordered_map<String, RCastFunc> CastFunctions;
     /**

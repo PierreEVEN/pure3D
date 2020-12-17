@@ -19,10 +19,74 @@ struct RSerializerInterface_##Type : RSerializerInterface { \
 	virtual size_t GetPropertySize(void* TypePtr) override { return sizeof(Type); } \
 }
 
-DECLARE_PRIMITIVE_TYPE_SERIALIZER(int);
-DECLARE_PRIMITIVE_TYPE_SERIALIZER(float);
-DECLARE_PRIMITIVE_TYPE_SERIALIZER(double);
-DECLARE_PRIMITIVE_TYPE_SERIALIZER(bool);
+struct RSerializerInterface_PrimitiveTypes : ISerializerInterface {
+
+	virtual void Serialize(const String& PropertyName, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
+		OutputStream << PropertyName;
+		OutputStream << ObjectType->GetSize();
+		OutputStream.write((char*)ObjectPtr, ObjectType->GetSize());
+	}
+	virtual void Deserialize(std::istream& InputStream) {
+
+	}
+	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) {
+		return ObjectType->GetSize();
+	}
+};
+
+
+struct RSerializerInterface_Object : ISerializerInterface {
+
+	virtual void Serialize(const String& PropertyName, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
+
+		OutputStream << PropertyName;
+		OutputStream << GetObjectSize(ObjectType, ObjectPtr);
+
+		RClass* MyClass = static_cast<RClass*>(ObjectType);
+		for (const auto& PropertyField : MyClass->GetProperties()) {
+			RProperty* Property = PropertyField.second;
+			RType* PropertyType = Property->GetType();
+			if (!PropertyType) {
+				LOG_WARNING(Property->GetName() + " is not serializable because it doesn't have any RType.");
+				continue;
+			}
+			ISerializerInterface* Serializer = PropertyType->GetSerializer();
+			if (!Serializer) {
+				LOG_WARNING("Cannot serialize " + Property->GetName() + " because " + PropertyType->GetName() + " is not serializable.");
+				continue;
+			}
+			void* NewObjectPtr = ObjectPtr;
+			if (PropertyType->GetType() == ERType::ERType_RClass) MyClass->CastTo((RClass*)PropertyType, ObjectPtr);
+
+			OutputStream << Serializer->GetObjectSize(ObjectType, ObjectPtr);
+			Serializer->Serialize(Property->GetName(), PropertyType, Property->Get<void>(NewObjectPtr), OutputStream);
+		}
+	}
+	virtual void Deserialize(std::istream& InputStream) {
+
+	}
+
+	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) {
+		size_t ObjectSize = 0;
+		RClass* MyClass = static_cast<RClass*>(ObjectType);
+		for (const auto& PropertyField : MyClass->GetProperties()) {
+			RProperty* Property = PropertyField.second;
+			RType* PropertyType = Property->GetType();
+			if (!PropertyType) continue;
+			ISerializerInterface* Serializer = PropertyType->GetSerializer();
+			if (!Serializer) continue;
+
+			void* NewObjectPtr = ObjectPtr;
+			if (PropertyType->GetType() == ERType::ERType_RClass) MyClass->CastTo((RClass*)PropertyType, ObjectPtr);
+
+			ObjectSize += Property->GetName().Length() + 1;
+			ObjectSize += sizeof(size_t);
+			ObjectSize += Serializer->GetObjectSize(PropertyType, NewObjectPtr);
+
+		}
+		return ObjectSize;
+	}
+};
 
 int main() {
 
@@ -30,6 +94,16 @@ int main() {
 	REFL_REGISTER_TYPE(float);
 	REFL_REGISTER_TYPE(double);
 	REFL_REGISTER_TYPE(bool);
+
+	RSerializerInterface_Object* ObjectSerializer = new RSerializerInterface_Object();
+	RSerializerInterface_PrimitiveTypes* PrimitiveTypeSerializer = new RSerializerInterface_PrimitiveTypes();
+	ChildOneTwo::GetStaticClass()->SetSerializer(ObjectSerializer);
+	BasicObject::GetStaticClass()->SetSerializer(ObjectSerializer);
+	BasicStructure::GetStaticClass()->SetSerializer(ObjectSerializer);
+	RType::GetType<int>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetType<float>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetType<double>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetType<bool>()->SetSerializer(PrimitiveTypeSerializer);
 
 
 	/**
@@ -46,29 +120,16 @@ int main() {
 	if (!MyObject) return 0;
 
 
-
-
-
-
+	SArchive Archive;
+	Archive.LinkObject("MyObject", MyClass, MyObject);
 
 	std::ofstream output("test.txt");
-
-
-	SArchiveField Field;
-	Field.FieldName = "TestVar";
-	Field.ObjectPtr = MyObject;
-	Field.Type = MyClass;
-
-	MyClass::GetSerializer();
-
-
-
+	Archive.Serialize(output);
 	output.close();
 
+
 	std::ifstream input("test.txt");
-
-
-
+	Archive.Deserialize(input);
 	input.close();
 
 

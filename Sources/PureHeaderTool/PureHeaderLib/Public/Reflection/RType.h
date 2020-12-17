@@ -4,6 +4,15 @@
 
 #include "Types/String.h"
 #include "Serialization.h"
+#include "Events/EventManager.h"
+
+
+DECLARE_DELEGATE_MULTICAST(SOnRegisterType, RType*);
+
+enum class ERType {
+    ERType_RType,
+    ERType_RClass
+};
 
 struct RType : public ReflectionObject {
     /**
@@ -16,7 +25,7 @@ struct RType : public ReflectionObject {
      */
     inline const size_t& GetSize() const { return TypeSize; }
 
-    inline virtual void SetSerializer(RSerializerInterface* Serializer) {
+    inline virtual void SetSerializer(ISerializerInterface* Serializer) {
         ClassSerializer = Serializer;
     }
 
@@ -45,9 +54,16 @@ struct RType : public ReflectionObject {
         return newType;
     }
 
-    RSerializerInterface* GetSerializer() const {
+    ISerializerInterface* GetSerializer() const {
         return ClassSerializer;
     }
+
+    inline virtual const ERType GetType() const { return ERType::ERType_RType; }
+
+	template <typename WaitTypeName>
+	inline static void WaitTypeRegistration(String inClassName, WaitTypeName* inObjPtr, void(WaitTypeName::* inFunc)(RType*)) {
+		TypeRegistrationDelegate[inClassName].Add(inObjPtr, inFunc);
+	}
 
 protected:
 
@@ -60,7 +76,9 @@ private:
 
     static void RegisterType_Internal(const String& inTypeName, RType* newType);
 
-    RSerializerInterface* ClassSerializer;
+	inline static std::unordered_map<String, SOnRegisterType> TypeRegistrationDelegate;
+
+    ISerializerInterface* ClassSerializer;
 
     /**
      * Type name
