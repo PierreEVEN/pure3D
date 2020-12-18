@@ -28,7 +28,7 @@ String Parser::SFileReference::GetDateFormated() const {
 #if _WIN32
 	gmtime_s(gmt, &LastEdit);
 #else
-	gmtime_r(&inTime, gmt);
+	gmtime_r(&LastEdit, gmt);
 #endif
 
 	std::stringstream TimeBuffer;
