@@ -19,8 +19,6 @@ if (MSVC)
 	set(CMAKE_CXX_FLAGS "/MP /EHsc")
 endif()
 	
-	message(${CMAKE_CXX_FLAGS})
-
 # Set project constants
 set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(BINARIES_DIR ${PROJECT_ROOT}/Binaries)
