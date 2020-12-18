@@ -31,7 +31,7 @@ struct RTypeName<Type> {	\
 public: \
 	friend void CONCAT_MACRO_TWO_PARAMS(_Refl_Register_Item_,className)(); \
 	friend void _Refl_Register_Class(); \
-	static class RClass* GetStaticClass(); \
+	static RClass* GetStaticClass(); \
 	virtual RClass* GetClass() const;
 
 #define REFLECT(...)

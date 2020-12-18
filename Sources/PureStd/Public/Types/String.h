@@ -195,14 +195,13 @@ public:
 		return *this;
 	}
 
-	inline String SubString(int From) {
+	inline String SubString(const size_t From) {
 		return SubString(From, Length() - 1);
 	}
 
-	inline String SubString(int From, int To) {
+	inline String SubString(size_t From, const size_t To) {
 		String Result = "";
-		if (From < 0) From = 0;
-		for (int i = From; i <= To && i < Length(); ++i) {
+		for (size_t i = From; i <= To && i < Length(); ++i) {
 			Result << data[i];
 		}
 		return Result;

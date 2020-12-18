@@ -104,7 +104,7 @@ void Parser::SFileData::SFileData::ParseContent() {
 void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure, const size_t StructureBeginning) {
 	SStateMachine Status;
 	EObjectType ObjectType = EObjectType::ObjType_None;
-	for (int i = 0; i < Structure.Content.Length(); ++i) {
+	for (size_t i = 0; i < Structure.Content.Length(); ++i) {
 		const char* CurrentData = &Structure.Content.GetData()[i];
 
 		if (CurrentData[0] == '{' || CurrentData[0] == ':') break;

@@ -6,8 +6,8 @@
 
 namespace Parser {
 
-	class SObject;
-	class SFileData;
+	struct SObject;
+	struct SFileData;
 
 	inline std::unordered_map<String, SFileData*> ReflectedFiles;
 
