@@ -35,9 +35,9 @@ struct RClass : public RType {
      * Register class
      */
     template<typename Class>
-    static RClass* RegisterClass(const String& inClassName) {
+    static RClass* RegisterClass(const String& inClassName, size_t inClassId) {
         static_assert(RIsReflected<Class>::Value, "Failed to register class : not a reflected class. Please declare this class as a reflected class.");
-        RClass* RegisteredClass = RType::RegisterType<Class, RClass>(inClassName);
+        RClass* RegisteredClass = RType::RegisterType<Class, RClass>(inClassName, inClassId);
         RegisterClass_Internal(inClassName, RegisteredClass);
         return RegisteredClass;
 	}
@@ -118,8 +118,8 @@ struct RClass : public RType {
 
 private:
 
-	inline RClass(const String& inTypeName, size_t inTypeSize)
-		: RType(inTypeName, inTypeSize) {}
+	inline RClass(const String& inTypeName, size_t inTypeSize, size_t inTypeID)
+		: RType(inTypeName, inTypeSize, inTypeID) {}
 
     static void RegisterClass_Internal(const String& inClassName, const RClass* inClass);
 

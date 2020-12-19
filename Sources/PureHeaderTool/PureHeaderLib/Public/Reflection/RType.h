@@ -47,9 +47,9 @@ struct RType : public ReflectionObject {
      * Register new reflected type
      */
     template<typename Class, typename Type = RType>
-    inline static Type* RegisterType(const String& inTypeName) {
+    inline static Type* RegisterType(const String& inTypeName, size_t TypeID) {
 		static_assert(RIsReflected<Class>::Value, "Not a reflected type, please declare this type as a reflected type.");
-        Type* newType = new Type(inTypeName, sizeof(Class));
+        Type* newType = new Type(inTypeName, sizeof(Class), TypeID);
         RegisterType_Internal(inTypeName, newType);
         return newType;
     }
@@ -67,8 +67,8 @@ struct RType : public ReflectionObject {
 
 protected:
 
-    inline RType(const String& inTypeName, const size_t inTypeSize)
-        : TypeName(inTypeName), TypeSize(inTypeSize), ClassSerializer(nullptr) {}
+    inline RType(const String& inTypeName, const size_t inTypeSize, const size_t inTypeId)
+        : TypeName(inTypeName), TypeSize(inTypeSize), ClassSerializer(nullptr), TypeId(inTypeId) {}
 
 	virtual ~RType() = default;
 
@@ -89,4 +89,9 @@ private:
      * Type size
      */
     const size_t TypeSize;
+
+    /**
+     * TypeId
+     */
+    const size_t TypeId;
 };

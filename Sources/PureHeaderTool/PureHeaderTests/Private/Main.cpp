@@ -8,6 +8,7 @@
 #include "Reflection/ReflectionMacros.h"
 #include "Reflection/Serialization.h"
 #include <fstream>
+#include "Types/Array.h"
 
 REFL_DECLARE_TYPENAME(int);
 REFL_DECLARE_TYPENAME(float);
@@ -103,12 +104,13 @@ struct RSerializerInterface_Object : ISerializerInterface {
 	}
 };
 
+
 int main() {
 
-	REFL_REGISTER_TYPE(int);
-	REFL_REGISTER_TYPE(float);
-	REFL_REGISTER_TYPE(double);
-	REFL_REGISTER_TYPE(bool);
+	REFL_REGISTER_TYPE(int, 0);
+	REFL_REGISTER_TYPE(float, 1);
+	REFL_REGISTER_TYPE(double, 2);
+	REFL_REGISTER_TYPE(bool, 3);
 
 	RSerializerInterface_Object* ObjectSerializer = new RSerializerInterface_Object();
 	RSerializerInterface_PrimitiveTypes* PrimitiveTypeSerializer = new RSerializerInterface_PrimitiveTypes();
@@ -121,6 +123,11 @@ int main() {
 	RType::GetType<bool>()->SetSerializer(PrimitiveTypeSerializer);
 
 
+	std::vector<int> Arr2 = { 10, 20, 30 };
+
+
+	TVector<int> Arr = { 10, 20, 30 };
+	Arr.Add(3);
 	/**
 	 * Class tests
 	 */
@@ -146,11 +153,6 @@ int main() {
 	std::ifstream input("test.txt");
 	Archive.Deserialize(input);
 	input.close();
-
-
-
-
-
 
 
 

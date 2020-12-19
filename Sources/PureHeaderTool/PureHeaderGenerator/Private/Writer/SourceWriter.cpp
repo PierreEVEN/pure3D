@@ -3,6 +3,7 @@
 #include "Writer/CodeGenerator.h"
 #include "Parser/STypes.h"
 #include "Parser/SObject.h"
+#include "Parser/ClassIdHandler.h"
 
 using namespace Writer;
 
@@ -40,7 +41,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 			Result.Br();
 			Result.Line("void " + BuilderFunction + "() {", "Builder function");
 			Result.Indent();
-			Result.Line(StaticClassName + " = REFL_REGISTER_CLASS(" + Object->GetName() + ");");
+			Result.Line(StaticClassName + " = REFL_REGISTER_CLASS(" + Object->GetName() + ", " + Parser::SClassIdHandler::GetClassId(Object->GetName()) + ");");
 			
 			for (const auto& Parent : ((Parser::SStruct*)Object)->GetParents()) {
 				Result.Line(StaticClassName + "->AddParent(\"" + Parent + "\");");
