@@ -43,16 +43,30 @@ struct RSerializerInterface_Object : ISerializerInterface {
 		OutputStream << GetObjectSize(ObjectType, ObjectPtr);
 
 		RClass* MyClass = static_cast<RClass*>(ObjectType);
+
+		for (auto& Parent : MyClass->GetParents()) {
+			ISerializerInterface* ParentSerializer = Parent->GetSerializer();
+			if (!ParentSerializer) continue;
+
+
+			void* NewObjectPtr = MyClass->CastTo(Parent, ObjectPtr);
+
+			//ParentSerializer->Serialize(PropertyName, Parent, NewObjectPtr);
+
+		}
+
+
+
 		for (const auto& PropertyField : MyClass->GetProperties()) {
 			RProperty* Property = PropertyField.second;
 			RType* PropertyType = Property->GetType();
 			if (!PropertyType) {
-				LOG_WARNING(Property->GetName() + " is not serializable because it doesn't have any RType.");
+				LOG_WARNING(PropertyName + "(" + ObjectType->GetName() + ") : " + Property->GetName() + " is not serializable because it doesn't have any RType.");
 				continue;
 			}
 			ISerializerInterface* Serializer = PropertyType->GetSerializer();
 			if (!Serializer) {
-				LOG_WARNING("Cannot serialize " + Property->GetName() + " because " + PropertyType->GetName() + " is not serializable.");
+				LOG_WARNING(PropertyName + "(" + ObjectType->GetName() + ") : Cannot serialize " + Property->GetName() + " because " + PropertyType->GetName() + " is not serializable.");
 				continue;
 			}
 			void* NewObjectPtr = ObjectPtr;
@@ -62,6 +76,7 @@ struct RSerializerInterface_Object : ISerializerInterface {
 			Serializer->Serialize(Property->GetName(), PropertyType, Property->Get<void>(NewObjectPtr), OutputStream);
 		}
 	}
+
 	virtual void Deserialize(std::istream& InputStream) {
 
 	}
