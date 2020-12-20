@@ -115,7 +115,7 @@ String String::RemoveBorderSpaces(const String& line)
 		break;
 	}
 	if (start > stop) return "";
-	for (size_t i = start; i <= stop; ++i) {
+	for (int64_t i = start; i <= stop; ++i) {
 		out += line[i] == '\t' ? ' ' : line[i];
 	}
 	return out;

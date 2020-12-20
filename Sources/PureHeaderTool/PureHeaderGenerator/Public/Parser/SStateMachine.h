@@ -15,7 +15,7 @@ namespace Parser {
 		size_t CurrentLine = 0;
 
 		bool DoesSkipChar(const char* Position);
-
+		bool SkipString(const char* Content, const String& inPattern);
 		void CountLine(const char CurrentChar);
 	};
 }

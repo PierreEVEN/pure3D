@@ -50,6 +50,9 @@ void Parser::SEnum::Log() {
 void Parser::SStruct::ParseContent(const String& Content, size_t LineIndex) {
 	SStateMachine Status;
 	Status.Content = Content;
+	bool IsParsingParents = false;
+	Status.IsReadingStructure = false;
+	String CurrentClass;
 
 	for (Status.CurrentPos = 0; Status.CurrentPos < Status.Content.Length(); ++Status.CurrentPos) {
 		const char* CurrentData = &Status.Content.GetData()[Status.CurrentPos];
@@ -58,19 +61,41 @@ void Parser::SStruct::ParseContent(const String& Content, size_t LineIndex) {
 
 		//Wait for structure beginning
 		if (!Status.IsReadingStructure) {
-			if (CurrentData[0] == '{') Status.IsReadingStructure = true;
-			continue;
+			if (CurrentData[0] == ':') {
+				IsParsingParents = true;
+				continue;
+			}
+			if (CurrentData[0] == '{') {
+				IsParsingParents = false;
+				Status.IsReadingStructure = true;
+				continue;
+			}
 		}
+
+
+		if (!Status.IsReadingStructure && IsParsingParents) {
+			if (Status.SkipString(CurrentData, "public")) continue;
+			if (Status.SkipString(CurrentData, "private")) continue;
+			if (CurrentData[0] == ',') {
+				Parents.push_back(String::RemoveBorderSpaces(CurrentClass));
+				CurrentClass = "";
+				continue;
+			}
+			CurrentClass << CurrentData[0];
+		}
+
 		if (Utils::IsStartingWith(CurrentData, "REFLECT_BODY()")) ReflectionBodyLine = Status.CurrentLine + LineIndex;
 		if (Utils::IsStartingWith(CurrentData, "RPROPERTY(")) Properties.push_back(ParseProperty(Status));
 		else if (Utils::IsStartingWith(CurrentData, "RFUNCTION(")) Functions.push_back(ParseFunction(Status));
 		else if (Utils::IsStartingWith(CurrentData, "RCONSTRUCTOR(")) Constructors.push_back(ParseConstructor(Status));
 	}
+	if (CurrentClass != "")
+		Parents.push_back(String::RemoveBorderSpaces(CurrentClass));
 }
 
 
 void Parser::SStruct::Log() {
-	Utils::Log("\t\t\t- " + ObjectTypeToString(GetType()) + " " + GetName() + " : " + String(Properties.size()) + " properties, " + String(Functions.size()) + " functions, " + String(Constructors.size()) + " constructors.");
+	Utils::Log("\t\t\t- " + ObjectTypeToString(GetType()) + " " + GetName() + " {" +  String::ConcatenateArray(Parents) + "} : " + String(Properties.size()) + " properties, " + String(Functions.size()) + " functions, " + String(Constructors.size()) + " constructors.");
 
 	Utils::Log("\t\t\t\t+ Constructors : ");
 	for (const auto& Constructor : Constructors) {

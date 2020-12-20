@@ -28,7 +28,7 @@ String Parser::SFileReference::GetDateFormated() const {
 #if _WIN32
 	gmtime_s(gmt, &LastEdit);
 #else
-	gmtime_r(&inTime, gmt);
+	gmtime_r(&LastEdit, gmt);
 #endif
 
 	std::stringstream TimeBuffer;
@@ -104,7 +104,7 @@ void Parser::SFileData::SFileData::ParseContent() {
 void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure, const size_t StructureBeginning) {
 	SStateMachine Status;
 	EObjectType ObjectType = EObjectType::ObjType_None;
-	for (int i = 0; i < Structure.Content.Length(); ++i) {
+	for (size_t i = 0; i < Structure.Content.Length(); ++i) {
 		const char* CurrentData = &Structure.Content.GetData()[i];
 
 		if (CurrentData[0] == '{' || CurrentData[0] == ':') break;
@@ -139,8 +139,6 @@ void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure, con
 		NewObject = new SEnum(Status.Content, ObjectType);
 		break;
 	case Parser::EObjectType::ObjType_Struct:
-		NewObject = new SStruct(Status.Content, ObjectType);
-		break;
 	case Parser::EObjectType::ObjType_Class:
 		NewObject = new SStruct(Status.Content, ObjectType);
 		break;

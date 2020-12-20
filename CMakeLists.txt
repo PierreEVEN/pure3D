@@ -10,22 +10,24 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 # Options
-option(PHT_DEBUG "Enable debug mode for PureReflectionTool" OFF)
+option(PHT_DEBUG "Enable debug mode for PureReflectionTool" OFF) # PHT debug mode (OFF)
 
 
 # Set compiler options
 set(CMAKE_CXX_STANDARD 17)
-if (MSVC)
-	set(CMAKE_CXX_FLAGS "/MP /EHsc")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /EHsc")
+	# MP build for MSVC
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")
+	# Suppress invalid offset warning on GCC
 endif()
 	
-	message(${CMAKE_CXX_FLAGS})
-
 # Set project constants
-set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-set(BINARIES_DIR ${PROJECT_ROOT}/Binaries)
-set(INTERMEDIATES_DIR ${PROJECT_ROOT}/Intermediates)
-set(REFLECTION_DIR ${PROJECT_ROOT}/Intermediates/Reflection)
+set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}) # Project dir
+set(BINARIES_DIR ${PROJECT_ROOT}/Binaries) # Binaries dir
+set(INTERMEDIATES_DIR ${PROJECT_ROOT}/Intermediates) # Intermediates dir
+set(REFLECTION_DIR ${PROJECT_ROOT}/Intermediates/Reflection) # Reflection dir
 
 # Basic module definition
 function(module_definition TARGET)
@@ -43,6 +45,7 @@ function(module_definition TARGET)
 			${CMAKE_CURRENT_SOURCE_DIR}/Private)
 endfunction()
 
+# Enable reflection analysis in current module
 function(use_reflection)
 
 	add_private_dependencies(PureHeaderLib)	
@@ -69,7 +72,7 @@ function(use_reflection)
 		
 endfunction()
 
-# Set current project target catogory
+# Set current project target category
 function(set_project_category CATEGORY)
 	get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 	set_target_properties(${TARGET} PROPERTIES FOLDER ${CATEGORY})

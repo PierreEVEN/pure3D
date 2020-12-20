@@ -14,7 +14,7 @@ REFLECT();
 enum class AdvancedEnum {
 	ADV_ONE = 1,
 	ADV_TWO = 1 << 1,
-	ADV_THREE = 1 << 2
+	ADV_THREE = 1 << 2	
 };
 
 REFLECT();
@@ -65,14 +65,15 @@ class BasicObject {
 		double* C = nullptr;
 
 	RFUNCTION()
-		void TestFuncA () {}
+		virtual void TestFuncA () {}
 
 	RFUNCTION()
-		const int* TestFuncB(std::unordered_map<float, int> inA, int inB) { return nullptr; }
+		virtual const int* TestFuncB(std::unordered_map<float, int> inA, int inB) { return nullptr; }
 };
 
 REFLECT();
 struct ParentOne {
+
 	REFLECT_BODY();
 
 	RCONSTRUCTOR()
@@ -90,7 +91,7 @@ struct ParentOne {
 		float C = 8.4f;
 
 	RFUNCTION()
-		virtual void FunctionA() {}
+		void FunctionA() {}
 
 	RFUNCTION()
 		virtual double FunctionB(int A, int B, int C) { return 12.87; }
@@ -116,10 +117,12 @@ struct ParentTwo {
 		float C = 7.4f;
 
 	RFUNCTION()
-		virtual void FunctionA() {}
+		virtual void FunctionA() {
+		LOG("CALL FUNCTION A");
+	}
 
 	RFUNCTION()
-		virtual double FunctionB(int A, int B, int C) { return 12.87; }
+		double FunctionB(int A, int B, int C) { return 20.8; }
 };
 
 REFLECT();
@@ -139,6 +142,12 @@ struct ChildOne : public ParentOne {
 
 	RPROPERTY()
 		float C = 5.4f;
+
+	RFUNCTION()
+		virtual void FunctionA() {}
+
+	RFUNCTION()
+		double FunctionB(int A, int B, int C) override { return ParentOne::FunctionB(A, B, C);  }
 };
 
 REFLECT();
@@ -160,10 +169,10 @@ struct ChildTwo : public ParentTwo {
 		float C = 5.4f;
 
 	RFUNCTION()
-		virtual void FunctionA() {}
+		virtual void FunctionA() override { return ParentTwo::FunctionA();  }
 
 	RFUNCTION()
-		virtual double FunctionB(int A, int B, int C) { return 12.87; }
+		double FunctionB(int A, int B, int C) { return 12.87; }
 };
 
 REFLECT();
@@ -191,10 +200,10 @@ struct ChildOneTwo : public ParentOne, public ParentTwo {
 		BasicStructure D;
 
 	RFUNCTION()
-		virtual void FunctionA() {
-		LOG("CALL FUNCTION A");
+		virtual void FunctionA() override {
+		return ParentTwo::FunctionA();
 	}
 
 	RFUNCTION()
-		virtual double FunctionB(int inA, int inB, int inC) { return A + inB + inC; }
+		virtual double FunctionB(int inA, int inB, int inC) override { return ParentOne::FunctionB(inA, inB, inC); }
 };

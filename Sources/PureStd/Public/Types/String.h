@@ -160,6 +160,17 @@ public:
 	inline String operator=(const float other) { return CopyTo(ToString(other), this); }
 	inline String operator=(const IStringable& other) { return CopyTo(other.ToString(), this); }
 
+
+	friend std::ostream& operator<<(std::ostream& output, const String& D) {
+		output.write(D.GetData(), D.Length() + 1);;
+		return output;
+	}
+
+	friend std::istream& operator>>(std::istream& input, String& D) {
+		D << (input.rdbuf()->sgetc());
+		return input;
+	}
+
 	/* Tests */
 	inline static bool IsAlpha(const char& chr) { return (chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z'); }
 	inline static bool IsNumeric(const char& chr) { return (chr >= '0' && chr <= '9'); }
@@ -184,14 +195,13 @@ public:
 		return *this;
 	}
 
-	inline String SubString(int From) {
+	inline String SubString(const size_t From) {
 		return SubString(From, Length() - 1);
 	}
 
-	inline String SubString(int From, int To) {
+	inline String SubString(size_t From, const size_t To) {
 		String Result = "";
-		if (From < 0) From = 0;
-		for (int i = From; i <= To && i < Length(); ++i) {
+		for (size_t i = From; i <= To && i < Length(); ++i) {
 			Result << data[i];
 		}
 		return Result;
@@ -265,6 +275,15 @@ public:
 	static const std::vector<String> ParseStringCharArray(const char* charString, size_t length);
 
 	inline static void ResetCharArray(char* str, const size_t& strLength) { for (int i = 0; i < strLength; ++i) str[i] = '\0'; }
+
+	template<typename... Arguments>
+	inline static String Format(const String& FormatStr, Arguments... args) {
+		int Size = snprintf(nullptr, 0, FormatStr.GetData(), args...) + 1;
+		if (Size <= 0) return FormatStr;
+		std::unique_ptr<char[]> Buffer(new char[Size]);
+		snprintf(Buffer.get(), Size, FormatStr.GetData(), args ...);
+		return String(Buffer.get());
+	}
 
 private:
 

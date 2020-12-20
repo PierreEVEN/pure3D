@@ -8,6 +8,7 @@
 #include "Parser/SObject.h"
 #include "Writer/ClassWriter.h"
 
+
 int main(int argc, const char* argv[]) {
 
 	const auto& StartTime = std::chrono::steady_clock::now();
@@ -42,7 +43,6 @@ int main(int argc, const char* argv[]) {
 	for (const auto& File : Parser::ReflectedFiles) {
 		Writer::WriteFiles(File.second, ModulePathStr, OutputPath);
 	}
-
 
 	/**
 	 * Summary
