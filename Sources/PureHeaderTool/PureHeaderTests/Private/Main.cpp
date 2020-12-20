@@ -26,7 +26,8 @@ struct RSerializerInterface_PrimitiveTypes : ISerializerInterface {
 		OutputStream.write((char*)ObjectPtr, ObjectType->GetSize());
 	}
 
-	virtual void Deserialize(std::istream& InputStream) {
+	virtual void Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, size_t TotalSize) {
+		InputStream.read((char*)ObjectPtr, ObjectType->GetSize());
 	}
 
 	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) {
@@ -83,8 +84,38 @@ struct RSerializerInterface_Object : ISerializerInterface {
 		}
 	}
 
-	virtual void Deserialize(std::istream& InputStream) {
+	virtual void Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, size_t TotalSize) {
 
+		// Alway used on RCLass
+		RClass* MyClass = static_cast<RClass*>(ObjectType);
+
+		while (TotalSize > 0) {
+			size_t PropertyID;
+			size_t ParentID;
+			size_t PropertySize;
+
+			InputStream.read((char*)&PropertyID, sizeof(size_t));
+			InputStream.read((char*)&ParentID, sizeof(size_t));
+			InputStream.read((char*)&PropertySize, sizeof(size_t));
+
+			RClass* ParentClass = RClass::GetClass(ParentID);
+			RProperty* Property = ParentClass->GetProperty(PropertyID);
+
+			size_t CurrentPosition = InputStream.tellg();
+
+			if (!Property->GetType() || !Property->GetType()->GetSerializer()) {				
+				LOG_WARNING("failed to read prop");
+			}
+			else {
+				void* ClassPtr = MyClass->CastTo(ParentClass, ObjectPtr);
+				Property->GetType()->GetSerializer()->Deserialize(InputStream, Property->GetType(), Property->Get(ClassPtr), PropertySize);
+			}
+
+			InputStream.seekg(CurrentPosition + PropertySize, std::ios::beg); // Fake READ
+
+			TotalSize -= sizeof(size_t) * 3;
+			TotalSize -= PropertySize;
+		}
 	}
 
 	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) {
@@ -130,6 +161,7 @@ int main() {
 
 	RSerializerInterface_Object* ObjectSerializer = new RSerializerInterface_Object();
 	RSerializerInterface_PrimitiveTypes* PrimitiveTypeSerializer = new RSerializerInterface_PrimitiveTypes();
+
 	ChildOneTwo::GetStaticClass()->SetSerializer(ObjectSerializer);
 	ParentOne::GetStaticClass()->SetSerializer(ObjectSerializer);
 	ParentTwo::GetStaticClass()->SetSerializer(ObjectSerializer);
@@ -163,12 +195,12 @@ int main() {
 	SArchive Archive;
 	Archive.LinkObject("MyObject", MyClass, MyObject);
 
-	std::ofstream output("test.txt", std::ios::binary);
+	std::ofstream output("test.pbin", std::ios::binary);
 	Archive.Serialize(output);
 	output.close();
 
 
-	std::ifstream input("test.txt", std::ios::binary);
+	std::ifstream input("test.pbin", std::ios::binary);
 	Archive.Deserialize(input);
 	input.close();
 
@@ -178,9 +210,9 @@ int main() {
 	for (const auto& ParentClass : MyClass->GetParents()) {
 		LOG("Get properties for : " + ParentClass->GetName());
 		void* ParentClassPtr = MyClass->CastTo(ParentClass, MyObject);
-		RProperty* ParentPropertyA = ParentClass->GetProperty("A");
-		RProperty* ParentPropertyB = ParentClass->GetProperty("B");
-		RProperty* ParentPropertyC = ParentClass->GetProperty("C");
+		RProperty* ParentPropertyA = ParentClass->GetProperty(GenUniqueID("A"));
+		RProperty* ParentPropertyB = ParentClass->GetProperty(GenUniqueID("B"));
+		RProperty* ParentPropertyC = ParentClass->GetProperty(GenUniqueID("C"));
 		if (ParentPropertyA) LOG(ParentClass->GetName() + "->" + ParentPropertyA->GetName() + " : " + *ParentPropertyA->Get<int>(ParentClassPtr));
 		if (ParentPropertyB) LOG(ParentClass->GetName() + "->" + ParentPropertyB->GetName() + " : " + *ParentPropertyB->Get<double>(ParentClassPtr));
 		if (ParentPropertyC) LOG(ParentClass->GetName() + "->" + ParentPropertyC->GetName() + " : " + *ParentPropertyC->Get<float>(ParentClassPtr));
@@ -189,10 +221,10 @@ int main() {
 	/**
 	 * Properties tests
 	 */
-	RProperty* PropertyA = MyClass->GetProperty("A");
-	RProperty* PropertyB = MyClass->GetProperty("B");
-	RProperty* PropertyC = MyClass->GetProperty("C");
-	RProperty* PropertyD = MyClass->GetProperty("D");
+	RProperty* PropertyA = MyClass->GetProperty(GenUniqueID("A"));
+	RProperty* PropertyB = MyClass->GetProperty(GenUniqueID("B"));
+	RProperty* PropertyC = MyClass->GetProperty(GenUniqueID("C"));
+	RProperty* PropertyD = MyClass->GetProperty(GenUniqueID("D"));
 	if (PropertyA) LOG(PropertyA->GetName() + " : " + *PropertyA->Get<int>(MyObject));
 	if (PropertyB) LOG(PropertyB->GetName() + " : " + *PropertyB->Get<double>(MyObject));
 	if (PropertyC) LOG(PropertyC->GetName() + " : " + *PropertyC->Get<float>(MyObject));

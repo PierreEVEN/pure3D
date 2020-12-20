@@ -37,8 +37,8 @@ IFunctionPointer* RClass::GetFunction(const String& FunctionName) const {
 	return Value->second;
 }
 
-RProperty* RClass::GetProperty(const String& PropertyName) const {
-	const auto& Value = Properties.find(std::hash<String>{}(PropertyName));
+RProperty* RClass::GetProperty(size_t PropertyId) const {
+	const auto& Value = Properties.find(PropertyId);
 	if (Value == Properties.end()) return nullptr;
 	return Value->second;
 }
@@ -51,7 +51,11 @@ std::unordered_map<size_t, RClass*>* GetClasses() {
 }
 
 RClass* RClass::GetClass(const String& inClassName) {
-	const auto& value = GetClasses()->find(std::hash<String>{}(inClassName));
+	return GetClass(std::hash<String>{}(inClassName));
+}
+
+RClass* RClass::GetClass(size_t inClassId) {
+	const auto& value = GetClasses()->find(inClassId);
 	if (value == GetClasses()->end()) return nullptr;
 	return value->second;
 }

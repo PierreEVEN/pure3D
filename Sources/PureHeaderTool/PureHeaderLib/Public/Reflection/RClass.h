@@ -32,6 +32,11 @@ struct RClass : public RType {
     static RClass* GetClass(const String& inClassName);
 
     /**
+     * Get class from name
+     */
+    static RClass* GetClass(size_t inClassId);
+
+    /**
      * Register class
      */
     template<typename Class>
@@ -102,7 +107,7 @@ struct RClass : public RType {
 
 	IFunctionPointer* GetFunction(const String& PropertyName) const;
 
-    RProperty* GetProperty(const String& PropertyName) const;
+	RProperty* GetProperty(size_t PropertyName) const;
 
     std::unordered_map<size_t, RProperty*> GetProperties() { return Properties; }
 
