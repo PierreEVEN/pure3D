@@ -9,7 +9,7 @@ struct RProperty : public ReflectionObject {
 	RProperty(const String& inPropertyType, const String& inPropertyName, const size_t inPropertyOffset)
 		: PropertyName(inPropertyName), PropertyOffset(inPropertyOffset) {
 		PropertyType = nullptr;
-		if (RType* FoundType = RType::GetType(inPropertyType))
+		if (RType* FoundType = RType::GetTypeVariant(inPropertyType))
 			PropertyType = FoundType;
 		else 
 			RClass::WaitTypeRegistration(inPropertyType, this, &RProperty::OnRegisterType);

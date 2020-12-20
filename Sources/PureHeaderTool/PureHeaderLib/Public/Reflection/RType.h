@@ -5,6 +5,7 @@
 #include "Types/String.h"
 #include "Serialization.h"
 #include "Events/EventManager.h"
+#include <type_traits>
 
 
 DECLARE_DELEGATE_MULTICAST(SOnRegisterType, RType*);
@@ -33,23 +34,28 @@ struct RType : public ReflectionObject {
      * Get type by class
      */
     template<typename Type>
-	inline static RType* GetType() {
+	inline static RType* GetTypeVariant() {
 		static_assert(RIsReflected<Type>::Value, "Not a reflected type, please declare this type as a reflected type.");
-        return GetType(RTypeName<Type>::Name);
+        return GetTypeVariant(RTypeName<Type>::Name);
     }
 
     /**
      * Get type by class name
      */
-    static RType* GetType(const String& inTypeName);
+    static RType* GetTypeVariant(const String& inTypeName);
+
+    /**
+     * Get type by class name
+     */
+    static RType* GetTypeVariant(size_t InTypeId);
 
     /**
      * Register new reflected type
      */
     template<typename Class, typename Type = RType>
-    inline static Type* RegisterType(const String& inTypeName, size_t TypeID) {
+    inline static Type* RegisterType(const String& inTypeName) {
 		static_assert(RIsReflected<Class>::Value, "Not a reflected type, please declare this type as a reflected type.");
-        Type* newType = new Type(inTypeName, sizeof(Class), TypeID);
+        Type* newType = new Type(inTypeName, sizeof(Class));
         RegisterType_Internal(inTypeName, newType);
         return newType;
     }
@@ -58,17 +64,19 @@ struct RType : public ReflectionObject {
         return ClassSerializer;
     }
 
-    inline virtual const ERType GetType() const { return ERType::ERType_RType; }
+    inline virtual const ERType GetTypeVariant() const { return ERType::ERType_RType; }
 
 	template <typename WaitTypeName>
 	inline static void WaitTypeRegistration(String inClassName, WaitTypeName* inObjPtr, void(WaitTypeName::* inFunc)(RType*)) {
 		TypeRegistrationDelegate[inClassName].Add(inObjPtr, inFunc);
 	}
 
+    inline size_t GetId() const { return TypeId; }
+
 protected:
 
-    inline RType(const String& inTypeName, const size_t inTypeSize, const size_t inTypeId)
-        : TypeName(inTypeName), TypeSize(inTypeSize), ClassSerializer(nullptr), TypeId(inTypeId) {}
+	RType(const String& inTypeName, const size_t inTypeSize)
+		: TypeName(inTypeName), TypeSize(inTypeSize), ClassSerializer(nullptr), TypeId(std::hash<String>{}(inTypeName)) {}
 
 	virtual ~RType() = default;
 

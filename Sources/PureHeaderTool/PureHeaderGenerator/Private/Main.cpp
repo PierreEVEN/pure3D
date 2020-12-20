@@ -7,7 +7,6 @@
 #include "Parser/ClassParser.h"
 #include "Parser/SObject.h"
 #include "Writer/ClassWriter.h"
-#include "Parser/ClassIdHandler.h"
 
 
 int main(int argc, const char* argv[]) {
@@ -31,10 +30,6 @@ int main(int argc, const char* argv[]) {
 	 */
 	std::filesystem::path ModulePath(ModulePathStr.GetData());
 
-
-	Parser::SClassIdHandler::LoadClassIds(OutputPath / "ObjectIds.refl");
-
-
 	// Get all potential reflected headers
 	std::vector<Parser::SFileReference> ScannedFiles = Parser::ScanFiles(ModulePath);
 
@@ -48,10 +43,6 @@ int main(int argc, const char* argv[]) {
 	for (const auto& File : Parser::ReflectedFiles) {
 		Writer::WriteFiles(File.second, ModulePathStr, OutputPath);
 	}
-
-
-
-	Parser::SClassIdHandler::SaveClassIds(OutputPath / "ObjectIds.refl");
 
 	/**
 	 * Summary

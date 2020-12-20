@@ -71,7 +71,7 @@ struct RSerializerInterface_Object : ISerializerInterface {
 				continue;
 			}
 			void* NewObjectPtr = ObjectPtr;
-			if (PropertyType->GetType() == ERType::ERType_RClass) MyClass->CastTo((RClass*)PropertyType, ObjectPtr);
+			if (PropertyType->GetTypeVariant() == ERType::ERType_RClass) MyClass->CastTo((RClass*)PropertyType, ObjectPtr);
 
 			OutputStream << Serializer->GetObjectSize(ObjectType, ObjectPtr);
 			Serializer->Serialize(Property->GetName(), PropertyType, Property->Get<void>(NewObjectPtr), OutputStream);
@@ -93,7 +93,7 @@ struct RSerializerInterface_Object : ISerializerInterface {
 			if (!Serializer) continue;
 
 			void* NewObjectPtr = ObjectPtr;
-			if (PropertyType->GetType() == ERType::ERType_RClass) MyClass->CastTo((RClass*)PropertyType, ObjectPtr);
+			if (PropertyType->GetTypeVariant() == ERType::ERType_RClass) MyClass->CastTo((RClass*)PropertyType, ObjectPtr);
 
 			ObjectSize += Property->GetName().Length() + 1;
 			ObjectSize += sizeof(size_t);
@@ -107,20 +107,20 @@ struct RSerializerInterface_Object : ISerializerInterface {
 
 int main() {
 
-	REFL_REGISTER_TYPE(int, 0);
-	REFL_REGISTER_TYPE(float, 1);
-	REFL_REGISTER_TYPE(double, 2);
-	REFL_REGISTER_TYPE(bool, 3);
+	REFL_REGISTER_TYPE(int);
+	REFL_REGISTER_TYPE(float);
+	REFL_REGISTER_TYPE(double);
+	REFL_REGISTER_TYPE(bool);
 
 	RSerializerInterface_Object* ObjectSerializer = new RSerializerInterface_Object();
 	RSerializerInterface_PrimitiveTypes* PrimitiveTypeSerializer = new RSerializerInterface_PrimitiveTypes();
 	ChildOneTwo::GetStaticClass()->SetSerializer(ObjectSerializer);
 	BasicObject::GetStaticClass()->SetSerializer(ObjectSerializer);
 	BasicStructure::GetStaticClass()->SetSerializer(ObjectSerializer);
-	RType::GetType<int>()->SetSerializer(PrimitiveTypeSerializer);
-	RType::GetType<float>()->SetSerializer(PrimitiveTypeSerializer);
-	RType::GetType<double>()->SetSerializer(PrimitiveTypeSerializer);
-	RType::GetType<bool>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetTypeVariant<int>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetTypeVariant<float>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetTypeVariant<double>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetTypeVariant<bool>()->SetSerializer(PrimitiveTypeSerializer);
 
 
 	std::vector<int> Arr2 = { 10, 20, 30 };

@@ -15,9 +15,9 @@ struct RTypeName<Type> {	\
 };
 
 
-#define REFL_REGISTER_TYPE(Type, TypeId) RType::RegisterType<Type, RType>(#Type, TypeId);
+#define REFL_REGISTER_TYPE(Type) RType::RegisterType<Type, RType>(#Type);
 
-#define REFL_REGISTER_CLASS(Class, TypeId) RClass::RegisterClass<Class>(#Class, TypeId);
+#define REFL_REGISTER_CLASS(Class) RClass::RegisterClass<Class>(#Class);
 
 
 

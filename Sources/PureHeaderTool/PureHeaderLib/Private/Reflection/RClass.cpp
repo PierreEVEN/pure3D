@@ -17,24 +17,25 @@ void RClass::OnRegisterParentClass(RType* RegisteredClass) {
 }
 
 void RClass::AddProperty(RProperty* inProperty) {
-	ReflEnsure(Properties.find(inProperty->GetName()) == Properties.end(), inProperty->GetName() + " is already registered.");
-	Properties[inProperty->GetName()] = inProperty;
+	size_t Hash = std::hash<String>{}(inProperty->GetName());
+	ReflEnsure(Properties.find(Hash) == Properties.end(), inProperty->GetName() + " is already registered, or an other property have same hash value.");
+	Properties[Hash] = inProperty;
 }
 
-void RClass::AddFunction(IFunctionPointer* inFunction)
-{
-	ReflEnsure(Functions.find(inFunction->GetName()) == Functions.end(), inFunction->GetName() + " is already registered.");
-	Functions[inFunction->GetName()] = inFunction;
+void RClass::AddFunction(IFunctionPointer* inFunction) {
+	size_t Hash = std::hash<String>{}(inFunction->GetName());
+	ReflEnsure(Functions.find(Hash) == Functions.end(), inFunction->GetName() + " is already registered, or another function have the same hash value");
+	Functions[Hash] = inFunction;
 }
 
 IFunctionPointer* RClass::GetFunction(const String& FunctionName) const {
-	const auto& Value = Functions.find(FunctionName);
+	const auto& Value = Functions.find(std::hash<String>{}(FunctionName));
 	if (Value == Functions.end()) return nullptr;
 	return Value->second;
 }
 
 RProperty* RClass::GetProperty(const String& PropertyName) const {
-	const auto& Value = Properties.find(PropertyName);
+	const auto& Value = Properties.find(std::hash<String>{}(PropertyName));
 	if (Value == Properties.end()) return nullptr;
 	return Value->second;
 }

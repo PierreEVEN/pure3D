@@ -35,9 +35,9 @@ struct RClass : public RType {
      * Register class
      */
     template<typename Class>
-    static RClass* RegisterClass(const String& inClassName, size_t inClassId) {
+    static RClass* RegisterClass(const String& inClassName) {
         static_assert(RIsReflected<Class>::Value, "Failed to register class : not a reflected class. Please declare this class as a reflected class.");
-        RClass* RegisteredClass = RType::RegisterType<Class, RClass>(inClassName, inClassId);
+        RClass* RegisteredClass = RType::RegisterType<Class, RClass>(inClassName);
         RegisterClass_Internal(inClassName, RegisteredClass);
         return RegisteredClass;
 	}
@@ -72,7 +72,7 @@ struct RClass : public RType {
 	template<typename ThisClass, typename ParentClass>
     inline void AddCastFunction() {
         if constexpr (RIsReflected<ParentClass>::Value) {
-            CastFunctions[RClass::GetClass<ParentClass>()->GetName()] = RCastFunc(
+            CastFunctions[RClass::GetClass<ParentClass>()->GetId()] = RCastFunc(
                 [](const RClass* DesiredClass, void* FromPtr) -> void* {
                     return ParentClass::GetStaticClass()->CastTo(DesiredClass, reinterpret_cast<void*>(static_cast<ParentClass*>((ThisClass*)FromPtr)));
                 }
@@ -87,12 +87,12 @@ struct RClass : public RType {
     void* CastTo(const RClass* To, void* Ptr) {
 		if (To == this) return Ptr;
         for (const auto& Parent : Parents)
-            if (void* ToPtr = (CastFunctions[Parent->GetName()]) (To, Ptr)) 
+            if (void* ToPtr = (CastFunctions[Parent->GetId()]) (To, Ptr)) 
                 return ToPtr;
         return nullptr;
     }
 
-	inline virtual const ERType GetType() const override { return ERType::ERType_RClass; }
+	inline virtual const ERType GetTypeVariant() const override { return ERType::ERType_RClass; }
 
     template<typename ReturnType, typename Class, typename... Arguments>
     RFunction<ReturnType, Class, Arguments...>* GetFunction(const String& PropertyName) const {
@@ -103,7 +103,7 @@ struct RClass : public RType {
 
     RProperty* GetProperty(const String& PropertyName) const;
 
-    std::unordered_map<String, RProperty*> GetProperties() { return Properties; }
+    std::unordered_map<size_t, RProperty*> GetProperties() { return Properties; }
 
     template<typename... Arguments>
     inline void* InstantiateNew(Arguments&&... inArguments) {
@@ -118,8 +118,8 @@ struct RClass : public RType {
 
 private:
 
-	inline RClass(const String& inTypeName, size_t inTypeSize, size_t inTypeID)
-		: RType(inTypeName, inTypeSize, inTypeID) {}
+	inline RClass(const String& inTypeName, size_t inTypeSize)
+		: RType(inTypeName, inTypeSize) {}
 
     static void RegisterClass_Internal(const String& inClassName, const RClass* inClass);
 
@@ -127,16 +127,16 @@ private:
 
     inline void OnRegisterParentClass(RType* RegisteredClass);
 
-    std::unordered_map<String, RCastFunc> CastFunctions;
+    std::unordered_map<size_t, RCastFunc> CastFunctions;
     /**
      * Class properties
      */
-    std::unordered_map<String, RProperty*> Properties;
+    std::unordered_map<size_t, RProperty*> Properties;
 
     /**
      * Class properties
      */
-    std::unordered_map<String, IFunctionPointer*> Functions;
+    std::unordered_map<size_t, IFunctionPointer*> Functions;
     /**
      * Class properties
      */
