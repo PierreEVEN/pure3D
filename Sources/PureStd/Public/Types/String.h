@@ -6,6 +6,7 @@
 #include <string>
 #include <iosfwd>
 #include <iostream>
+#include <memory>
 
 #ifndef STRING_MINIMAL_LENGTH
 #define STRING_MINIMAL_LENGTH 16

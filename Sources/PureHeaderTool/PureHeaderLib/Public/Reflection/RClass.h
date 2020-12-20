@@ -159,5 +159,6 @@ T* NewObject(RClass* inClass, Arguments... inArguments) {
 
 template<typename T = void, typename... Arguments>
 T* NewObject(Arguments... inArguments) {
-	return reinterpret_cast<T*>(T::GetStaticClass()->InstantiateNew<Arguments...>(std::forward<Arguments>(inArguments)...));
+    RClass* ObjectClass = T::GetStaticClass();
+	return reinterpret_cast<T*>(ObjectClass->InstantiateNew<Arguments...>(std::forward<Arguments>(inArguments)...));
 }

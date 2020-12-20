@@ -24,7 +24,7 @@ RType* RType::GetType(const String& inTypeName) {
 
 
 void RType::RegisterType_Internal(const String& inTypeName, RType* inType) {
-	auto& foundElem = GetTypes()->find(inType->GetId());
+	auto foundElem = GetTypes()->find(inType->GetId());
 	if (foundElem != GetTypes()->end()) {
 		LOG_ASSERT("Cannot register " + inTypeName + " (two RTypes names gives the same UID : " + String(inType->GetId()) + ").");
 	}

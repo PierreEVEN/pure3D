@@ -24,7 +24,7 @@ void SArchive::Deserialize(std::istream& InputStream) {
 	size_t ObjectSize;
 	InputStream.read((char*)&ObjectId, sizeof(size_t));
 	InputStream.read((char*)&ObjectSize, sizeof(size_t));
-	auto& FoundObject = LinkedObjects.find(ObjectId);
+	auto FoundObject = LinkedObjects.find(ObjectId);
 	if (FoundObject == LinkedObjects.end()) return;
 	RType* ObjectType = FoundObject->second.ObjectType;
 
