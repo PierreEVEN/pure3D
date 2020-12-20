@@ -22,14 +22,13 @@ struct RSerializerInterface_##Type : RSerializerInterface { \
 
 struct RSerializerInterface_PrimitiveTypes : ISerializerInterface {
 
-	virtual void Serialize(const String& PropertyName, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
-		OutputStream << PropertyName;
-		OutputStream << ObjectType->GetSize();
+	virtual void Serialize(const size_t& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
 		OutputStream.write((char*)ObjectPtr, ObjectType->GetSize());
 	}
-	virtual void Deserialize(std::istream& InputStream) {
 
+	virtual void Deserialize(std::istream& InputStream) {
 	}
+
 	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) {
 		return ObjectType->GetSize();
 	}
@@ -38,43 +37,49 @@ struct RSerializerInterface_PrimitiveTypes : ISerializerInterface {
 
 struct RSerializerInterface_Object : ISerializerInterface {
 
-	virtual void Serialize(const String& PropertyName, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
+	virtual void Serialize(const size_t& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
 
-		OutputStream << PropertyName;
-		OutputStream << GetObjectSize(ObjectType, ObjectPtr);
-
+		// Alway used on RCLass
 		RClass* MyClass = static_cast<RClass*>(ObjectType);
 
-		for (auto& Parent : MyClass->GetParents()) {
-			ISerializerInterface* ParentSerializer = Parent->GetSerializer();
-			if (!ParentSerializer) continue;
+		// Get parent properties
+		for (const auto& ParentClass : MyClass->GetParents()) {
 
+			ISerializerInterface* Serializer = ParentClass->GetSerializer();
+			if (!Serializer) {
+				LOG_WARNING("(" + ObjectType->GetName() + ") : Cannot serialize parent class " + ParentClass->GetName() + " because it doesn't have any serializer.");
+				continue;
+			}
 
-			void* NewObjectPtr = MyClass->CastTo(Parent, ObjectPtr);
-
-			//ParentSerializer->Serialize(PropertyName, Parent, NewObjectPtr);
-
+			Serializer->Serialize(ParentClass->GetId(), ParentClass, ObjectType->CastTo(ParentClass, ObjectPtr), OutputStream);
 		}
 
-
-
-		for (const auto& PropertyField : MyClass->GetProperties()) {
-			RProperty* Property = PropertyField.second;
+		// Get every serializable properties
+		for (const auto& ParentClass : MyClass->GetProperties()) {
+			// Current property
+			RProperty* Property = ParentClass.second;
+			// Current property type
 			RType* PropertyType = Property->GetType();
-			if (!PropertyType) {
-				LOG_WARNING(PropertyName + "(" + ObjectType->GetName() + ") : " + Property->GetName() + " is not serializable because it doesn't have any RType.");
-				continue;
-			}
-			ISerializerInterface* Serializer = PropertyType->GetSerializer();
-			if (!Serializer) {
-				LOG_WARNING(PropertyName + "(" + ObjectType->GetName() + ") : Cannot serialize " + Property->GetName() + " because " + PropertyType->GetName() + " is not serializable.");
-				continue;
-			}
-			void* NewObjectPtr = ObjectPtr;
-			if (PropertyType->GetTypeVariant() == ERType::ERType_RClass) MyClass->CastTo((RClass*)PropertyType, ObjectPtr);
+			// Current property's serializer
+			ISerializerInterface* Serializer = PropertyType ? PropertyType->GetSerializer() : nullptr;
 
-			OutputStream << Serializer->GetObjectSize(ObjectType, ObjectPtr);
-			Serializer->Serialize(Property->GetName(), PropertyType, Property->Get<void>(NewObjectPtr), OutputStream);
+			// Ensure the property can be serialized
+			if (!PropertyType) {
+				LOG_WARNING(Property->GetName() + "(" + ObjectType->GetName() + ") : " + Property->GetName() + " is not serializable because it doesn't have any RType.");
+				continue;
+			}
+			if (!Serializer) {
+				LOG_WARNING(Property->GetName() + "(" + ObjectType->GetName() + ") : Cannot serialize " + Property->GetName() + " because " + PropertyType->GetName() + " is not serializable.");
+				continue;
+			}
+
+			size_t PropertyID = ParentClass.first;
+			size_t ObjectSize = Serializer->GetObjectSize(PropertyType, ObjectPtr);
+
+			OutputStream.write((char*)&PropertyID, sizeof(size_t));																// Property ID
+			OutputStream.write((char*)&ParentClassID, sizeof(size_t));															// Property's parent object ID
+			OutputStream.write((char*)&ObjectSize, sizeof(size_t));																// Property byte length
+			Serializer->Serialize(PropertyType->GetId(), PropertyType, Property->Get(ObjectPtr), OutputStream); // Property Data
 		}
 	}
 
@@ -84,22 +89,33 @@ struct RSerializerInterface_Object : ISerializerInterface {
 
 	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) {
 		size_t ObjectSize = 0;
+
+		// Alway used on RCLass
 		RClass* MyClass = static_cast<RClass*>(ObjectType);
-		for (const auto& PropertyField : MyClass->GetProperties()) {
-			RProperty* Property = PropertyField.second;
-			RType* PropertyType = Property->GetType();
-			if (!PropertyType) continue;
-			ISerializerInterface* Serializer = PropertyType->GetSerializer();
+
+		// Get parent size
+		for (const auto& ParentClass : MyClass->GetParents()) {
+			ISerializerInterface* Serializer = ParentClass->GetSerializer();
 			if (!Serializer) continue;
-
-			void* NewObjectPtr = ObjectPtr;
-			if (PropertyType->GetTypeVariant() == ERType::ERType_RClass) MyClass->CastTo((RClass*)PropertyType, ObjectPtr);
-
-			ObjectSize += Property->GetName().Length() + 1;
-			ObjectSize += sizeof(size_t);
-			ObjectSize += Serializer->GetObjectSize(PropertyType, NewObjectPtr);
-
+			ObjectSize += Serializer->GetObjectSize(ParentClass, ObjectType->CastTo(ParentClass, ObjectPtr));
 		}
+
+		// Get every serializable property size
+		for (const auto& ParentClass : MyClass->GetProperties()) {
+			// Current property
+			RProperty* Property = ParentClass.second;
+			// Current property type
+			RType* PropertyType = Property->GetType();
+			// Current property's serializer
+			ISerializerInterface* Serializer = PropertyType ? PropertyType->GetSerializer() : nullptr;
+
+			// Ensure the property can be serialized
+			if (!PropertyType || !Serializer) continue;
+
+			ObjectSize += sizeof(size_t) * 3;
+			ObjectSize += Serializer->GetObjectSize(PropertyType, ObjectPtr);
+		}
+
 		return ObjectSize;
 	}
 };
@@ -115,12 +131,14 @@ int main() {
 	RSerializerInterface_Object* ObjectSerializer = new RSerializerInterface_Object();
 	RSerializerInterface_PrimitiveTypes* PrimitiveTypeSerializer = new RSerializerInterface_PrimitiveTypes();
 	ChildOneTwo::GetStaticClass()->SetSerializer(ObjectSerializer);
+	ParentOne::GetStaticClass()->SetSerializer(ObjectSerializer);
+	ParentTwo::GetStaticClass()->SetSerializer(ObjectSerializer);
 	BasicObject::GetStaticClass()->SetSerializer(ObjectSerializer);
 	BasicStructure::GetStaticClass()->SetSerializer(ObjectSerializer);
-	RType::GetTypeVariant<int>()->SetSerializer(PrimitiveTypeSerializer);
-	RType::GetTypeVariant<float>()->SetSerializer(PrimitiveTypeSerializer);
-	RType::GetTypeVariant<double>()->SetSerializer(PrimitiveTypeSerializer);
-	RType::GetTypeVariant<bool>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetType<int>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetType<float>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetType<double>()->SetSerializer(PrimitiveTypeSerializer);
+	RType::GetType<bool>()->SetSerializer(PrimitiveTypeSerializer);
 
 
 	std::vector<int> Arr2 = { 10, 20, 30 };
@@ -145,18 +163,14 @@ int main() {
 	SArchive Archive;
 	Archive.LinkObject("MyObject", MyClass, MyObject);
 
-	std::ofstream output("test.txt");
+	std::ofstream output("test.txt", std::ios::binary);
 	Archive.Serialize(output);
 	output.close();
 
 
-	std::ifstream input("test.txt");
+	std::ifstream input("test.txt", std::ios::binary);
 	Archive.Deserialize(input);
 	input.close();
-
-
-	LOG("id : " + String(RType::GetTypeId<ChildOneTwo>()));
-	LOG("id : " + String(ChildOneTwo::GetStaticClass()->GetId()));
 
 	/**
 	 * Inheritance test

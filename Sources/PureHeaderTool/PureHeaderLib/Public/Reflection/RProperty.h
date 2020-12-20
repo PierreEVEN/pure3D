@@ -9,13 +9,13 @@ struct RProperty : public ReflectionObject {
 	RProperty(const String& inPropertyType, const String& inPropertyName, const size_t inPropertyOffset)
 		: PropertyName(inPropertyName), PropertyOffset(inPropertyOffset) {
 		PropertyType = nullptr;
-		if (RType* FoundType = RType::GetTypeVariant(inPropertyType))
+		if (RType* FoundType = RType::GetType(inPropertyType))
 			PropertyType = FoundType;
 		else 
 			RClass::WaitTypeRegistration(inPropertyType, this, &RProperty::OnRegisterType);
 	}
 
-	template<typename Type>
+	template<typename Type = void>
 	inline Type* Get(void* Object) {
 		return (Type*)((size_t)Object + PropertyOffset);
 	}

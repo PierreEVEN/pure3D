@@ -29,7 +29,7 @@ struct RClass : public RType {
     /**
      * Get class from name
      */
-    static const RClass* GetClass(const String& inClassName);
+    static RClass* GetClass(const String& inClassName);
 
     /**
      * Register class
@@ -72,7 +72,7 @@ struct RClass : public RType {
 	template<typename ThisClass, typename ParentClass>
     inline void AddCastFunction() {
         if constexpr (RIsReflected<ParentClass>::Value) {
-            CastFunctions[RType::GetTypeId<ParentClass>()] = RCastFunc(
+            CastFunctions[RType::MakeTypeID<ParentClass>()] = RCastFunc(
                 [](const RClass* DesiredClass, void* FromPtr) -> void* {
                     return ParentClass::GetStaticClass()->CastTo(DesiredClass, reinterpret_cast<void*>(static_cast<ParentClass*>((ThisClass*)FromPtr)));
                 }
@@ -84,10 +84,11 @@ struct RClass : public RType {
      * Cast Ptr to To Object
      * if ThisClass == To, return Ptr, else try to cast to one of the parent class
      */
-    void* CastTo(const RClass* To, void* Ptr) {
+    inline virtual void* CastTo(const RType* To, void* Ptr) override {
 		if (To == this) return Ptr;
+        if (To->GetTypeVariant() != ERType::ERType_RClass) return Ptr;
         for (const auto& Parent : Parents)
-            if (void* ToPtr = (CastFunctions[Parent->GetId()]) (To, Ptr)) 
+            if (void* ToPtr = (CastFunctions[Parent->GetId()]) ((RClass*)To, Ptr)) 
                 return ToPtr;
         return nullptr;
     }
@@ -114,7 +115,7 @@ struct RClass : public RType {
         return nullptr;
 	}
 
-    const std::vector<const RClass*>& GetParents() const { return Parents; }
+    const std::vector<RClass*>& GetParents() const { return Parents; }
 
 private:
 
@@ -143,7 +144,7 @@ private:
     /**
      * Parent classes
      */
-	std::vector<const RClass*> Parents;
+	std::vector<RClass*> Parents;
 };
 
 template<typename T = void, typename... Arguments>

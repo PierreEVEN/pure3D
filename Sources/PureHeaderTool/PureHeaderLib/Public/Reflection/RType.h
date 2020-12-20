@@ -34,20 +34,20 @@ struct RType : public ReflectionObject {
      * Get type by class
      */
     template<typename Type>
-	inline static RType* GetTypeVariant() {
+	inline static RType* GetType() {
 		static_assert(RIsReflected<Type>::Value, "Not a reflected type, please declare this type as a reflected type.");
-        return GetTypeVariant(RTypeName<Type>::Name);
+        return GetType(RTypeName<Type>::Name);
     }
 
     /**
      * Get type by class name
      */
-    static RType* GetTypeVariant(const String& inTypeName);
+    static RType* GetType(const String& inTypeName);
 
     /**
      * Get type by class name
      */
-    static RType* GetTypeVariant(size_t InTypeId);
+    static RType* GetType(size_t InTypeId);
 
     /**
      * Register new reflected type
@@ -74,7 +74,9 @@ struct RType : public ReflectionObject {
     inline size_t GetId() const { return TypeId; }
 
     template<typename Type>
-    inline static size_t GetTypeId() { return std::hash<String>{}(RTypeName<Type>::Name); }
+    inline static size_t MakeTypeID() { return std::hash<String>{}(RTypeName<Type>::Name); }
+
+    inline virtual void* CastTo(const RType* To, void* Ptr) { return Ptr; }
 
 protected:
 

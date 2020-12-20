@@ -8,7 +8,7 @@
 
 
 void RClass::AddParent(const String& inParent) {
-	if (const RClass* FoundClass = RClass::GetClass(inParent))
+	if (RClass* FoundClass = RClass::GetClass(inParent))
 		Parents.push_back(FoundClass);
 	else {
 		RType::WaitTypeRegistration(inParent, this, &RClass::OnRegisterParentClass);
@@ -50,7 +50,7 @@ std::unordered_map<size_t, RClass*>* GetClasses() {
 	return Classes;
 }
 
-const RClass* RClass::GetClass(const String& inClassName) {
+RClass* RClass::GetClass(const String& inClassName) {
 	const auto& value = GetClasses()->find(std::hash<String>{}(inClassName));
 	if (value == GetClasses()->end()) return nullptr;
 	return value->second;

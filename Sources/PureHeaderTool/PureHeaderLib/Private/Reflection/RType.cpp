@@ -12,14 +12,14 @@ std::unordered_map<size_t, RType*>* GetTypes() {
 }
 
 
-RType* RType::GetTypeVariant(size_t inTypeId) {
+RType* RType::GetType(size_t inTypeId) {
 	const auto& value = GetTypes()->find(inTypeId);
 	if (value == GetTypes()->end()) return nullptr;
 	return value->second;
 }
 
-RType* RType::GetTypeVariant(const String& inTypeName) {
-	return GetTypeVariant(std::hash<String>{}(inTypeName));
+RType* RType::GetType(const String& inTypeName) {
+	return GetType(std::hash<String>{}(inTypeName));
 }
 
 

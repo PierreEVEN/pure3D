@@ -11,7 +11,7 @@ void SArchive::Serialize(std::ostream& OutputStream) {
 			continue;
 		}
 
-		Serializer->Serialize(Object.first, Object.second.ObjectType, Object.second.ObjectPtr, OutputStream);
+		Serializer->Serialize(Object.second.ObjectType->GetId(), Object.second.ObjectType, Object.second.ObjectPtr, OutputStream);
 	}
 }
 

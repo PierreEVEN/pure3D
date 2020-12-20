@@ -8,47 +8,47 @@ char* data // contenu binaire d'un item de package
 		# DEFAULT
 
 		size_t Var1Id // hash du nom de la propriété
-		size_t Var1Size // taille en bytes de VarData
 		size_t ObjClassId // hash du nom de la class parente
+		size_t Var1Size // taille en bytes de VarData
 		char[n]  Var1Data // données binaires (de longueur VarSize)
 		
 		size_t Var2Id
-		size_t Var2Size
 		size_t ObjClassId
+		size_t Var2Size
 		char[n]  Var2Data { // Exemple du contenu de Var2 si Var2 est un Parent 1
 			size_t Parent1Var1Id
-			size_t Parent1Var1Size
 			size_t Parent1ClassId
+			size_t Parent1Var1Size
 			char[n]  Parent1Var1Data
 			
 			size_t Parent1Var2Id
-			size_t Parent1Var2Size
 			size_t Parent1ClassId
+			size_t Parent1Var2Size
 			char[n]  Parent1Var2Data
 		}
 		
 		# PARENT 1
 		
 		size_t Parent1Var1Id
-		size_t Parent1Var1Size
 		size_t Parent1ClassId
+		size_t Parent1Var1Size
 		char[n]  Parent1Var1Data
 		
 		size_t Parent1Var2Id
-		size_t Parent1Var2Size
 		size_t Parent1ClassId
+		size_t Parent1Var2Size
 		char[n]  Parent1Var2Data
 			
 		# PARENT 2
 
 		size_t Parent2Var1Id
-		size_t Parent2Var1Size
 		size_t Parent2ClassId
+		size_t Parent2Var1Size
 		char[n]  Parent2Var1Data
 		
 		size_t Parent2Var2Id
-		size_t Parent2Var2Size
 		size_t Parent2ClassId
+		size_t Parent2Var2Size
 		char[n]  Parent2Var2Data
 		
 }
