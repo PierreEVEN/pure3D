@@ -3,10 +3,12 @@
 #include "ReflectionUtilities.h"
 
 #include "Types/String.h"
-#include "Serialization.h"
 #include "Events/EventManager.h"
 #include <type_traits>
+#include <unordered_map>
 
+struct ISerializerInterface;
+struct RType;
 
 DECLARE_DELEGATE_MULTICAST(SOnRegisterType, RType*);
 

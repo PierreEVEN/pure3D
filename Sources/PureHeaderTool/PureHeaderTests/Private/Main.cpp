@@ -6,151 +6,15 @@
 #include "Reflection/RFunction.h"
 #include "Reflection/RConstructor.h"
 #include "Reflection/ReflectionMacros.h"
-#include "Reflection/Serialization.h"
+#include "Serialization/Serialization.h"
 #include <fstream>
 #include "Types/Array.h"
+#include "Serialization/GenericSerializers.h"
 
 REFL_DECLARE_TYPENAME(int);
 REFL_DECLARE_TYPENAME(float);
 REFL_DECLARE_TYPENAME(double);
 REFL_DECLARE_TYPENAME(bool);
-
-#define DECLARE_PRIMITIVE_TYPE_SERIALIZER(Type) \
-struct RSerializerInterface_##Type : RSerializerInterface { \
-	virtual size_t GetPropertySize(void* TypePtr) override { return sizeof(Type); } \
-}
-
-struct RSerializerInterface_PrimitiveTypes : ISerializerInterface {
-
-	virtual void Serialize(const size_t& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
-		OutputStream.write((char*)ObjectPtr, ObjectType->GetSize());
-	}
-
-	virtual void Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, size_t TotalSize) {
-		InputStream.read((char*)ObjectPtr, ObjectType->GetSize());
-	}
-
-	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) {
-		return ObjectType->GetSize();
-	}
-};
-
-
-struct RSerializerInterface_Object : ISerializerInterface {
-
-	virtual void Serialize(const size_t& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
-
-		// Alway used on RCLass
-		RClass* MyClass = static_cast<RClass*>(ObjectType);
-
-		// Get parent properties
-		for (const auto& ParentClass : MyClass->GetParents()) {
-
-			ISerializerInterface* Serializer = ParentClass->GetSerializer();
-			if (!Serializer) {
-				LOG_WARNING("(" + ObjectType->GetName() + ") : Cannot serialize parent class " + ParentClass->GetName() + " because it doesn't have any serializer.");
-				continue;
-			}
-
-			Serializer->Serialize(ParentClass->GetId(), ParentClass, ObjectType->CastTo(ParentClass, ObjectPtr), OutputStream);
-		}
-
-		// Get every serializable properties
-		for (const auto& ParentClass : MyClass->GetProperties()) {
-			// Current property
-			RProperty* Property = ParentClass.second;
-			// Current property type
-			RType* PropertyType = Property->GetType();
-			// Current property's serializer
-			ISerializerInterface* Serializer = PropertyType ? PropertyType->GetSerializer() : nullptr;
-
-			// Ensure the property can be serialized
-			if (!PropertyType) {
-				LOG_WARNING(Property->GetName() + "(" + ObjectType->GetName() + ") : " + Property->GetName() + " is not serializable because it doesn't have any RType.");
-				continue;
-			}
-			if (!Serializer) {
-				LOG_WARNING(Property->GetName() + "(" + ObjectType->GetName() + ") : Cannot serialize " + Property->GetName() + " because " + PropertyType->GetName() + " is not serializable.");
-				continue;
-			}
-
-			size_t PropertyID = ParentClass.first;
-			size_t ObjectSize = Serializer->GetObjectSize(PropertyType, ObjectPtr);
-
-			OutputStream.write((char*)&PropertyID, sizeof(size_t));																// Property ID
-			OutputStream.write((char*)&ParentClassID, sizeof(size_t));															// Property's parent object ID
-			OutputStream.write((char*)&ObjectSize, sizeof(size_t));																// Property byte length
-			Serializer->Serialize(PropertyType->GetId(), PropertyType, Property->Get(ObjectPtr), OutputStream); // Property Data
-		}
-	}
-
-	virtual void Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, size_t TotalSize) {
-
-		// Alway used on RCLass
-		RClass* MyClass = static_cast<RClass*>(ObjectType);
-
-		while (TotalSize > 0) {
-			size_t PropertyID;
-			size_t ParentID;
-			size_t PropertySize;
-
-			InputStream.read((char*)&PropertyID, sizeof(size_t));
-			InputStream.read((char*)&ParentID, sizeof(size_t));
-			InputStream.read((char*)&PropertySize, sizeof(size_t));
-
-			RClass* ParentClass = RClass::GetClass(ParentID);
-			RProperty* Property = ParentClass->GetProperty(PropertyID);
-
-			size_t CurrentPosition = InputStream.tellg();
-
-			if (!Property->GetType() || !Property->GetType()->GetSerializer()) {				
-				LOG_WARNING("failed to read prop");
-			}
-			else {
-				void* ClassPtr = MyClass->CastTo(ParentClass, ObjectPtr);
-				Property->GetType()->GetSerializer()->Deserialize(InputStream, Property->GetType(), Property->Get(ClassPtr), PropertySize);
-			}
-
-			InputStream.seekg(CurrentPosition + PropertySize, std::ios::beg); // Fake READ
-
-			TotalSize -= sizeof(size_t) * 3;
-			TotalSize -= PropertySize;
-		}
-	}
-
-	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) {
-		size_t ObjectSize = 0;
-
-		// Alway used on RCLass
-		RClass* MyClass = static_cast<RClass*>(ObjectType);
-
-		// Get parent size
-		for (const auto& ParentClass : MyClass->GetParents()) {
-			ISerializerInterface* Serializer = ParentClass->GetSerializer();
-			if (!Serializer) continue;
-			ObjectSize += Serializer->GetObjectSize(ParentClass, ObjectType->CastTo(ParentClass, ObjectPtr));
-		}
-
-		// Get every serializable property size
-		for (const auto& ParentClass : MyClass->GetProperties()) {
-			// Current property
-			RProperty* Property = ParentClass.second;
-			// Current property type
-			RType* PropertyType = Property->GetType();
-			// Current property's serializer
-			ISerializerInterface* Serializer = PropertyType ? PropertyType->GetSerializer() : nullptr;
-
-			// Ensure the property can be serialized
-			if (!PropertyType || !Serializer) continue;
-
-			ObjectSize += sizeof(size_t) * 3;
-			ObjectSize += Serializer->GetObjectSize(PropertyType, ObjectPtr);
-		}
-
-		return ObjectSize;
-	}
-};
-
 
 int main() {
 
@@ -172,36 +36,47 @@ int main() {
 	RType::GetType<double>()->SetSerializer(PrimitiveTypeSerializer);
 	RType::GetType<bool>()->SetSerializer(PrimitiveTypeSerializer);
 
-
-	std::vector<int> Arr2 = { 10, 20, 30 };
-
-
-	TVector<int> Arr = { 10, 20, 30 };
-	Arr.Add(3);
 	/**
 	 * Class tests
 	 */
 	RClass* MyClass = ChildOneTwo::GetStaticClass();
 	if (!MyClass) return 0;
 	LOG(MyClass->GetName() + " size : " + MyClass->GetSize());
-	
+
 	/**
 	 * Instantiate tests
 	 */
 	void* MyObject = MyClass->InstantiateNew<int, double, float>(5, 20.4, 3.5f);
-	if (!MyObject) return 0;
+	ChildOneTwo* ChildOneTwoObj = NewObject<ChildOneTwo>();
 
 
-	SArchive Archive;
-	Archive.LinkObject("MyObject", MyClass, MyObject);
+	/**
+	 * Serialization tests
+	 */
+	ChildOneTwoObj->A = 10;
+	ChildOneTwoObj->B = 40;
+	ChildOneTwoObj->C = 50;
+	ChildOneTwoObj->ParentOne::A = 8;
+	ChildOneTwoObj->ParentOne::B = 25;
+	ChildOneTwoObj->ParentOne::C = 24;
+	ChildOneTwoObj->ParentTwo::A = 12;
+	ChildOneTwoObj->ParentTwo::B = 23;
+	ChildOneTwoObj->ParentTwo::C = 38;
+
+	// Serialize
+	SArchive ArchiveSerialize;
+	ArchiveSerialize.LinkObject("MyObject", MyClass, ChildOneTwoObj);
 
 	std::ofstream output("test.pbin", std::ios::binary);
-	Archive.Serialize(output);
+	ArchiveSerialize.Serialize(output);
 	output.close();
 
+	// Deserialize
+	SArchive ArchiveDeserialize;
+	ArchiveDeserialize.LinkObject("MyObject", MyClass, MyObject);
 
 	std::ifstream input("test.pbin", std::ios::binary);
-	Archive.Deserialize(input);
+	ArchiveDeserialize.Deserialize(input);
 	input.close();
 
 	/**
@@ -217,6 +92,8 @@ int main() {
 		if (ParentPropertyB) LOG(ParentClass->GetName() + "->" + ParentPropertyB->GetName() + " : " + *ParentPropertyB->Get<double>(ParentClassPtr));
 		if (ParentPropertyC) LOG(ParentClass->GetName() + "->" + ParentPropertyC->GetName() + " : " + *ParentPropertyC->Get<float>(ParentClassPtr));
 	}
+
+
 
 	/**
 	 * Properties tests

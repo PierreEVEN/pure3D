@@ -276,6 +276,15 @@ public:
 
 	inline static void ResetCharArray(char* str, const size_t& strLength) { for (int i = 0; i < strLength; ++i) str[i] = '\0'; }
 
+	template<typename... Arguments>
+	inline static String Format(const String& FormatStr, Arguments... args) {
+		int Size = snprintf(nullptr, 0, FormatStr.GetData(), args...) + 1;
+		if (Size <= 0) return FormatStr;
+		std::unique_ptr<char[]> Buffer(new char[Size]);
+		snprintf(Buffer.get(), Size, FormatStr.GetData(), args ...);
+		return String(Buffer.get());
+	}
+
 private:
 
 	inline static const String& CopyTo(const String& from, String* to) {
