@@ -14,6 +14,9 @@ struct RTypeName<Type> {	\
 	constexpr static const char* Name = #Type; \
 };
 
+inline size_t GenUniqueID(const String& Name) {
+	return std::hash<String>{}(Name);
+}
 
 #define REFL_REGISTER_TYPE(Type) RType::RegisterType<Type, RType>(#Type);
 

@@ -3,9 +3,12 @@
 #include "ReflectionUtilities.h"
 
 #include "Types/String.h"
-#include "Serialization.h"
 #include "Events/EventManager.h"
+#include <type_traits>
+#include <unordered_map>
 
+struct ISerializerInterface;
+struct RType;
 
 DECLARE_DELEGATE_MULTICAST(SOnRegisterType, RType*);
 
@@ -44,6 +47,11 @@ struct RType : public ReflectionObject {
     static RType* GetType(const String& inTypeName);
 
     /**
+     * Get type by class name
+     */
+    static RType* GetType(size_t InTypeId);
+
+    /**
      * Register new reflected type
      */
     template<typename Class, typename Type = RType>
@@ -58,17 +66,24 @@ struct RType : public ReflectionObject {
         return ClassSerializer;
     }
 
-    inline virtual const ERType GetType() const { return ERType::ERType_RType; }
+    inline virtual const ERType GetTypeVariant() const { return ERType::ERType_RType; }
 
 	template <typename WaitTypeName>
 	inline static void WaitTypeRegistration(String inClassName, WaitTypeName* inObjPtr, void(WaitTypeName::* inFunc)(RType*)) {
-		TypeRegistrationDelegate[inClassName].Add(inObjPtr, inFunc);
+        TypeRegistrationDelegate[std::hash<String>{}(inClassName)].Add(inObjPtr, inFunc);
 	}
+
+    inline size_t GetId() const { return TypeId; }
+
+    template<typename Type>
+    inline static size_t MakeTypeID() { return std::hash<String>{}(RTypeName<Type>::Name); }
+
+    inline virtual void* CastTo(const RType* To, void* Ptr) { return Ptr; }
 
 protected:
 
-    inline RType(const String& inTypeName, const size_t inTypeSize)
-        : TypeName(inTypeName), TypeSize(inTypeSize), ClassSerializer(nullptr) {}
+	RType(const String& inTypeName, const size_t inTypeSize)
+		: TypeName(inTypeName), TypeSize(inTypeSize), ClassSerializer(nullptr), TypeId(std::hash<String>{}(inTypeName)) {}
 
 	virtual ~RType() = default;
 
@@ -76,7 +91,7 @@ private:
 
     static void RegisterType_Internal(const String& inTypeName, RType* newType);
 
-	inline static std::unordered_map<String, SOnRegisterType> TypeRegistrationDelegate;
+	inline static std::unordered_map<size_t, SOnRegisterType> TypeRegistrationDelegate;
 
     ISerializerInterface* ClassSerializer;
 
@@ -89,4 +104,9 @@ private:
      * Type size
      */
     const size_t TypeSize;
+
+    /**
+     * TypeId
+     */
+    const size_t TypeId;
 };

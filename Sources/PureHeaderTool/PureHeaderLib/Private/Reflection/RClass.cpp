@@ -3,13 +3,16 @@
 #include <unordered_map>
 #include "Reflection/RProperty.h"
 #include "Reflection/RFunction.h"
+#include "IO/Log.h"
+#include <iostream>
 
 
 void RClass::AddParent(const String& inParent) {
-	if (const RClass* FoundClass = RClass::GetClass(inParent))
+	if (RClass* FoundClass = RClass::GetClass(inParent))
 		Parents.push_back(FoundClass);
-	else
+	else {
 		RType::WaitTypeRegistration(inParent, this, &RClass::OnRegisterParentClass);
+	}
 }
 
 void RClass::OnRegisterParentClass(RType* RegisteredClass) {
@@ -17,37 +20,46 @@ void RClass::OnRegisterParentClass(RType* RegisteredClass) {
 }
 
 void RClass::AddProperty(RProperty* inProperty) {
-	ReflEnsure(Properties.find(inProperty->GetName()) == Properties.end(), inProperty->GetName() + " is already registered.");
-	Properties[inProperty->GetName()] = inProperty;
+	size_t Hash = std::hash<String>{}(inProperty->GetName());
+	ReflEnsure(Properties.find(Hash) == Properties.end(), inProperty->GetName() + " is already registered, or an other property have same hash value.");
+	Properties[Hash] = inProperty;
 }
 
-void RClass::AddFunction(IFunctionPointer* inFunction)
-{
-	ReflEnsure(Functions.find(inFunction->GetName()) == Functions.end(), inFunction->GetName() + " is already registered.");
-	Functions[inFunction->GetName()] = inFunction;
+void RClass::AddFunction(IFunctionPointer* inFunction) {
+	size_t Hash = std::hash<String>{}(inFunction->GetName());
+	ReflEnsure(Functions.find(Hash) == Functions.end(), inFunction->GetName() + " is already registered, or another function have the same hash value");
+	Functions[Hash] = inFunction;
 }
 
 IFunctionPointer* RClass::GetFunction(const String& FunctionName) const {
-	const auto& Value = Functions.find(FunctionName);
+	const auto& Value = Functions.find(std::hash<String>{}(FunctionName));
 	if (Value == Functions.end()) return nullptr;
 	return Value->second;
 }
 
-RProperty* RClass::GetProperty(const String& PropertyName) const {
-	const auto& Value = Properties.find(PropertyName);
+RProperty* RClass::GetProperty(size_t PropertyId) const {
+	const auto& Value = Properties.find(PropertyId);
 	if (Value == Properties.end()) return nullptr;
 	return Value->second;
 }
 
-const RClass* RClass::GetClass(const String& inClassName) {
-	if (!Classes) Classes = new std::unordered_map<String, const RClass*>();
-	const auto& value = Classes->find(inClassName);
-	if (value == Classes->end()) return nullptr;
+inline static std::unordered_map<size_t, RClass*>* Classes = nullptr;
+
+std::unordered_map<size_t, RClass*>* GetClasses() {
+	if (!Classes) Classes = new std::unordered_map<size_t, RClass*>();
+	return Classes;
+}
+
+RClass* RClass::GetClass(const String& inClassName) {
+	return GetClass(std::hash<String>{}(inClassName));
+}
+
+RClass* RClass::GetClass(size_t inClassId) {
+	const auto& value = GetClasses()->find(inClassId);
+	if (value == GetClasses()->end()) return nullptr;
 	return value->second;
 }
 
-void RClass::RegisterClass_Internal(const String& inClassName, const RClass* inClass) {
-	if (!Classes) Classes = new std::unordered_map<String, const RClass*>();
-	ReflEnsure(Classes->find(inClassName) == Classes->end(), (String("class ") + inClassName + " is already registered").GetData());
-	(*Classes)[inClassName] = inClass;
+void RClass::RegisterClass_Internal(RClass* inClass) {
+	(*GetClasses())[inClass->GetId()] = inClass;
 }

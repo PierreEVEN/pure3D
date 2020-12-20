@@ -2,22 +2,35 @@
 
 #include <unordered_map>
 #include <iostream>
+#include "IO/Log.h"
 
-inline static std::unordered_map<std::string, RType*>* Types = nullptr;
+inline static std::unordered_map<size_t, RType*>* Types = nullptr;
 
-RType* RType::GetType(const String& inTypeName) {
-	if (!Types) Types = new std::unordered_map<std::string, RType*>;
-	const auto& value = Types->find(inTypeName.GetData());
-	if (value == Types->end()) return nullptr;
+std::unordered_map<size_t, RType*>* GetTypes() {
+	if (!Types) Types = new std::unordered_map<size_t, RType*>();
+	return Types;
+}
+
+
+RType* RType::GetType(size_t inTypeId) {
+	const auto& value = GetTypes()->find(inTypeId);
+	if (value == GetTypes()->end()) return nullptr;
 	return value->second;
 }
 
-void RType::RegisterType_Internal(const String& inTypeName, RType* inType) {
-	if (!Types) Types = new std::unordered_map<std::string, RType*>;
-	ReflEnsure(Types->find(inTypeName.GetData()) == Types->end(), "type " + inTypeName + " is already registered");
-	(*Types)[inTypeName.GetData()] = inType;
+RType* RType::GetType(const String& inTypeName) {
+	return GetType(std::hash<String>{}(inTypeName));
+}
 
-	const auto& FoundDelegate = TypeRegistrationDelegate.find(inTypeName);
+
+void RType::RegisterType_Internal(const String& inTypeName, RType* inType) {
+	auto& foundElem = GetTypes()->find(inType->GetId());
+	if (foundElem != GetTypes()->end()) {
+		LOG_ASSERT("Cannot register " + inTypeName + " (two RTypes names gives the same UID : " + String(inType->GetId()) + ").");
+	}
+	(*GetTypes())[inType->GetId()] = inType;
+
+	const auto& FoundDelegate = TypeRegistrationDelegate.find(inType->GetId());
 	if (FoundDelegate != TypeRegistrationDelegate.end()) {
 		FoundDelegate->second.Execute(inType);
 	}

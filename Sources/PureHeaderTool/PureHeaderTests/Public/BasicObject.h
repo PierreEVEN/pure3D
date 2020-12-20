@@ -14,7 +14,7 @@ REFLECT();
 enum class AdvancedEnum {
 	ADV_ONE = 1,
 	ADV_TWO = 1 << 1,
-	ADV_THREE = 1 << 2
+	ADV_THREE = 1 << 2	
 };
 
 REFLECT();

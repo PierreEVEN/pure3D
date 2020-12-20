@@ -15,7 +15,7 @@ struct RProperty : public ReflectionObject {
 			RClass::WaitTypeRegistration(inPropertyType, this, &RProperty::OnRegisterType);
 	}
 
-	template<typename Type>
+	template<typename Type = void>
 	inline Type* Get(void* Object) {
 		return (Type*)((size_t)Object + PropertyOffset);
 	}

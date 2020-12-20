@@ -55,5 +55,4 @@ namespace Parser {
 		std::vector<SFunctionData> Functions;
 		std::vector<SFunctionData> Constructors;
 	};
-
 }

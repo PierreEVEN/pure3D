@@ -30,7 +30,7 @@ struct RConstructor {
 	template<typename... Arguments>
 	inline void* InstanciateNew(Arguments&&... inArguments) {
 
-		// Are arguments valids
+		// Are arguments valid
 		if (const InstantiateFunc<Arguments...>* Factory = std::any_cast<InstantiateFunc<Arguments...>>(&ConstructorFunction)) {
 
 			// Call instantiate func
