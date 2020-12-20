@@ -68,10 +68,13 @@ struct RType : public ReflectionObject {
 
 	template <typename WaitTypeName>
 	inline static void WaitTypeRegistration(String inClassName, WaitTypeName* inObjPtr, void(WaitTypeName::* inFunc)(RType*)) {
-		TypeRegistrationDelegate[inClassName].Add(inObjPtr, inFunc);
+        TypeRegistrationDelegate[std::hash<String>{}(inClassName)].Add(inObjPtr, inFunc);
 	}
 
     inline size_t GetId() const { return TypeId; }
+
+    template<typename Type>
+    inline static size_t GetTypeId() { return std::hash<String>{}(RTypeName<Type>::Name); }
 
 protected:
 
@@ -84,7 +87,7 @@ private:
 
     static void RegisterType_Internal(const String& inTypeName, RType* newType);
 
-	inline static std::unordered_map<String, SOnRegisterType> TypeRegistrationDelegate;
+	inline static std::unordered_map<size_t, SOnRegisterType> TypeRegistrationDelegate;
 
     ISerializerInterface* ClassSerializer;
 

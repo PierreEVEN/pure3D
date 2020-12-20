@@ -155,12 +155,14 @@ int main() {
 	input.close();
 
 
-
+	LOG("id : " + String(RType::GetTypeId<ChildOneTwo>()));
+	LOG("id : " + String(ChildOneTwo::GetStaticClass()->GetId()));
 
 	/**
 	 * Inheritance test
 	 */
 	for (const auto& ParentClass : MyClass->GetParents()) {
+		LOG("Get properties for : " + ParentClass->GetName());
 		void* ParentClassPtr = MyClass->CastTo(ParentClass, MyObject);
 		RProperty* ParentPropertyA = ParentClass->GetProperty("A");
 		RProperty* ParentPropertyB = ParentClass->GetProperty("B");

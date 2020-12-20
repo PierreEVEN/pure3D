@@ -38,7 +38,7 @@ struct RClass : public RType {
     static RClass* RegisterClass(const String& inClassName) {
         static_assert(RIsReflected<Class>::Value, "Failed to register class : not a reflected class. Please declare this class as a reflected class.");
         RClass* RegisteredClass = RType::RegisterType<Class, RClass>(inClassName);
-        RegisterClass_Internal(inClassName, RegisteredClass);
+        RegisterClass_Internal(RegisteredClass);
         return RegisteredClass;
 	}
 
@@ -72,7 +72,7 @@ struct RClass : public RType {
 	template<typename ThisClass, typename ParentClass>
     inline void AddCastFunction() {
         if constexpr (RIsReflected<ParentClass>::Value) {
-            CastFunctions[RClass::GetClass<ParentClass>()->GetId()] = RCastFunc(
+            CastFunctions[RType::GetTypeId<ParentClass>()] = RCastFunc(
                 [](const RClass* DesiredClass, void* FromPtr) -> void* {
                     return ParentClass::GetStaticClass()->CastTo(DesiredClass, reinterpret_cast<void*>(static_cast<ParentClass*>((ThisClass*)FromPtr)));
                 }
@@ -121,9 +121,7 @@ private:
 	inline RClass(const String& inTypeName, size_t inTypeSize)
 		: RType(inTypeName, inTypeSize) {}
 
-    static void RegisterClass_Internal(const String& inClassName, const RClass* inClass);
-
-	inline static std::unordered_map<String, const RClass*>* Classes = nullptr;
+    static void RegisterClass_Internal(RClass* inClass);
 
     inline void OnRegisterParentClass(RType* RegisteredClass);
 

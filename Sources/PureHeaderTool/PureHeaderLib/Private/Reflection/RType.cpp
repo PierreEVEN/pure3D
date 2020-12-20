@@ -30,7 +30,7 @@ void RType::RegisterType_Internal(const String& inTypeName, RType* inType) {
 	}
 	(*GetTypes())[inType->GetId()] = inType;
 
-	const auto& FoundDelegate = TypeRegistrationDelegate.find(inTypeName);
+	const auto& FoundDelegate = TypeRegistrationDelegate.find(inType->GetId());
 	if (FoundDelegate != TypeRegistrationDelegate.end()) {
 		FoundDelegate->second.Execute(inType);
 	}

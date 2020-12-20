@@ -3,13 +3,16 @@
 #include <unordered_map>
 #include "Reflection/RProperty.h"
 #include "Reflection/RFunction.h"
+#include "IO/Log.h"
+#include <iostream>
 
 
 void RClass::AddParent(const String& inParent) {
 	if (const RClass* FoundClass = RClass::GetClass(inParent))
 		Parents.push_back(FoundClass);
-	else
+	else {
 		RType::WaitTypeRegistration(inParent, this, &RClass::OnRegisterParentClass);
+	}
 }
 
 void RClass::OnRegisterParentClass(RType* RegisteredClass) {
@@ -40,15 +43,19 @@ RProperty* RClass::GetProperty(const String& PropertyName) const {
 	return Value->second;
 }
 
+inline static std::unordered_map<size_t, RClass*>* Classes = nullptr;
+
+std::unordered_map<size_t, RClass*>* GetClasses() {
+	if (!Classes) Classes = new std::unordered_map<size_t, RClass*>();
+	return Classes;
+}
+
 const RClass* RClass::GetClass(const String& inClassName) {
-	if (!Classes) Classes = new std::unordered_map<String, const RClass*>();
-	const auto& value = Classes->find(inClassName);
-	if (value == Classes->end()) return nullptr;
+	const auto& value = GetClasses()->find(std::hash<String>{}(inClassName));
+	if (value == GetClasses()->end()) return nullptr;
 	return value->second;
 }
 
-void RClass::RegisterClass_Internal(const String& inClassName, const RClass* inClass) {
-	if (!Classes) Classes = new std::unordered_map<String, const RClass*>();
-	ReflEnsure(Classes->find(inClassName) == Classes->end(), (String("class ") + inClassName + " is already registered").GetData());
-	(*Classes)[inClassName] = inClass;
+void RClass::RegisterClass_Internal(RClass* inClass) {
+	(*GetClasses())[inClass->GetId()] = inClass;
 }
