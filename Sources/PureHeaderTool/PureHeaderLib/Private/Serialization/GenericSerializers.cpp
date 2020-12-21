@@ -3,7 +3,7 @@
 #include "IO/Log.h"
 #include "Reflection/RProperty.h"
 
-void RSerializerInterface_Object::Serialize(const size_t& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream)
+void RSerializerInterface_Object::Serialize(const RUID& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream)
 {
 
 	// Alway used on RCLass
@@ -40,11 +40,11 @@ void RSerializerInterface_Object::Serialize(const size_t& ParentClassID, RType* 
 			continue;
 		}
 
-		size_t PropertyID = ParentClass.first;
+		RUID PropertyID = ParentClass.first;
 		size_t ObjectSize = Serializer->GetObjectSize(PropertyType, ObjectPtr);
 
-		OutputStream.write((char*)&PropertyID, sizeof(size_t));																// Property ID
-		OutputStream.write((char*)&ParentClassID, sizeof(size_t));															// Property's parent object ID
+		OutputStream.write((char*)&PropertyID, sizeof(RUID));																// Property ID
+		OutputStream.write((char*)&ParentClassID, sizeof(RUID));															// Property's parent object ID
 		OutputStream.write((char*)&ObjectSize, sizeof(size_t));																// Property byte length
 		Serializer->Serialize(PropertyType->GetId(), PropertyType, Property->Get(ObjectPtr), OutputStream); // Property Data
 	}
@@ -56,12 +56,12 @@ void RSerializerInterface_Object::Deserialize(std::istream& InputStream, RType* 
 	RClass* MyClass = static_cast<RClass*>(ObjectType);
 
 	while (TotalSize > 0) {
-		size_t PropertyID;
-		size_t ParentID;
+		RUID PropertyID;
+		RUID ParentID;
 		size_t PropertySize;
 
-		InputStream.read((char*)&PropertyID, sizeof(size_t));
-		InputStream.read((char*)&ParentID, sizeof(size_t));
+		InputStream.read((char*)&PropertyID, sizeof(RUID));
+		InputStream.read((char*)&ParentID, sizeof(RUID));
 		InputStream.read((char*)&PropertySize, sizeof(size_t));
 
 		RClass* ParentClass = RClass::GetClass(ParentID);
@@ -79,7 +79,8 @@ void RSerializerInterface_Object::Deserialize(std::istream& InputStream, RType* 
 
 		InputStream.seekg(CurrentPosition + PropertySize, std::ios::beg); // Fake READ
 
-		TotalSize -= sizeof(size_t) * 3;
+		TotalSize -= sizeof(RUID) * 2;
+		TotalSize -= sizeof(size_t);
 		TotalSize -= PropertySize;
 	}
 }
@@ -116,7 +117,7 @@ size_t RSerializerInterface_Object::GetObjectSize(RType* ObjectType, void* Objec
 	return ObjectSize;
 }
 
-void RSerializerInterface_PrimitiveTypes::Serialize(const size_t& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
+void RSerializerInterface_PrimitiveTypes::Serialize(const RUID& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
 	OutputStream.write((char*)ObjectPtr, ObjectType->GetSize());
 }
 

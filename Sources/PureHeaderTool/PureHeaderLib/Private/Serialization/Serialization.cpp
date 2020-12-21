@@ -12,7 +12,7 @@ void SArchive::Serialize(std::ostream& OutputStream) {
 		}
 
 		size_t ObjectSize = Serializer->GetObjectSize(Object.second.ObjectType, Object.second.ObjectPtr);
-		OutputStream.write((char*)&Object.first, sizeof(size_t));
+		OutputStream.write((char*)&Object.first, sizeof(RUID));
 		OutputStream.write((char*)&ObjectSize, sizeof(size_t));
 
 		Serializer->Serialize(Object.second.ObjectType->GetId(), Object.second.ObjectType, Object.second.ObjectPtr, OutputStream);
@@ -20,9 +20,9 @@ void SArchive::Serialize(std::ostream& OutputStream) {
 }
 
 void SArchive::Deserialize(std::istream& InputStream) {
-	size_t ObjectId;
+	RUID ObjectId;
 	size_t ObjectSize;
-	InputStream.read((char*)&ObjectId, sizeof(size_t));
+	InputStream.read((char*)&ObjectId, sizeof(RUID));
 	InputStream.read((char*)&ObjectSize, sizeof(size_t));
 	auto FoundObject = LinkedObjects.find(ObjectId);
 	if (FoundObject == LinkedObjects.end()) return;

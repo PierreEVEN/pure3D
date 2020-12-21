@@ -1,6 +1,7 @@
 #pragma once
 #include "Types/String.h"
 #include <unordered_map>
+#include "Reflection/ReflectionUtilities.h"
 
 struct RType;
 
@@ -19,13 +20,13 @@ struct SArchive {
 
 private:
 
-	std::unordered_map<size_t, SArchiveObject> LinkedObjects;
+	std::unordered_map<RUID, SArchiveObject> LinkedObjects;
 };
 
 
 struct ISerializerInterface {
 
-	virtual void Serialize(const size_t& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) = 0;
+	virtual void Serialize(const RUID& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) = 0;
 	virtual void Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, size_t TotalSize) = 0;
 	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) = 0;
 };
