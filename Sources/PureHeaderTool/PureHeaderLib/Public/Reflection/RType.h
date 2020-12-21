@@ -28,9 +28,20 @@ struct RType : public ReflectionObject {
      */
     inline const size_t& GetSize() const { return TypeSize; }
 
-    inline virtual void SetSerializer(ISerializerInterface* Serializer) {
-        ClassSerializer = Serializer;
-    }
+    /**
+     * Get type Id
+     */
+	inline RUID GetId() const { return TypeId; }
+
+    /**
+     * Set this class serializer
+     */
+    inline virtual void SetSerializer(ISerializerInterface* Serializer) { ClassSerializer = Serializer; }
+
+    /**
+     * Get this class serializer
+     */
+	ISerializerInterface* GetSerializer() const { return ClassSerializer; }
 
     /**
      * Get type by class
@@ -49,7 +60,12 @@ struct RType : public ReflectionObject {
     /**
      * Get type by class name
      */
-    static RType* GetType(size_t InTypeId);
+    static RType* GetType(RUID InTypeId);
+
+    /**
+     * Get type variant
+     */
+	inline virtual const ERType GetTypeVariant() const { return ERType::ERType_RType; }
 
     /**
      * Register new reflected type
@@ -62,22 +78,17 @@ struct RType : public ReflectionObject {
         return newType;
     }
 
-    ISerializerInterface* GetSerializer() const {
-        return ClassSerializer;
-    }
-
-    inline virtual const ERType GetTypeVariant() const { return ERType::ERType_RType; }
-
+    /**
+     * Wait for given type to be registered
+     */
 	template <typename WaitTypeName>
 	inline static void WaitTypeRegistration(String inClassName, WaitTypeName* inObjPtr, void(WaitTypeName::* inFunc)(RType*)) {
-        TypeRegistrationDelegate[std::hash<String>{}(inClassName)].Add(inObjPtr, inFunc);
+        TypeRegistrationDelegate[MakeUniqueID(inClassName)].Add(inObjPtr, inFunc);
 	}
 
-    inline size_t GetId() const { return TypeId; }
-
-    template<typename Type>
-    inline static size_t MakeTypeID() { return std::hash<String>{}(RTypeName<Type>::Name); }
-
+    /**
+     * Cast given pointer to this type (mainly used for multiple inheritance)
+     */
     inline virtual void* CastTo(const RType* To, void* Ptr) { return Ptr; }
 
 protected:
@@ -91,8 +102,12 @@ private:
 
     static void RegisterType_Internal(const String& inTypeName, RType* newType);
 
-	inline static std::unordered_map<size_t, SOnRegisterType> TypeRegistrationDelegate;
+    
+	inline static std::unordered_map<RUID, SOnRegisterType> TypeRegistrationDelegate;
 
+    /**
+     * Type serializer
+     */
     ISerializerInterface* ClassSerializer;
 
     /**
@@ -101,12 +116,12 @@ private:
     const String TypeName;
 
     /**
-     * Type size
+     * Type byte size
      */
     const size_t TypeSize;
 
     /**
-     * TypeId
+     * Type Id (hash of type name)
      */
-    const size_t TypeId;
+    const RUID TypeId;
 };

@@ -2,16 +2,19 @@
 #include "Types/String.h"
 #include <unordered_map>
 #include <functional>
+#include "ReflectionUtilities.h"
 
 struct RType;
 
-struct IFunctionPointer {
+struct IFunctionPointer : public ReflectionObject {
 public:
-	IFunctionPointer(const String& inFunctionName) : FunctionName(inFunctionName) {}
+	IFunctionPointer(const String& inFunctionName) : FunctionName(inFunctionName), FunctionID(MakeUniqueID(inFunctionName)) {}
 
-	inline const String& GetName() const { return FunctionName;  }
+	inline const String& GetName() const { return FunctionName; }
+	inline const RUID GetID() const { return FunctionID; }
 private:
-	String FunctionName;
+	const String FunctionName;
+	const RUID FunctionID;
 };
 
 template<typename ReturnType, typename ClassName, typename... Arguments>

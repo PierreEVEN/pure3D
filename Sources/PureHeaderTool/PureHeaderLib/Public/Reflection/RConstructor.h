@@ -2,7 +2,7 @@
 
 #include <any>
 
-struct RConstructor {
+struct RConstructor : public ReflectionObject {
 
 	template<typename... Args>
 	using InstantiateFunc = std::function<void* (Args...)>;

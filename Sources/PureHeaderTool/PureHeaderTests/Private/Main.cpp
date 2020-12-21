@@ -85,9 +85,9 @@ int main() {
 	for (const auto& ParentClass : MyClass->GetParents()) {
 		LOG("Get properties for : " + ParentClass->GetName());
 		void* ParentClassPtr = MyClass->CastTo(ParentClass, MyObject);
-		RProperty* ParentPropertyA = ParentClass->GetProperty(GenUniqueID("A"));
-		RProperty* ParentPropertyB = ParentClass->GetProperty(GenUniqueID("B"));
-		RProperty* ParentPropertyC = ParentClass->GetProperty(GenUniqueID("C"));
+		RProperty* ParentPropertyA = ParentClass->GetProperty(MakeUniqueID("A"));
+		RProperty* ParentPropertyB = ParentClass->GetProperty(MakeUniqueID("B"));
+		RProperty* ParentPropertyC = ParentClass->GetProperty(MakeUniqueID("C"));
 		if (ParentPropertyA) LOG(ParentClass->GetName() + "->" + ParentPropertyA->GetName() + " : " + *ParentPropertyA->Get<int>(ParentClassPtr));
 		if (ParentPropertyB) LOG(ParentClass->GetName() + "->" + ParentPropertyB->GetName() + " : " + *ParentPropertyB->Get<double>(ParentClassPtr));
 		if (ParentPropertyC) LOG(ParentClass->GetName() + "->" + ParentPropertyC->GetName() + " : " + *ParentPropertyC->Get<float>(ParentClassPtr));
@@ -98,10 +98,10 @@ int main() {
 	/**
 	 * Properties tests
 	 */
-	RProperty* PropertyA = MyClass->GetProperty(GenUniqueID("A"));
-	RProperty* PropertyB = MyClass->GetProperty(GenUniqueID("B"));
-	RProperty* PropertyC = MyClass->GetProperty(GenUniqueID("C"));
-	RProperty* PropertyD = MyClass->GetProperty(GenUniqueID("D"));
+	RProperty* PropertyA = MyClass->GetProperty(MakeUniqueID("A"));
+	RProperty* PropertyB = MyClass->GetProperty(MakeUniqueID("B"));
+	RProperty* PropertyC = MyClass->GetProperty(MakeUniqueID("C"));
+	RProperty* PropertyD = MyClass->GetProperty(MakeUniqueID("D"));
 	if (PropertyA) LOG(PropertyA->GetName() + " : " + *PropertyA->Get<int>(MyObject));
 	if (PropertyB) LOG(PropertyB->GetName() + " : " + *PropertyB->Get<double>(MyObject));
 	if (PropertyC) LOG(PropertyC->GetName() + " : " + *PropertyC->Get<float>(MyObject));

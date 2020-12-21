@@ -1,7 +1,6 @@
 #include "Reflection/RType.h"
 
 #include <unordered_map>
-#include <iostream>
 #include "IO/Log.h"
 
 inline static std::unordered_map<size_t, RType*>* Types = nullptr;
