@@ -8,9 +8,9 @@
 using namespace Writer;
 
 void Writer::WriteFiles(Parser::SFileData* File, const String& ModulePath, const String& OutputPath) {
-	String FilePath = std::filesystem::absolute(File->GetFile().GetFilePath().parent_path()).u8string().c_str();
+	String FilePath = std::filesystem::absolute(File->GetFile().GetFilePath().parent_path()).string().c_str();
 
-	String RelativePath = FilePath.SubString(std::filesystem::absolute(ModulePath.GetData()).u8string().size());
+	String RelativePath = FilePath.SubString(std::filesystem::absolute(ModulePath.GetData()).string().size());
 
 	// Replace \ with /
 	for (auto& Chr : RelativePath) if (Chr == '\\') Chr = '/';

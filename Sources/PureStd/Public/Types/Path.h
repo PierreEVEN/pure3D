@@ -17,9 +17,9 @@ struct Path final : public std::filesystem::path {
 
 	Path GetParent() const { return std::filesystem::path::parent_path(); }
 
-	String GetFileName() const { return std::filesystem::path::filename().u8string().c_str(); }
+	String GetFileName() const { return std::filesystem::path::filename().string().c_str(); }
 
-	String GetFilePath() const { return u8string().c_str(); }
+	String GetFilePath() const { return string().c_str(); }
 
 	bool IsDirectory() const { return std::filesystem::is_directory(*this); }
 
@@ -31,7 +31,7 @@ struct Path final : public std::filesystem::path {
 		return Children;
 	}
 
-	String GetExtension() const { return this->extension().u8string().c_str(); }
+	String GetExtension() const { return this->extension().string().c_str(); }
 
 };
 */

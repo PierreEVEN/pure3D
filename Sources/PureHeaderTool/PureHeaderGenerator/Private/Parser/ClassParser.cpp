@@ -16,7 +16,7 @@ std::vector<SFileReference> Parser::ScanFiles(const std::filesystem::path& inDir
 			for (const auto& File : ScanFiles(Child))
 				Result.push_back(File);
 		else {
-			String extension = Child.path().extension().u8string().c_str();
+			String extension = Child.path().extension().string().c_str();
 			if (extension != ".h") continue;
 
 			Result.push_back(SFileReference(Child.path(), "NONE"));

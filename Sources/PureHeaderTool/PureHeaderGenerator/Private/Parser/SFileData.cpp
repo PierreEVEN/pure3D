@@ -20,7 +20,7 @@ Parser::SFileReference::SFileReference(const std::filesystem::path& inFilePath, 
 }
 
 const String Parser::SFileReference::GetName() const {
-	return FilePath.stem().u8string().c_str();
+	return String(FilePath.stem().string().c_str());
 }
 
 String Parser::SFileReference::GetDateFormated() const {
@@ -51,7 +51,7 @@ bool Parser::SFileReference::IsUpToDate(const String& GeneratedFile) const {
 Parser::SFileData::SFileData(const SFileReference& inFilePath)
 	: File(inFilePath) {
 
-	ReflectedFiles[inFilePath.GetFilePath().u8string().c_str()] = this;
+	ReflectedFiles[inFilePath.GetFilePath().string().c_str()] = this;
 
 	std::ifstream FileStream(File.GetFilePath());
 	Content = "";

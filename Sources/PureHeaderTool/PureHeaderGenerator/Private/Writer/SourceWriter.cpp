@@ -10,7 +10,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 {
 	SCodeGenerator Result;
 
-	String HeaderPath = Data->GetFile().GetFilePath().u8string().c_str();
+	String HeaderPath = Data->GetFile().GetFilePath().string().c_str();
 	for (auto& Chr : HeaderPath) if (Chr == '\\') Chr = '/';
 
 	Result.Line(Data->GetFile().GetDateFormated());

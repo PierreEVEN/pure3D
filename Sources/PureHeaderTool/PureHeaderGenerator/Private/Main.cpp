@@ -1,23 +1,22 @@
-#include <IO/Log.h>
+
 #include "Utils/Utils.h"
 #include <iostream>
-#include <Types/Path.h>
 #include <filesystem>
 #include <chrono>
 #include "Parser/ClassParser.h"
 #include "Parser/SObject.h"
 #include "Writer/ClassWriter.h"
+#include <ctime>
 
 
 int main(int argc, const char* argv[]) {
 
-	const auto& StartTime = std::chrono::steady_clock::now();
+	std::chrono::steady_clock::time_point StartTime = std::chrono::steady_clock::now();
 
 	String ModulePathStr;
 	String ModuleName;
 	String OutputPath;
 	String DebugMode;
-
 	Utils::Ensure(Utils::GetOption(argc, argv, "ModuleName", ModuleName), "Missing 'ModuleName' option");
 	Utils::Ensure(Utils::GetOption(argc, argv, "ModulePath", ModulePathStr), "Missing 'ModulePath' option");
 	Utils::Ensure(Utils::GetOption(argc, argv, "OutputPath", OutputPath), "Missing 'OutputPath' option");

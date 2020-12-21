@@ -9,6 +9,7 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 	message(FATAL_ERROR "32-bits is not supported")
 endif()
 
+
 # Options
 option(PHT_DEBUG "Enable debug mode for PureReflectionTool" OFF) # PHT debug mode (OFF)
 
