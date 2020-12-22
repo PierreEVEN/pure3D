@@ -29,10 +29,13 @@ struct BasicStructure final {
 		BasicStructure(int inA, std::vector<double> inB) : A(inA), B(inB) {}
 
 	RPROPERTY()
-		int A = 10;
+		int32_t A = 10;
 
 	RPROPERTY()
 		std::vector<double> B = { 2.0, 5.185, 12.4 };
+
+	RPROPERTY()
+		String D = "coucou ca va?";
 
 	RPROPERTY()
 		const double& C = 3.4;
@@ -82,7 +85,7 @@ struct ParentOne {
 		ParentOne(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {}
 
 	RPROPERTY()
-		int A = 24;
+		int32_t A = 24;
 
 	RPROPERTY()
 		double B = 32.897;
@@ -108,7 +111,7 @@ struct ParentTwo {
 		ParentTwo(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {}
 
 	RPROPERTY()
-		int A = 25;
+		int32_t A = 25;
 
 	RPROPERTY()
 		double B = 38.897;
@@ -135,7 +138,7 @@ struct ChildOne : public ParentOne {
 		ChildOne(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {}
 
 	RPROPERTY()
-		int A = 18;
+		int32_t A = 18;
 
 	RPROPERTY()
 		double B = 16.897;
@@ -160,7 +163,7 @@ struct ChildTwo : public ParentTwo {
 		ChildTwo(int inA, double inB, float inC) : A(inA), B(inB), C(inC) {}
 
 	RPROPERTY()
-		int A = 18;
+		int32_t A = 18;
 
 	RPROPERTY()
 		double B = 16.897;
@@ -188,7 +191,7 @@ struct ChildOneTwo : public ParentOne, public ParentTwo {
 	}
 
 	RPROPERTY()
-		int A = 18;
+		int32_t A = 18;
 
 	RPROPERTY()
 		double B = 16.897;

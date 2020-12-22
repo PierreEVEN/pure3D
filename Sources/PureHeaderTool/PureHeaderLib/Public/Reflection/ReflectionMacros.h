@@ -5,14 +5,10 @@
 
 #define REFL_DECLARE_TYPENAME(Type) \
 template<> \
-struct RIsReflected<Type> { \
-	constexpr static bool Value = true; \
-}; \
+struct RIsReflected<Type> { constexpr static bool Value = true; }; \
  \
 template<> \
-struct RTypeName<Type> {	\
-	constexpr static const char* Name = #Type; \
-};
+struct RTypeName<Type> { constexpr static const char* Name = #Type; };
 
 #define REFL_REGISTER_TYPE(Type) RType::RegisterType<Type, RType>(#Type);
 

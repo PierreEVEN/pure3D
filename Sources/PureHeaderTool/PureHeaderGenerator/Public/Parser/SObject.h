@@ -42,6 +42,7 @@ namespace Parser {
 		const std::vector<SFunctionData>& GetFunctions() const { return Functions; }
 		const std::vector<SFunctionData>& GetConstructors() const { return Constructors; }
 		const std::vector<String>& GetParents() const { return Parents; }
+		const std::vector<String> GetLocalTypesDeclarations() const { return LocalTypeDeclarations; }
 
 	private:
 		SFunctionData ParseFunction(SStateMachine Content);
@@ -54,5 +55,6 @@ namespace Parser {
 		std::vector<SPropertyData> Properties;
 		std::vector<SFunctionData> Functions;
 		std::vector<SFunctionData> Constructors;
+		std::vector<String> LocalTypeDeclarations;
 	};
 }

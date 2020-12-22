@@ -41,16 +41,16 @@ void RSerializerInterface_Object::Serialize(const RUID& ParentClassID, RType* Ob
 		}
 
 		RUID PropertyID = ParentClass.first;
-		size_t ObjectSize = Serializer->GetObjectSize(PropertyType, ObjectPtr);
+		size_t ObjectSize = Serializer->GetObjectSize(PropertyType, Property->Get(ObjectPtr));
 
-		OutputStream.write((char*)&PropertyID, sizeof(RUID));																// Property ID
-		OutputStream.write((char*)&ParentClassID, sizeof(RUID));															// Property's parent object ID
-		OutputStream.write((char*)&ObjectSize, sizeof(size_t));																// Property byte length
+		OutputStream.write((char*)&PropertyID, sizeof(RUID));												// Property ID
+		OutputStream.write((char*)&ParentClassID, sizeof(RUID));											// Property's parent object ID
+		OutputStream.write((char*)&ObjectSize, sizeof(size_t));												// Property byte length
 		Serializer->Serialize(PropertyType->GetId(), PropertyType, Property->Get(ObjectPtr), OutputStream); // Property Data
 	}
 }
 
-void RSerializerInterface_Object::Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, size_t TotalSize) {
+void RSerializerInterface_Object::Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, int64_t TotalSize) {
 
 	// Alway used on RCLass
 	RClass* MyClass = static_cast<RClass*>(ObjectType);
@@ -69,8 +69,8 @@ void RSerializerInterface_Object::Deserialize(std::istream& InputStream, RType* 
 
 		size_t CurrentPosition = InputStream.tellg();
 
-		if (!Property->GetType() || !Property->GetType()->GetSerializer()) {
-			LOG_WARNING("failed to read prop");
+		if (!Property || !Property->GetType() || !Property->GetType()->GetSerializer()) {
+			LOG_WARNING("Failed to read property %u (size = %u)", PropertyID, PropertySize);
 		}
 		else {
 			void* ClassPtr = MyClass->CastTo(ParentClass, ObjectPtr);
@@ -111,7 +111,7 @@ size_t RSerializerInterface_Object::GetObjectSize(RType* ObjectType, void* Objec
 		if (!PropertyType || !Serializer) continue;
 
 		ObjectSize += sizeof(size_t) * 3;
-		ObjectSize += Serializer->GetObjectSize(PropertyType, ObjectPtr);
+		ObjectSize += Serializer->GetObjectSize(PropertyType, Property->Get(ObjectPtr));
 	}
 
 	return ObjectSize;
@@ -121,10 +121,26 @@ void RSerializerInterface_PrimitiveTypes::Serialize(const RUID& ParentClassID, R
 	OutputStream.write((char*)ObjectPtr, ObjectType->GetSize());
 }
 
-void RSerializerInterface_PrimitiveTypes::Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, size_t TotalSize) {
+void RSerializerInterface_PrimitiveTypes::Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, int64_t TotalSize) {
 	InputStream.read((char*)ObjectPtr, ObjectType->GetSize());
 }
 
 size_t RSerializerInterface_PrimitiveTypes::GetObjectSize(RType* ObjectType, void* ObjectPtr) {
 	return ObjectType->GetSize();
+}
+
+void RSerializerInterface_String::Serialize(const size_t& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
+	String* Str = (String*)ObjectPtr;
+	OutputStream.write(Str->GetData(), Str->Length());
+}
+
+void RSerializerInterface_String::Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, int64_t TotalSize) {
+	std::shared_ptr<char> Text(new char[TotalSize + 1], std::default_delete<char[]>());
+	Text.get()[TotalSize] = '\0';
+	InputStream.read(Text.get(), TotalSize);
+	*(String*)ObjectPtr = Text.get();
+}
+
+size_t RSerializerInterface_String::GetObjectSize(RType* ObjectType, void* ObjectPtr) {
+	return static_cast<String*>(ObjectPtr)->Length();
 }

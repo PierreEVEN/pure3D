@@ -10,32 +10,10 @@
 #include <fstream>
 #include "Types/Array.h"
 #include "Serialization/GenericSerializers.h"
+#include "Primitives/PrimitiveTypes.h"
 
-REFL_DECLARE_TYPENAME(int);
-REFL_DECLARE_TYPENAME(float);
-REFL_DECLARE_TYPENAME(double);
-REFL_DECLARE_TYPENAME(bool);
 
 int main() {
-
-	REFL_REGISTER_TYPE(int);
-	REFL_REGISTER_TYPE(float);
-	REFL_REGISTER_TYPE(double);
-	REFL_REGISTER_TYPE(bool);
-
-	RSerializerInterface_Object* ObjectSerializer = new RSerializerInterface_Object();
-	RSerializerInterface_PrimitiveTypes* PrimitiveTypeSerializer = new RSerializerInterface_PrimitiveTypes();
-
-	ChildOneTwo::GetStaticClass()->SetSerializer(ObjectSerializer);
-	ParentOne::GetStaticClass()->SetSerializer(ObjectSerializer);
-	ParentTwo::GetStaticClass()->SetSerializer(ObjectSerializer);
-	BasicObject::GetStaticClass()->SetSerializer(ObjectSerializer);
-	BasicStructure::GetStaticClass()->SetSerializer(ObjectSerializer);
-	RType::GetType<int>()->SetSerializer(PrimitiveTypeSerializer);
-	RType::GetType<float>()->SetSerializer(PrimitiveTypeSerializer);
-	RType::GetType<double>()->SetSerializer(PrimitiveTypeSerializer);
-	RType::GetType<bool>()->SetSerializer(PrimitiveTypeSerializer);
-
 	/**
 	 * Class tests
 	 */
@@ -49,13 +27,13 @@ int main() {
 	void* MyObject = MyClass->InstantiateNew<int, double, float>(5, 20.4, 3.5f);
 	ChildOneTwo* ChildOneTwoObj = NewObject<ChildOneTwo>();
 
-
 	/**
 	 * Serialization tests
 	 */
 	ChildOneTwoObj->A = 10;
 	ChildOneTwoObj->B = 40;
 	ChildOneTwoObj->C = 50;
+	ChildOneTwoObj->D.D = "CA MARCHE TROP BIEN";
 	ChildOneTwoObj->ParentOne::A = 8;
 	ChildOneTwoObj->ParentOne::B = 25;
 	ChildOneTwoObj->ParentOne::C = 24;
@@ -105,7 +83,7 @@ int main() {
 	if (PropertyA) LOG(PropertyA->GetName() + " : " + *PropertyA->Get<int>(MyObject));
 	if (PropertyB) LOG(PropertyB->GetName() + " : " + *PropertyB->Get<double>(MyObject));
 	if (PropertyC) LOG(PropertyC->GetName() + " : " + *PropertyC->Get<float>(MyObject));
-	if (PropertyD) LOG(PropertyD->GetName() + " : " + PropertyD->Get<BasicStructure>(MyObject)->A);
+	if (PropertyD) LOG(PropertyD->GetName() + " : " + PropertyD->Get<BasicStructure>(MyObject)->D);
 
 	/**
 	 * Function tests

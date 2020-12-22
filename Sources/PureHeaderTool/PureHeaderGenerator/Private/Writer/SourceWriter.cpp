@@ -19,6 +19,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 	Result.Include(HeaderPath);
 	Result.Include("Reflection/RProperty.h");
 	Result.Include("Reflection/RFunction.h");
+	Result.Include("Serialization/GenericSerializers.h");
 
 	for (const auto& Object : Data->GetObjects()) {
 
@@ -56,7 +57,6 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 					Params << Function.Parameters[i].PropertyType << (i == Function.Parameters.size() - 1 ? "" : ", ");
 				
 				Result.Line(StaticClassName + "->AddFunction(new RFunction<" + Function.ReturnType + ", " + Object->GetName() + Params + ">(\"" + Function.FunctionName + "\", &" + Object->GetName() + "::" + Function.FunctionName + ", nullptr, {}));");
-				//RFunction<double, ChildOneTwo, int, int, int>* Func = new RFunction<double, ChildOneTwo, int, int, int>("MyFunc", &ChildOneTwo::FunctionB, nullptr, {});
 			}
 
 			for (const auto& Constructor : ((Parser::SStruct*)Object)->GetConstructors()) {
@@ -66,6 +66,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 				Result.Line(StaticClassName + "->AddConstructor(RConstructor::MakeConstructor<" + Object->GetName() + Params + ">());");
 			}
 
+			Result.Line(StaticClassName + "->SetSerializer(ISerializerInterface::Get<RSerializerInterface_Object>(\"RSerializerInterface_Object\"));");
 
 			Result.UnIndent();
 			Result.Line("}");
