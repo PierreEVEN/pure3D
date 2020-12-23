@@ -1,5 +1,6 @@
 #pragma once
 #include "Types/String.h"
+#include <vector>
 
 namespace Parser {
 	enum class EObjectType {
@@ -9,10 +10,23 @@ namespace Parser {
 		ObjType_Class = 3
 	};
 
+
+	enum class EPropertyFlag {
+		EPropFlag_Any = 0,
+		EPropFlag_Const = 1 << 1,
+		EPropFlag_Ptr = 1 << 2,
+		EPropFlag_Ref = 1 << 3
+	};
+	inline EPropertyFlag operator|(EPropertyFlag a, EPropertyFlag b) { return static_cast<EPropertyFlag>(static_cast<int>(a) | static_cast<int>(b)); }
+	inline EPropertyFlag& operator|= (EPropertyFlag& a, EPropertyFlag b) { return (EPropertyFlag&)((int&)a |= (int)b); }
+
 	String ObjectTypeToString(const EObjectType& inType);
 
 	struct SPropertyData {
+		SPropertyData(const String& Type, const String& Name);
 		String PropertyType;
+		EPropertyFlag PropertyFlags;
+		std::vector<SPropertyData> TemplateArguments;
 		String PropertyName;
 	};
 

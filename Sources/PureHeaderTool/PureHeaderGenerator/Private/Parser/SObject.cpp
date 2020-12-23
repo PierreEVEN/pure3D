@@ -122,7 +122,6 @@ SFunctionData Parser::SStruct::ParseFunction(SStateMachine Content) {
 	bool IsWaitingNextField = false;
 	std::vector<SPropertyData> Properties;
 	int64_t TempIndentationLevel = 0;
-	SPropertyData CurrentProperty;
 
 	//Skip reflection macro definition
 	for (; Content.CurrentPos < Content.Content.Length(); ++Content.CurrentPos) {
@@ -260,11 +259,7 @@ Parser::SPropertyData Parser::SStruct::ParseVariable(SStateMachine Content) {
 		}
 		Status.Content << CurrentData[0];
 	}
-
-	SPropertyData Result;
-	Result.PropertyName = String::RemoveBorderSpaces(Status.Content);
-	Result.PropertyType = String::RemoveBorderSpaces(Type);
-	return Result;
+	return SPropertyData(Type, Status.Content);
 }
 
 SFunctionData Parser::SStruct::ParseConstructor(SStateMachine Content) {

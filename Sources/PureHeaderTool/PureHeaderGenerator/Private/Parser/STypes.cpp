@@ -1,4 +1,5 @@
 #include "Parser/STypes.h"
+#include "Utils/Utils.h"
 
 using namespace Parser;
 
@@ -19,3 +20,19 @@ String Parser::ObjectTypeToString(const EObjectType& inType) {
 	}
 }
 
+
+Parser::SPropertyData::SPropertyData(const String& Type, const String& Name)
+{
+	PropertyName = String::RemoveBorderSpaces(Name);
+	String FullType = String::RemoveBorderSpaces(Type);
+	PropertyFlags = EPropertyFlag::EPropFlag_Any;
+	if (FullType.Contains("&")) PropertyFlags |= EPropertyFlag::EPropFlag_Ref;
+	if (FullType.Contains("*")) PropertyFlags |= EPropertyFlag::EPropFlag_Ptr;
+	int TemplateReadStatus;
+	for (int i = 0; i < FullType.Length(); ++i) {
+
+		if (FullType[i] != '*' && FullType[i] != '&') PropertyType << FullType[i];
+
+	}
+	Utils::Log(PropertyType);
+}
