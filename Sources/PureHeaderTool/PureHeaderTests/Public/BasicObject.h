@@ -11,7 +11,7 @@ REFLECT();
 enum class BasicEnum { BASIC_ONE, BASIC_TWO, BASIC_THREE };
 
 REFLECT();
-enum class AdvancedEnum {
+enum class AdvancedEnum : int {
 	ADV_ONE = 1,
 	ADV_TWO = 1 << 1,
 	ADV_THREE = 1 << 2	

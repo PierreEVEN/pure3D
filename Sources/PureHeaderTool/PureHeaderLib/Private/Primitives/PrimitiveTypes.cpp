@@ -28,13 +28,17 @@ void RegisterPrimitiveTypes() {
 	REGISTER_PRIMITIVE_TYPE(float);
 	REGISTER_PRIMITIVE_TYPE(double);
 	REFL_REGISTER_TYPE(String);
-	REFL_TRY_REGISTER_TYPE(std::vector<double>);
-	REFL_TRY_REGISTER_TYPE(std::vector<double>);
-
 	SET_TYPE_SERIALIZER(String, RSerializerInterface_String);
+	REFL_REGISTER_TYPE(ByteArray);
+	SET_TYPE_SERIALIZER(ByteArray, RSerializerInterface_ByteArray);
+	RType::AddAlias("RUID", "uint64_t");
+	RType::AddAlias("size_t", "uint64_t");
+	RType::AddAlias("int", "int32_t");
 }
 
-PrimitiveTypeRegisterer::PrimitiveTypeRegisterer() {
+bool bHasBeenInitialized = false;
+PrimitiveTypes::PrimitiveTypeRegisterer::PrimitiveTypeRegisterer() {
+	if (bHasBeenInitialized) return;
+	bHasBeenInitialized = true;
 	RegisterPrimitiveTypes();
 }
-inline static PrimitiveTypeRegisterer _PrimitiveTypeRegisterer;

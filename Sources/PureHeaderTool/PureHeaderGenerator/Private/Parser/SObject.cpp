@@ -1,6 +1,7 @@
 #include "Parser/SObject.h"
 #include "Utils/Utils.h"
 #include <iostream>
+#include <unordered_set>
 
 using namespace Parser;
 
@@ -190,7 +191,7 @@ SFunctionData Parser::SStruct::ParseFunction(SStateMachine Content) {
 		if (Status.IsReadingStructure) {
 			if (TempIndentationLevel == 0 && CurrentData[0] == ',') {
 				if (Status.Content != "") {
-					Properties.push_back(ParseVariable(Status));
+					Properties.push_back(ParseVariable(Status, {}));
 					Status.Content = "";
 				}
 				continue;
@@ -201,7 +202,7 @@ SFunctionData Parser::SStruct::ParseFunction(SStateMachine Content) {
 		Status.Content << CurrentData[0];
 	}
 	if (Status.Content != "") {
-		Properties.push_back(ParseVariable(Status));
+		Properties.push_back(ParseVariable(Status, {}));
 	}
 
 	SFunctionData Result;
@@ -214,24 +215,40 @@ SFunctionData Parser::SStruct::ParseFunction(SStateMachine Content) {
 SPropertyData Parser::SStruct::ParseProperty(SStateMachine Content) {
 	SStateMachine Status;
 	String Type;
+	String CurrentTag = "";
+	std::unordered_set<String> PropertyTags;
 
 	//Skip reflection macro definition
 	for (; Content.CurrentPos < Content.Content.Length(); ++Content.CurrentPos) {
 		const char* CurrentData = &Content.Content.GetData()[Content.CurrentPos];
 
-		if (Status.IsReadingStructure && Status.IndentationLevel == 0) break;
+		if (Status.IsReadingStructure && Status.IndentationLevel == 0) {
+			if (CurrentTag != "") PropertyTags.insert(String::RemoveBorderSpaces(CurrentTag));
+			break;
+		}
 		if (CurrentData[0] == '(') {
 			Status.IsReadingStructure = true;
 			Status.IndentationLevel++;
+			continue;
 		}
 		else if (CurrentData[0] == ')') {
 			Status.IndentationLevel--;
+			continue;
+		}
+		if (Status.IndentationLevel) {
+			if (CurrentData[0] == ',' && CurrentTag != "") {
+				PropertyTags.insert(String::RemoveBorderSpaces(CurrentTag));
+			}
+			else {
+				CurrentTag << CurrentData[0];
+			}
 		}
 	}
-	return ParseVariable(Content);
+
+	return ParseVariable(Content, PropertyTags);
 }
 
-Parser::SPropertyData Parser::SStruct::ParseVariable(SStateMachine Content) {
+Parser::SPropertyData Parser::SStruct::ParseVariable(SStateMachine Content, const std::unordered_set<String>& Tags) {
 	SStateMachine Status;
 	String Type;
 
@@ -259,7 +276,8 @@ Parser::SPropertyData Parser::SStruct::ParseVariable(SStateMachine Content) {
 		}
 		Status.Content << CurrentData[0];
 	}
-	return SPropertyData(Type, Status.Content);
+
+	return SPropertyData(Type, Status.Content, Tags.find("Transient") != Tags.end());
 }
 
 SFunctionData Parser::SStruct::ParseConstructor(SStateMachine Content) {

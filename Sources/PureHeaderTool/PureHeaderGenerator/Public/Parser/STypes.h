@@ -23,11 +23,11 @@ namespace Parser {
 	String ObjectTypeToString(const EObjectType& inType);
 
 	struct SPropertyData {
-		SPropertyData(const String& Type, const String& Name);
+		SPropertyData(const String& Type, const String& Name, bool InIsTransient);
 		String PropertyType;
-		EPropertyFlag PropertyFlags;
-		std::vector<SPropertyData> TemplateArguments;
+		bool IsDynamicRegisteredType;
 		String PropertyName;
+		bool IsTransient;
 	};
 
 	struct SFunctionData {

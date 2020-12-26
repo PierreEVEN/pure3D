@@ -3,6 +3,7 @@
 #include "STypes.h"
 #include "SStateMachine.h"
 #include <unordered_map>
+#include <unordered_set>
 
 namespace Parser {
 
@@ -47,7 +48,7 @@ namespace Parser {
 	private:
 		SFunctionData ParseFunction(SStateMachine Content);
 		SPropertyData ParseProperty(SStateMachine Content);
-		SPropertyData ParseVariable(SStateMachine Content);
+		SPropertyData ParseVariable(SStateMachine Content, const std::unordered_set<String>& Tags);
 		SFunctionData ParseConstructor(SStateMachine Content);
 
 		size_t ReflectionBodyLine = 0;

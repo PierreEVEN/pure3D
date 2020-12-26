@@ -2,6 +2,7 @@
 
 
 size_t ObjId // Hash du nom de l'item
+size_t ObjClass // ClassID de l'item
 size_t ObjSize = (SUM(Vars.size()) + sizeof(size_t) * 3) // On ajoute le size_t du VarId, de la ClassId et du VarSize qui ne sont pas comptabilisés dans la taille enbyte des variables
 char* data // contenu binaire d'un item de package
 {

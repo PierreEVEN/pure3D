@@ -266,6 +266,7 @@ public:
 	}
 
 	static String RemoveBorderSpaces(const String& line);
+	static String Replace(const String& InString, const char Pattern, const String& NewValue);
 
 
 	static const String GetFileName(const String& path);

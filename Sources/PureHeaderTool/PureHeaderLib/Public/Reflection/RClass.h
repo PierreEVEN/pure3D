@@ -88,7 +88,7 @@ struct RClass : public RType {
      */
     inline virtual void* CastTo(const RType* To, void* Ptr) override {
 		if (To == this) return Ptr;
-        if (To->GetTypeVariant() != ERType::ERType_RClass) return Ptr;
+        if (To->GetTypeVariant() != ERType::ERType_RObject) return Ptr;
         for (const auto& Parent : Parents)
             if (void* ToPtr = (CastFunctions[Parent->GetId()]) ((RClass*)To, Ptr)) 
                 return ToPtr;
@@ -98,7 +98,7 @@ struct RClass : public RType {
     /**
      * Get type variant
      */
-	inline virtual const ERType GetTypeVariant() const override { return ERType::ERType_RClass; }
+	inline virtual const ERType GetTypeVariant() const override { return ERType::ERType_RObject; }
 
     /**
      * Get functions from RUID or name

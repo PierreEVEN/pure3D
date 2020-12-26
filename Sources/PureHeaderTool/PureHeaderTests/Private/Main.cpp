@@ -12,8 +12,30 @@
 #include "Serialization/GenericSerializers.h"
 #include "Primitives/PrimitiveTypes.h"
 
+void PrintClassProperties(RClass* Type, void* Object) {
+	for (const auto& ParentClass : Type->GetParents()) PrintClassProperties(ParentClass, Type->CastTo(ParentClass, Object));
+
+	for (const auto& Property : Type->GetProperties()) {
+		RType* PropertyType = Property.second->GetType();
+		if (PropertyType && PropertyType->GetTypeVariant() == ERType::ERType_RObject) {
+			LOG(Type->GetName() + "->" + Property.second->GetName() + " = Object '" + PropertyType->GetName() + "'");
+			PrintClassProperties((RClass*)PropertyType, Property.second->Get(Object));
+		}
+		else {
+			String Value = "Not Printable (type = " + (PropertyType ? PropertyType->GetName() : "Not Reflected") + ")";
+			if (PropertyType == RType::GetType<int32_t>()) Value = String(*Property.second->Get<int32_t>(Object));
+			else if (PropertyType == RType::GetType<double>()) Value = String(*Property.second->Get<double>(Object));
+			else if (PropertyType == RType::GetType<float>()) Value = String(*Property.second->Get<float>(Object));
+			else if (PropertyType == RType::GetType<bool>()) Value = String(*Property.second->Get<bool>(Object));
+			else if (PropertyType == RType::GetType<String>()) Value = String(*Property.second->Get<String>(Object));
+			LOG(Type->GetName() + "->" + Property.second->GetName() + " = " + Value);
+		}
+	}
+}
+
 
 int main() {
+
 	/**
 	 * Class tests
 	 */
@@ -34,7 +56,7 @@ int main() {
 	ChildOneTwoObj->B = 40;
 	ChildOneTwoObj->C = 50;
 	ChildOneTwoObj->D.D = "CA MARCHE TROP BIEN";
-	ChildOneTwoObj->ParentOne::A = 8;
+	ChildOneTwoObj->ParentOne::A = 4;
 	ChildOneTwoObj->ParentOne::B = 25;
 	ChildOneTwoObj->ParentOne::C = 24;
 	ChildOneTwoObj->ParentTwo::A = 12;
@@ -58,32 +80,9 @@ int main() {
 	input.close();
 
 	/**
-	 * Inheritance test
-	 */
-	for (const auto& ParentClass : MyClass->GetParents()) {
-		LOG("Get properties for : " + ParentClass->GetName());
-		void* ParentClassPtr = MyClass->CastTo(ParentClass, MyObject);
-		RProperty* ParentPropertyA = ParentClass->GetProperty(MakeUniqueID("A"));
-		RProperty* ParentPropertyB = ParentClass->GetProperty(MakeUniqueID("B"));
-		RProperty* ParentPropertyC = ParentClass->GetProperty(MakeUniqueID("C"));
-		if (ParentPropertyA) LOG(ParentClass->GetName() + "->" + ParentPropertyA->GetName() + " : " + *ParentPropertyA->Get<int>(ParentClassPtr));
-		if (ParentPropertyB) LOG(ParentClass->GetName() + "->" + ParentPropertyB->GetName() + " : " + *ParentPropertyB->Get<double>(ParentClassPtr));
-		if (ParentPropertyC) LOG(ParentClass->GetName() + "->" + ParentPropertyC->GetName() + " : " + *ParentPropertyC->Get<float>(ParentClassPtr));
-	}
-
-
-
-	/**
 	 * Properties tests
 	 */
-	RProperty* PropertyA = MyClass->GetProperty(MakeUniqueID("A"));
-	RProperty* PropertyB = MyClass->GetProperty(MakeUniqueID("B"));
-	RProperty* PropertyC = MyClass->GetProperty(MakeUniqueID("C"));
-	RProperty* PropertyD = MyClass->GetProperty(MakeUniqueID("D"));
-	if (PropertyA) LOG(PropertyA->GetName() + " : " + *PropertyA->Get<int>(MyObject));
-	if (PropertyB) LOG(PropertyB->GetName() + " : " + *PropertyB->Get<double>(MyObject));
-	if (PropertyC) LOG(PropertyC->GetName() + " : " + *PropertyC->Get<float>(MyObject));
-	if (PropertyD) LOG(PropertyD->GetName() + " : " + PropertyD->Get<BasicStructure>(MyObject)->D);
+	PrintClassProperties(MyClass, MyObject);
 
 	/**
 	 * Function tests

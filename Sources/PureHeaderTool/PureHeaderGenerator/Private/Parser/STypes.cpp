@@ -21,18 +21,10 @@ String Parser::ObjectTypeToString(const EObjectType& inType) {
 }
 
 
-Parser::SPropertyData::SPropertyData(const String& Type, const String& Name)
+Parser::SPropertyData::SPropertyData(const String& Type, const String& Name, bool InIsTransient)
 {
+	IsTransient = InIsTransient;
 	PropertyName = String::RemoveBorderSpaces(Name);
-	String FullType = String::RemoveBorderSpaces(Type);
-	PropertyFlags = EPropertyFlag::EPropFlag_Any;
-	if (FullType.Contains("&")) PropertyFlags |= EPropertyFlag::EPropFlag_Ref;
-	if (FullType.Contains("*")) PropertyFlags |= EPropertyFlag::EPropFlag_Ptr;
-	int TemplateReadStatus;
-	for (int i = 0; i < FullType.Length(); ++i) {
-
-		if (FullType[i] != '*' && FullType[i] != '&') PropertyType << FullType[i];
-
-	}
-	Utils::Log(PropertyType);
+	PropertyType = String::Replace(String::Replace(String::RemoveBorderSpaces(Type), ' ', ""), '\t', "");
+	IsDynamicRegisteredType = PropertyType.Contains('<') && !PropertyType.Contains("*") && !PropertyType.Contains("&");
 }

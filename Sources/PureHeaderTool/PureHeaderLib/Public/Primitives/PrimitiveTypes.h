@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Reflection/ReflectionMacros.h"
+#include "Types/ByteArray.h"
 
 REFL_DECLARE_TYPENAME(bool);
 REFL_DECLARE_TYPENAME(int8_t);
@@ -14,12 +15,11 @@ REFL_DECLARE_TYPENAME(uint64_t);
 REFL_DECLARE_TYPENAME(float);
 REFL_DECLARE_TYPENAME(double);
 REFL_DECLARE_TYPENAME(String);
+REFL_DECLARE_TYPENAME(ByteArray);
 
-#ifndef REFL_DECLARE_TYPENAME_std__vector_double_
-	#define REFL_DECLARE_TYPENAME_std__vector_double_
-	REFL_DECLARE_TYPENAME(std::vector<double>);
-#endif // REFL_DECLARE_TYPENAME_std__vector_double_
-
-struct PrimitiveTypeRegisterer {
-	PrimitiveTypeRegisterer();
-};
+namespace PrimitiveTypes {
+	struct PrimitiveTypeRegisterer {
+		PrimitiveTypeRegisterer();
+	};
+	inline static PrimitiveTypeRegisterer _PrimitiveTypeRegisterer;
+}

@@ -15,9 +15,11 @@ struct SArchive {
 
 	void Serialize(std::ostream& OutputStream);
 	void Deserialize(std::istream& InputStream);
+	void DeserializeAndCreateClass(std::istream& InputStream);
 
 	void LinkObject(const String& ObjectName, RType* ObjectType, void* ObjectPtr);
 
+	inline std::unordered_map<RUID, SArchiveObject> GetObjects() const { return LinkedObjects; }
 private:
 
 	std::unordered_map<RUID, SArchiveObject> LinkedObjects;
@@ -27,10 +29,11 @@ private:
 struct ISerializerInterface {
 	template<typename Interface>
 	static ISerializerInterface* Get(const String& InterfaceName) {
-		auto FoundInterface = Interfaces.find(InterfaceName);
-		if (FoundInterface == Interfaces.end()) {
+		if (!Interfaces) Interfaces = new std::unordered_map<String, ISerializerInterface*>();
+		auto FoundInterface = Interfaces->find(InterfaceName);
+		if (FoundInterface == Interfaces->end()) {
 			ISerializerInterface* NewInterface = new Interface();
-			Interfaces[InterfaceName] = NewInterface;
+			(*Interfaces)[InterfaceName] = NewInterface;
 			return NewInterface;
 		}
 		return FoundInterface->second;
@@ -41,5 +44,5 @@ struct ISerializerInterface {
 	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr) = 0;
 
 private:
-	inline static std::unordered_map<String, ISerializerInterface*> Interfaces;
+	inline static std::unordered_map<String, ISerializerInterface*>* Interfaces;
 };

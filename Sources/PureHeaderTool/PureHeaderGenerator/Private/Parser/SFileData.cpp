@@ -6,6 +6,7 @@
 #include "Parser/SObject.h"
 #include "Utils/Utils.h"
 #include "Types/String.h"
+#include <unordered_set>
 
 using namespace Parser;
 
@@ -50,6 +51,8 @@ bool Parser::SFileReference::IsUpToDate(const String& GeneratedFile) const {
 
 Parser::SFileData::SFileData(const SFileReference& inFilePath)
 	: File(inFilePath) {
+
+	FileUniqueID = std::hash<String>{}(File.GetName());
 
 	ReflectedFiles[inFilePath.GetFilePath().string().c_str()] = this;
 
@@ -152,4 +155,34 @@ void Parser::SFileData::ParseStructureHeader(const SStateMachine& Structure, con
 
 Parser::SFileData::~SFileData() {
 	for (auto& Object : Objects) delete Object;
+}
+
+const std::unordered_set<String> Parser::SFileData::GetDynamicTypes() const
+{
+	std::unordered_set<String> DynamicTypes;
+	for (const auto& Object : GetObjects()) {
+		if (Object->GetType() == EObjectType::ObjType_Class || Object->GetType() == EObjectType::ObjType_Struct) {
+			SStruct* ObjectStruct = (SStruct*)Object;
+			for (const auto& Property : ObjectStruct->GetProperties()) {
+				if (Property.IsDynamicRegisteredType)
+					if (DynamicTypes.find(Property.PropertyType) == DynamicTypes.end())
+						DynamicTypes.insert(Property.PropertyType);
+			}
+			for (const auto& Function : ObjectStruct->GetFunctions()) {
+				for (const auto& Parameter : Function.Parameters) {
+					if (Parameter.IsDynamicRegisteredType)
+						if (DynamicTypes.find(Parameter.PropertyType) == DynamicTypes.end())
+						DynamicTypes.insert(Parameter.PropertyType);
+				}
+			}
+			for (const auto& Ctor : ObjectStruct->GetFunctions()) {
+				for (const auto& Parameter : Ctor.Parameters) {
+					if (Parameter.IsDynamicRegisteredType)
+						if (DynamicTypes.find(Parameter.PropertyType) == DynamicTypes.end())
+							DynamicTypes.insert(Parameter.PropertyType);
+				}
+			}
+		}
+	}
+	return DynamicTypes;
 }

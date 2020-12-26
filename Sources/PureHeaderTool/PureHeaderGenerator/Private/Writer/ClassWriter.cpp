@@ -4,6 +4,7 @@
 #include "Utils/Utils.h"
 #include "Writer/HeaderWriter.h"
 #include "Writer/SourceWriter.h"
+#include <set>
 
 using namespace Writer;
 
@@ -27,7 +28,7 @@ void Writer::WriteFiles(Parser::SFileData* File, const String& ModulePath, const
 	String GeneratedHeaderPath = PublicDirectory / File->GetFile().GetName() + ".refl.h";
 	String GeneratedSourcePath = PrivateDirectory / File->GetFile().GetName() + ".refl.cpp";
 
-	if (File->GetFile().IsUpToDate(GeneratedHeaderPath) && File->GetFile().IsUpToDate(GeneratedSourcePath)) {
+	if ((File->GetFile().IsUpToDate(GeneratedHeaderPath) && File->GetFile().IsUpToDate(GeneratedSourcePath)) || File->GetObjects().size() == 0) {
 		File->SetUpToDate();
 		return;
 	}

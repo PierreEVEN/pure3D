@@ -6,10 +6,11 @@ struct RType;
 
 struct RProperty : public ReflectionObject {
 
-	RProperty(const String& inPropertyType, const String& inPropertyName, const size_t inPropertyOffset)
-		: PropertyName(inPropertyName), PropertyOffset(inPropertyOffset), PropertyID(MakeUniqueID(inPropertyName)) {
-		if (!(PropertyType = RType::GetType(inPropertyType)))
-			RClass::WaitTypeRegistration(inPropertyType, this, &RProperty::OnRegisterType);
+	RProperty(const String& inPropertyType, const String& inPropertyName, const size_t inPropertyOffset, bool InIsTransient)
+		: PropertyName(inPropertyName), PropertyOffset(inPropertyOffset), PropertyID(MakeUniqueID(inPropertyName)), IsPropertyTransient(InIsTransient) {
+		String TypeName = RType::NormalizeTypeName(inPropertyType);
+		if (!(PropertyType = RType::GetType(TypeName)))
+			RClass::WaitTypeRegistration(TypeName, this, &RProperty::OnRegisterType);
 	}
 
 	/**
@@ -38,6 +39,11 @@ struct RProperty : public ReflectionObject {
 	 */
 	inline const size_t GetOffset() const { return PropertyOffset;  }
 
+	/**
+	 * Is transient
+	 */
+	inline const bool IsTransient() const { return IsPropertyTransient; }
+
 private:
 
 	/**
@@ -64,4 +70,9 @@ private:
 	 * Property Unique ID
 	 */
 	const RUID PropertyID;
+
+	/**
+	 * Is property transient
+	 */
+	const bool IsPropertyTransient;
 };

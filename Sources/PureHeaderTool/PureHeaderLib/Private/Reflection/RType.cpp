@@ -18,9 +18,15 @@ RType* RType::GetType(size_t inTypeId) {
 }
 
 RType* RType::GetType(const String& inTypeName) {
-	return GetType(std::hash<String>{}(inTypeName));
+	return GetType(std::hash<String>{}(NormalizeTypeName(inTypeName)));
 }
 
+
+String RType::NormalizeTypeName(const String& TypeName) {
+	auto& RealTypeName = Alias.find(TypeName);
+	if (RealTypeName != Alias.end()) return RealTypeName->second;
+	return TypeName;
+}
 
 void RType::RegisterType_Internal(const String& inTypeName, RType* inType) {
 	auto foundElem = GetTypes()->find(inType->GetId());

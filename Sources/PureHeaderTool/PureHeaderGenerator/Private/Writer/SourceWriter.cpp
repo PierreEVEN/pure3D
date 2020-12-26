@@ -21,6 +21,23 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 	Result.Include("Reflection/RFunction.h");
 	Result.Include("Serialization/GenericSerializers.h");
 
+	Result.Br(2);
+	Result.Line("/* ##############################  Dynamic type declarations  ############################## */");
+	Result.Br(1);
+	Result.Line("void _Dynamic_Type_Registerer_Function() {");
+	Result.Indent();
+	for (const auto& Type : Data->GetDynamicTypes()) {
+		Result.Line("if (!RType::GetType(\"" + Type + "\")) RType::RegisterType<" + Type + ", RType>(\"" + Type + "\");");
+	}
+	Result.UnIndent();
+	Result.Line("};");
+	Result.Line("struct _Dynamic_Type_Registerer {");
+	Result.Indent();
+	Result.Line("_Dynamic_Type_Registerer() { _Dynamic_Type_Registerer_Function(); }");
+	Result.UnIndent();
+	Result.Line("};");
+	Result.Line("_Dynamic_Type_Registerer _Dynamic_Type_Registerer_Object;");
+
 	for (const auto& Object : Data->GetObjects()) {
 
 		Result.Br(2);
@@ -49,7 +66,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 			}
 
 			for (const auto& Property : ((Parser::SStruct*)Object)->GetProperties()) {
-				Result.Line(StaticClassName + "->AddProperty(new RProperty(\"" + Property.PropertyType + "\", \"" + Property.PropertyName + "\", offsetof(" + Object->GetName() + ", " + Property.PropertyName + ")));");
+				Result.Line(StaticClassName + "->AddProperty(new RProperty(\"" + Property.PropertyType + "\", \"" + Property.PropertyName + "\", offsetof(" + Object->GetName() + ", " + Property.PropertyName + "), " + (Property.IsTransient ? "true" : "false") + "));");
 			}
 			for (const auto& Function : ((Parser::SStruct*)Object)->GetFunctions()) {
 				String Params = Function.Parameters.size() == 0 ? "" : ", ";

@@ -2,6 +2,7 @@
 #include "Reflection/RClass.h"
 #include "IO/Log.h"
 #include "Reflection/RProperty.h"
+#include "Types/ByteArray.h"
 
 void RSerializerInterface_Object::Serialize(const RUID& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream)
 {
@@ -25,6 +26,7 @@ void RSerializerInterface_Object::Serialize(const RUID& ParentClassID, RType* Ob
 	for (const auto& ParentClass : MyClass->GetProperties()) {
 		// Current property
 		RProperty* Property = ParentClass.second;
+		if (Property->IsTransient()) continue;
 		// Current property type
 		RType* PropertyType = Property->GetType();
 		// Current property's serializer
@@ -68,13 +70,15 @@ void RSerializerInterface_Object::Deserialize(std::istream& InputStream, RType* 
 		RProperty* Property = ParentClass->GetProperty(PropertyID);
 
 		size_t CurrentPosition = InputStream.tellg();
-
-		if (!Property || !Property->GetType() || !Property->GetType()->GetSerializer()) {
-			LOG_WARNING("Failed to read property %u (size = %u)", PropertyID, PropertySize);
-		}
-		else {
-			void* ClassPtr = MyClass->CastTo(ParentClass, ObjectPtr);
-			Property->GetType()->GetSerializer()->Deserialize(InputStream, Property->GetType(), Property->Get(ClassPtr), PropertySize);
+		
+		if (!(Property && Property->IsTransient())) {
+			if (!Property || !Property->GetType() || !Property->GetType()->GetSerializer()) {
+				LOG_WARNING("Failed to read property %u (size = %u)", PropertyID, PropertySize);
+			}
+			else {
+				void* ClassPtr = MyClass->CastTo(ParentClass, ObjectPtr);
+				Property->GetType()->GetSerializer()->Deserialize(InputStream, Property->GetType(), Property->Get(ClassPtr), PropertySize);
+			}
 		}
 
 		InputStream.seekg(CurrentPosition + PropertySize, std::ios::beg); // Fake READ
@@ -143,4 +147,22 @@ void RSerializerInterface_String::Deserialize(std::istream& InputStream, RType* 
 
 size_t RSerializerInterface_String::GetObjectSize(RType* ObjectType, void* ObjectPtr) {
 	return static_cast<String*>(ObjectPtr)->Length();
+}
+
+void RSerializerInterface_ByteArray::Serialize(const size_t& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream) {
+	ByteArray* Object = ((ByteArray*)ObjectPtr);
+	if (Object->GetLength() > 0) OutputStream.write((char*)Object->GetData(), Object->GetLength());
+}
+
+void RSerializerInterface_ByteArray::Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, int64_t TotalSize) {
+	if (TotalSize > 0) {
+		uint8_t* Data = new uint8_t[TotalSize];
+		InputStream.read((char*)Data, TotalSize);
+		((ByteArray*)ObjectPtr)->SetData(Data, TotalSize);
+	}
+	else ((ByteArray*)ObjectPtr)->SetData(nullptr, 0);
+}
+
+size_t RSerializerInterface_ByteArray::GetObjectSize(RType* ObjectType, void* ObjectPtr) {
+	return ((ByteArray*)ObjectPtr)->GetLength();
 }

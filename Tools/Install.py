@@ -87,5 +87,7 @@ BuildModule(
 	"glfw",
 	"src/glfw.vcxproj")
 
+RunSubProcess(THIRD_PARTY_PATH + "/VulkanMemoryAllocator/premake/premake5.exe")
+LogSuccess("Success !")
 
 LogSuccess("Install complete !")

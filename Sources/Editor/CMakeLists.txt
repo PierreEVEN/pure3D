@@ -1,2 +1,6 @@
 create_executable()
 use_reflection()
+add_public_dependencies(ImGui)
+add_public_dependencies(ImGuizmo)
+add_public_dependencies(Engine)
+add_public_dependencies(Stb)

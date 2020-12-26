@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT PureHeaderTests)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Editor)
 
 project(pure3D)
 
@@ -64,7 +64,7 @@ function(use_reflection)
 	add_dependencies(${TARGET} ${REFLECTION_TARGET})
 	
 	target_include_directories(${TARGET}
-		PRIVATE
+		PUBLIC
 			${REFLECTION_DIR}/${TARGET}/Public)
 			
 	file(GLOB_RECURSE SOURCES ${REFLECTION_DIR}/${TARGET}/Private/*.refl.cpp)
@@ -79,19 +79,20 @@ function(set_project_category CATEGORY)
 	set_target_properties(${TARGET} PROPERTIES FOLDER ${CATEGORY})
 endfunction()
 
-# Create a lib module
-function(create_library)
-
-	get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-
-	message("-- => Building module " ${TARGET})
-
-	file(GLOB_RECURSE SOURCES *.cpp *.hpp *.h *.c)
-	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
-	add_library(${TARGET} ${SOURCES} ${ARGN})
-
+function(create_custom_target_library TARGET)
+	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ARGN})
+	add_library(${TARGET} ${ARGN})
 	module_definition(${TARGET})
-	
+	set_target_properties(${TARGET} PROPERTIES FOLDER "ThirdParty")
+endfunction()
+
+# Create a lib module
+function(create_engine_library)
+	get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+	message("-- => Building lib module " ${TARGET})
+	file(GLOB_RECURSE SOURCES *.cpp *.hpp *.h *.c)
+	create_custom_target_library(${TARGET} ${SOURCES})
+	set_target_properties(${TARGET} PROPERTIES FOLDER "EngineLibrary")
 endfunction()
 
 # Create an executable module
@@ -119,6 +120,7 @@ function(add_public_dependencies)
 	target_link_libraries(${TARGET} PUBLIC ${ARGN})
 endfunction()
 
+
 #link private dependencies
 function(add_private_dependencies)
 	get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -128,5 +130,7 @@ function(add_private_dependencies)
 	target_include_directories(${TARGET} PRIVATE ${ARGN})
 	target_link_libraries(${TARGET} PRIVATE ${ARGN})
 endfunction()
+
+
 
 add_subdirectory(Sources)

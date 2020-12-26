@@ -121,6 +121,18 @@ String String::RemoveBorderSpaces(const String& line)
 	return out;
 }
 
+String String::Replace(const String& InString, const char Pattern, const String& NewValue)
+{
+	String Output;
+	for (const auto& Chr : InString) {
+		if (Chr == Pattern)
+			Output << NewValue;
+		else
+			Output << Chr;
+	}
+	return Output;
+}
+
 const String String::GetFileName(const String& path)
 {
 	String left, name;

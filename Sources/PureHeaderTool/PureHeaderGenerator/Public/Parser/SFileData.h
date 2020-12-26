@@ -3,6 +3,8 @@
 #include "Types/String.h"
 #include "SStateMachine.h"
 #include <unordered_map>
+#include <set>
+#include <unordered_set>
 
 namespace Parser {
 
@@ -40,9 +42,12 @@ namespace Parser {
 		void ParseStructureHeader(const SStateMachine& Structure, const size_t StructureBeginning);
 
 		const std::vector<SObject*>& GetObjects() const { return Objects; }
+		const std::unordered_set<String> GetDynamicTypes() const;
 
 		inline bool IsFileUpToDate() const { return IsUpToDate; }
 		inline void SetUpToDate() { IsUpToDate = true; }
+
+		inline size_t GetFileID() const { return FileUniqueID; }
 
 	private:
 
@@ -50,5 +55,6 @@ namespace Parser {
 		std::vector<SObject*> Objects;
 		SFileReference File;
 		String Content;
+		size_t FileUniqueID;
 	};
 }

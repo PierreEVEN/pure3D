@@ -16,14 +16,19 @@ struct RTypeName<Type> { constexpr static const char* Name = #Type; };
 
 #define REFL_DECLARE_CLASS(className) \
 public: \
-	friend void CONCAT_MACRO_TWO_PARAMS(_Refl_Register_Item_,className)(); \
-	friend void _Refl_Register_Class(); \
+	friend void CONCAT_MACRO_TWO_PARAMS(_Refl_Register_Function_,className)(); \
 	static RClass* GetStaticClass(); \
 	virtual RClass* GetClass() const;
 
 #define REFLECT(...)
+#define REFLECT_PREINIT(...)
 #define RPROPERTY(...)
 #define RCONSTRUCTOR(...)
 #define RFUNCTION(...)
 
 #define REFLECT_BODY() CONCAT_MACRO_FOUR_PARAMS(_REFLECTION_BODY_, _REFL_FILE_UNIQUE_ID_, _LINE_, __LINE__)
+
+/**
+ * Reflection macro
+ */
+#define Transient
