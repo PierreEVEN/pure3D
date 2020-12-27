@@ -41,7 +41,7 @@ void PrintClassProperties(RType* Type, void* Object, String PropertyName) {
 		else if (Type == RType::GetType<float>()) Value = String(*reinterpret_cast<float*>(Object));
 		else if (Type == RType::GetType<bool>()) Value = String(*reinterpret_cast<bool*>(Object));
 		else if (Type == RType::GetType<String>()) Value = String(*reinterpret_cast<String*>(Object));
-		LOG(PropertyName + "->" + " = " + Value);
+		LOG(PropertyName + " = " + Value + "\t(" + Type->GetName() + ")");
 	}
 }
 
