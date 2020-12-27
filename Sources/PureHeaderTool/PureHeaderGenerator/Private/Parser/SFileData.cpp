@@ -157,32 +157,34 @@ Parser::SFileData::~SFileData() {
 	for (auto& Object : Objects) delete Object;
 }
 
-const std::unordered_set<String> Parser::SFileData::GetDynamicTypes() const
-{
+void Parser::SFileData::BuildDynamicTypes() {
 	std::unordered_set<String> DynamicTypes;
 	for (const auto& Object : GetObjects()) {
 		if (Object->GetType() == EObjectType::ObjType_Class || Object->GetType() == EObjectType::ObjType_Struct) {
 			SStruct* ObjectStruct = (SStruct*)Object;
 			for (const auto& Property : ObjectStruct->GetProperties()) {
 				if (Property.IsDynamicRegisteredType)
-					if (DynamicTypes.find(Property.PropertyType) == DynamicTypes.end())
-						DynamicTypes.insert(Property.PropertyType);
+					if (DynamicTypes.find(Property.PropertyType) == DynamicTypes.end()) AddDynamicType(Property.PropertyType);
 			}
 			for (const auto& Function : ObjectStruct->GetFunctions()) {
 				for (const auto& Parameter : Function.Parameters) {
 					if (Parameter.IsDynamicRegisteredType)
-						if (DynamicTypes.find(Parameter.PropertyType) == DynamicTypes.end())
-						DynamicTypes.insert(Parameter.PropertyType);
+						if (DynamicTypes.find(Parameter.PropertyType) == DynamicTypes.end()) AddDynamicType(Parameter.PropertyType);
 				}
 			}
 			for (const auto& Ctor : ObjectStruct->GetFunctions()) {
 				for (const auto& Parameter : Ctor.Parameters) {
 					if (Parameter.IsDynamicRegisteredType)
-						if (DynamicTypes.find(Parameter.PropertyType) == DynamicTypes.end())
-							DynamicTypes.insert(Parameter.PropertyType);
+						if (DynamicTypes.find(Parameter.PropertyType) == DynamicTypes.end()) AddDynamicType(Parameter.PropertyType);
 				}
 			}
 		}
 	}
-	return DynamicTypes;
+}
+
+void Parser::SFileData::AddDynamicType(const String& inType) {
+	DynamicTypes.insert(inType);
+	if (inType.CountChar('<') > 1) {
+		AddDynamicType(Utils::GetTemplateInnerType(inType));
+	}
 }

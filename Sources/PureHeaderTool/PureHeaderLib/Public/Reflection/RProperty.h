@@ -49,7 +49,7 @@ private:
 	/**
 	 * Bind property type
 	 */
-	void OnRegisterType(RType* RegisteredClass) { PropertyType = RegisteredClass; }
+	inline void OnRegisterType(RType* RegisteredClass) { PropertyType = RegisteredClass; }
 
 	/**
 	 * Property type

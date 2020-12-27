@@ -42,7 +42,9 @@ namespace Parser {
 		void ParseStructureHeader(const SStateMachine& Structure, const size_t StructureBeginning);
 
 		const std::vector<SObject*>& GetObjects() const { return Objects; }
-		const std::unordered_set<String> GetDynamicTypes() const;
+		void BuildDynamicTypes();
+		inline const std::unordered_set<String> GetDynamicTypes() const { return DynamicTypes; }
+		void AddDynamicType(const String& inType);
 
 		inline bool IsFileUpToDate() const { return IsUpToDate; }
 		inline void SetUpToDate() { IsUpToDate = true; }
@@ -51,6 +53,7 @@ namespace Parser {
 
 	private:
 
+		std::unordered_set<String> DynamicTypes;
 		bool IsUpToDate = false;
 		std::vector<SObject*> Objects;
 		SFileReference File;

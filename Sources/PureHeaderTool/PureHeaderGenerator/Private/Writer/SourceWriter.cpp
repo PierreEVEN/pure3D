@@ -3,6 +3,7 @@
 #include "Writer/CodeGenerator.h"
 #include "Parser/STypes.h"
 #include "Parser/SObject.h"
+#include "Utils/Utils.h"
 
 using namespace Writer;
 
@@ -19,24 +20,30 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 	Result.Include(HeaderPath);
 	Result.Include("Reflection/RProperty.h");
 	Result.Include("Reflection/RFunction.h");
+	Result.Include("Reflection/RArrayView.h");
 	Result.Include("Serialization/GenericSerializers.h");
 
 	Result.Br(2);
 	Result.Line("/* ##############################  Dynamic type declarations  ############################## */");
 	Result.Br(1);
-	Result.Line("void _Dynamic_Type_Registerer_Function() {");
+	Result.Line("void _Dynamic_Type_Registerer_Function_" + Data->GetFile().GetName() + "() {");
 	Result.Indent();
 	for (const auto& Type : Data->GetDynamicTypes()) {
-		Result.Line("if (!RType::GetType(\"" + Type + "\")) RType::RegisterType<" + Type + ", RType>(\"" + Type + "\");");
+		if (Utils::IsTypeArray(Type)) {
+			Result.Line("if (!RType::GetType(\"" + Type + "\")) RArrayType::RegisterType<" + Type + ", " + Utils::GetTemplateInnerType(Type) + ">(\"" + Type + "\", \"" + Utils::GetTemplateInnerType(Type) + "\");");
+		}
+		else {
+			Result.Line("if (!RType::GetType(\"" + Type + "\")) RType::RegisterType<" + Type + ", RType>(\"" + Type + "\");");
+		}
 	}
 	Result.UnIndent();
 	Result.Line("};");
-	Result.Line("struct _Dynamic_Type_Registerer {");
+	Result.Line("struct _Dynamic_Type_Registerer_" + Data->GetFile().GetName() + " {");
 	Result.Indent();
-	Result.Line("_Dynamic_Type_Registerer() { _Dynamic_Type_Registerer_Function(); }");
+	Result.Line("_Dynamic_Type_Registerer_" + Data->GetFile().GetName() + "() { _Dynamic_Type_Registerer_Function_" + Data->GetFile().GetName() + "(); }");
 	Result.UnIndent();
 	Result.Line("};");
-	Result.Line("_Dynamic_Type_Registerer _Dynamic_Type_Registerer_Object;");
+	Result.Line("_Dynamic_Type_Registerer_" + Data->GetFile().GetName() + " _Dynamic_Type_Registerer_Object_" + Data->GetFile().GetName() + ";");
 
 	for (const auto& Object : Data->GetObjects()) {
 

@@ -11,25 +11,37 @@
 #include "Types/Array.h"
 #include "Serialization/GenericSerializers.h"
 #include "Primitives/PrimitiveTypes.h"
+#include "Reflection/RArrayView.h"
 
-void PrintClassProperties(RClass* Type, void* Object) {
-	for (const auto& ParentClass : Type->GetParents()) PrintClassProperties(ParentClass, Type->CastTo(ParentClass, Object));
+void PrintClassProperties(RType* Type, void* Object, String PropertyName) {
+	if (!Type) {
+		String Value = "Not Printable (type = Not Reflected)";
+		return;
+	}
 
-	for (const auto& Property : Type->GetProperties()) {
-		RType* PropertyType = Property.second->GetType();
-		if (PropertyType && PropertyType->GetTypeVariant() == ERType::ERType_RObject) {
-			LOG(Type->GetName() + "->" + Property.second->GetName() + " = Object '" + PropertyType->GetName() + "'");
-			PrintClassProperties((RClass*)PropertyType, Property.second->Get(Object));
+	if (Type->GetTypeVariant() == ERType::ERType_RObject) {
+		for (const auto& ParentClass : ((RClass*)Type)->GetParents()) PrintClassProperties(ParentClass, Type->CastTo(ParentClass, Object), PropertyName);
+
+		for (const auto& Property : ((RClass*)Type)->GetProperties()) {
+			RType* PropertyType = Property.second->GetType();
+			PrintClassProperties((RClass*)PropertyType, Property.second->Get(Object), Type->GetName() + "::" + Property.second->GetName());
 		}
-		else {
-			String Value = "Not Printable (type = " + (PropertyType ? PropertyType->GetName() : "Not Reflected") + ")";
-			if (PropertyType == RType::GetType<int32_t>()) Value = String(*Property.second->Get<int32_t>(Object));
-			else if (PropertyType == RType::GetType<double>()) Value = String(*Property.second->Get<double>(Object));
-			else if (PropertyType == RType::GetType<float>()) Value = String(*Property.second->Get<float>(Object));
-			else if (PropertyType == RType::GetType<bool>()) Value = String(*Property.second->Get<bool>(Object));
-			else if (PropertyType == RType::GetType<String>()) Value = String(*Property.second->Get<String>(Object));
-			LOG(Type->GetName() + "->" + Property.second->GetName() + " = " + Value);
+	}
+	else if (Type && Type->GetTypeVariant() == ERType::ERType_Array) {
+		RArrayType* ArrayType = static_cast<RArrayType*>(Type);
+		RArrayView View = ArrayType->GetView(Object);
+		for (int i = 0; i < View.GetLength(); ++i) {
+			PrintClassProperties(ArrayType->GetInnerType(), View.GetValuePtr(i), PropertyName + "[" + String(i) + "]");
 		}
+	}
+	else {
+		String Value = "Not Printable (type = " + Type->GetName() + ")";
+		if (Type == RType::GetType<int32_t>()) Value = String(*reinterpret_cast<int32_t*>(Object));
+		else if (Type == RType::GetType<double>()) Value = String(*reinterpret_cast<double*>(Object));
+		else if (Type == RType::GetType<float>()) Value = String(*reinterpret_cast<float*>(Object));
+		else if (Type == RType::GetType<bool>()) Value = String(*reinterpret_cast<bool*>(Object));
+		else if (Type == RType::GetType<String>()) Value = String(*reinterpret_cast<String*>(Object));
+		LOG(PropertyName + "->" + " = " + Value);
 	}
 }
 
@@ -82,8 +94,7 @@ int main() {
 	/**
 	 * Properties tests
 	 */
-	PrintClassProperties(MyClass, MyObject);
-
+	PrintClassProperties(MyClass, MyObject, "MyObject");
 	/**
 	 * Function tests
 	 */	

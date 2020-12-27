@@ -40,6 +40,20 @@ bool Utils::IsVoidChar(const char Char) {
 	return Char == ' ' || Char == '\n' || Char == '\t' || Char == '\r';
 }
 
+bool Utils::IsTypeArray(const String& inTypeName)
+{
+	return inTypeName.IsStartingWith("std::vector<");
+}
+
+String Utils::GetTemplateInnerType(const String& inTypeName) {
+	String Left;
+	String Center;
+	String Right;
+	String::SplitString(inTypeName, { '<' }, Left, Center);
+	String::SplitString(Center, { '>' }, Left, Right, false);
+	return Left;
+}
+
 inline size_t REFLECTION_UNIQUE_ID = 0;
 
 size_t Utils::GenURID()

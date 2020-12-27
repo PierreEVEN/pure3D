@@ -15,7 +15,7 @@ DECLARE_DELEGATE_MULTICAST(SOnRegisterType, RType*);
 enum class ERType {
     ERType_RType,
     ERType_RObject,
-    ERType_Vector,
+    ERType_Array,
     ERType_Map,
     ERType_Set
 };
@@ -101,7 +101,7 @@ struct RType : public ReflectionObject {
 protected:
 
 	RType(const String& inTypeName, const size_t inTypeSize)
-		: TypeName(inTypeName), TypeSize(inTypeSize), ClassSerializer(nullptr), TypeId(std::hash<String>{}(inTypeName)) {}
+		: TypeName(inTypeName), TypeSize(inTypeSize), ClassSerializer(nullptr), TypeId(MakeUniqueID(inTypeName)) {}
 
 	virtual ~RType() = default;
 

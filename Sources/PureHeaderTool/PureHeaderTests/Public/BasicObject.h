@@ -26,16 +26,19 @@ struct BasicStructure final {
 		BasicStructure() {}
 
 	RCONSTRUCTOR()
-		BasicStructure(int inA, std::vector<double> inB) : A(inA), B(inB) {}
+		BasicStructure(int inA, std::vector<std::vector<float>> inB) : A(inA), B(inB) {}
 
 	RPROPERTY()
 		int32_t A = 10;
 
 	RPROPERTY()
-		std::vector<double> B = { 2.0, 5.185, 12.4 };
+		std::vector<std::vector<float>> B = { { 2.0f, 5.185f, 12.4f	 }, {4, 7, 5} };
 
 	RPROPERTY()
 		String D = "coucou ca va?";
+
+	RPROPERTY()
+		std::vector<float> E = { 1.1f, 2.5f, 3.8f };
 
 	RPROPERTY()
 		const double& C = 3.4;

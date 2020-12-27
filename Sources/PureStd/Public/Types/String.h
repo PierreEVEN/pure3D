@@ -177,6 +177,8 @@ public:
 	inline static bool IsNumeric(const char& chr) { return (chr >= '0' && chr <= '9'); }
 	inline static bool IsAlphanumeric(const char& chr) { return IsAlpha(chr) || IsNumeric(chr); }
 
+	inline const size_t CountChar(const char inChar) const { int Count = 0; for (const auto& chr : *this) Count += chr == inChar; return Count; }
+
 	/* String operations */
 	inline static const String Concatenate(const String& left, const String& right) {
 		String res;

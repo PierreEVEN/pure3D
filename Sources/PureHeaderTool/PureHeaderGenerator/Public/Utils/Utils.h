@@ -11,6 +11,9 @@ namespace Utils {
 
 	bool IsVoidChar(const char Char);
 
+	bool IsTypeArray(const String& inTypeName);
+	String GetTemplateInnerType(const String& inTypeName);
+
 	inline static bool PHT_DEBUG_MODE;
 	size_t GenURID();
 }

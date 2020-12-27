@@ -19,6 +19,8 @@ void Writer::WriteFiles(Parser::SFileData* File, const String& ModulePath, const
 	// Remove 'Public' directory from path
 	if (RelativePath.IsStartingWith("/Public")) RelativePath = RelativePath.SubString(String("/Public/").Length());
 
+	File->BuildDynamicTypes();
+
 	// Create missing directories
 	String PublicDirectory = OutputPath / "Public" / RelativePath;
 	String PrivateDirectory = OutputPath / "Private" / RelativePath;	
