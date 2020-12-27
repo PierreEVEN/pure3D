@@ -4,18 +4,21 @@
 #include <vector>
 #include "RType.h"
 #include "RProperty.h"
+#include "Serialization/Serialization.h"
 
 enum class EArrayViewOperation {
 	EAvo_GetValue,
 	EAvo_Length,
 	EAvo_Insert,
 	EAvo_Delete,
+	EAvo_Clear,
+	EAvo_Construct,
+	EAvo_Destruct,
 };
 
 using FArrayViewVisitFunc = std::any(*)(const EArrayViewOperation&, void*, std::any);
 
 struct RArrayView {
-
 
 	RArrayView(void* InContainer, FArrayViewVisitFunc InFunc) : Func(InFunc), Container(InContainer) {}
 
@@ -24,6 +27,9 @@ struct RArrayView {
 	inline size_t GetLength() { return std::any_cast<size_t>(Func(EArrayViewOperation::EAvo_Length, Container, nullptr)); }
 	inline void Insert(size_t Index, void* Value) { Func(EArrayViewOperation::EAvo_Insert, Container, std::pair<size_t, void*>(Index, Value)); }
 	inline void Delete(size_t Index) { Func(EArrayViewOperation::EAvo_Delete, Container, Index); }
+	inline void Clear() { Func(EArrayViewOperation::EAvo_Clear, Container, nullptr); }
+	inline void Construct() { Func(EArrayViewOperation::EAvo_Construct, Container, nullptr); }
+	inline void Destruct() { Func(EArrayViewOperation::EAvo_Destruct, Container, nullptr); }
 
 private:
 
@@ -47,6 +53,15 @@ struct TArrayViewPolicyBase {
 		case EArrayViewOperation::EAvo_Delete:
 			Policy::Delete(Container, additional_data);
 			break;
+		case EArrayViewOperation::EAvo_Clear:
+			Policy::Clear(Container, additional_data);
+			break;
+		case EArrayViewOperation::EAvo_Construct:
+			Policy::Construct(Container, additional_data);
+			break;
+		case EArrayViewOperation::EAvo_Destruct:
+			Policy::Destruct(Container, additional_data);
+			break;
 		}
 		return nullptr;
 	}
@@ -55,7 +70,8 @@ struct TArrayViewPolicyBase {
 template<typename T>
 struct TArrayViewPolicyStdVector : public TArrayViewPolicyBase<T, TArrayViewPolicyStdVector<T>> {
 	inline static std::any GetValuePtr(void* Container, std::any AdditionalData) {
-		return reinterpret_cast<void*>(&(*reinterpret_cast<std::vector<T>*>(Container))[std::any_cast<size_t>(AdditionalData)]);
+		size_t Index = std::any_cast<size_t>(AdditionalData);
+		return static_cast<void*>((reinterpret_cast<std::vector<T>*>(Container)->begin() + Index)._Ptr);
 	}
 
 	inline static std::any Length(void* Container, std::any AdditionalData) {
@@ -71,6 +87,20 @@ struct TArrayViewPolicyStdVector : public TArrayViewPolicyBase<T, TArrayViewPoli
 	inline static std::any Delete(void* Container, std::any AdditionalData) {
 		std::vector<T>* vec = reinterpret_cast<std::vector<T>*>(Container);
 		return vec->erase(vec->begin() + std::any_cast<size_t>(AdditionalData));
+	}
+
+	inline static std::any Clear(void* Container, std::any AdditionalData) {
+		reinterpret_cast<std::vector<T>*>(Container)->clear();
+		return nullptr;
+	}
+
+	inline static std::any Construct(void* Container, std::any AdditionalData) {
+		return new (Container) std::vector<T>();
+	}
+
+	inline static std::any Destruct(void* Container, std::any AdditionalData) {
+		delete(reinterpret_cast<std::vector<T>*>(Container));
+		return nullptr;
 	}
 };
 
@@ -99,6 +129,9 @@ struct RArrayType : public RType {
 
 	RArrayView GetView(void* Object) { return RArrayView(Object, ArrayViewFunc); }
 
+	virtual void* NewType();
+	virtual void DeleteType(void* Memory);
+
 private:
 
 	void SetInnerType(const String& inInnerType) {
@@ -124,4 +157,12 @@ struct RArrayproperty : public RProperty {
 private:
 
 	FArrayViewVisitFunc ArrayViewFunc;
+};
+
+struct RSerializerInterface_Array : public ISerializerInterface {
+
+	virtual void Serialize(const RUID& ParentClassID, RType* ObjectType, void* ObjectPtr, std::ostream& OutputStream);
+	virtual void Deserialize(std::istream& InputStream, RType* ObjectType, void* ObjectPtr, int64_t TotalSize);
+	virtual size_t GetObjectSize(RType* ObjectType, void* ObjectPtr);
+
 };

@@ -94,6 +94,16 @@ struct RType : public ReflectionObject {
      */
     inline virtual void* CastTo(const RType* To, void* Ptr) { return Ptr; }
 
+    /**
+     * Create default object
+     */
+	virtual void* NewType() { return new char[TypeSize]; }
+
+    /**
+     * Delete type
+     */
+	virtual void DeleteType(void* Memory) { return delete(Memory); }
+
     inline static void AddAlias(const String& From, const String& To) { Alias[From] = To; }
 
     static String NormalizeTypeName(const String& TypeName);

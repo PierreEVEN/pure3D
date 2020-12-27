@@ -38,9 +38,9 @@ struct BasicStructure final {
 		String D = "coucou ca va?";
 
 	RPROPERTY()
-		std::vector<float> E = { 1.1f, 2.5f, 3.8f };
+		std::vector<int> E = { 1, 2, 3 };
 
-	RPROPERTY()
+	RPROPERTY(Transient)
 		const double& C = 3.4;
 
 	RFUNCTION()

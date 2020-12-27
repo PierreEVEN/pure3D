@@ -15,7 +15,7 @@
 
 void PrintClassProperties(RType* Type, void* Object, String PropertyName) {
 	if (!Type) {
-		String Value = "Not Printable (type = Not Reflected)";
+		LOG(PropertyName + " = None                   {Undetermined}");
 		return;
 	}
 
@@ -24,12 +24,13 @@ void PrintClassProperties(RType* Type, void* Object, String PropertyName) {
 
 		for (const auto& Property : ((RClass*)Type)->GetProperties()) {
 			RType* PropertyType = Property.second->GetType();
-			PrintClassProperties((RClass*)PropertyType, Property.second->Get(Object), Type->GetName() + "::" + Property.second->GetName());
+			PrintClassProperties((RClass*)PropertyType, Property.second->Get(Object), PropertyName + "::" + Type->GetName() + "::" + Property.second->GetName());
 		}
 	}
 	else if (Type && Type->GetTypeVariant() == ERType::ERType_Array) {
 		RArrayType* ArrayType = static_cast<RArrayType*>(Type);
 		RArrayView View = ArrayType->GetView(Object);
+		LOG(PropertyName + " = Array:" + String(View.GetLength()) + "                   {" + Type->GetName() + "}");
 		for (int i = 0; i < View.GetLength(); ++i) {
 			PrintClassProperties(ArrayType->GetInnerType(), View.GetValuePtr(i), PropertyName + "[" + String(i) + "]");
 		}
@@ -41,13 +42,12 @@ void PrintClassProperties(RType* Type, void* Object, String PropertyName) {
 		else if (Type == RType::GetType<float>()) Value = String(*reinterpret_cast<float*>(Object));
 		else if (Type == RType::GetType<bool>()) Value = String(*reinterpret_cast<bool*>(Object));
 		else if (Type == RType::GetType<String>()) Value = String(*reinterpret_cast<String*>(Object));
-		LOG(PropertyName + " = " + Value + "\t(" + Type->GetName() + ")");
+		LOG(PropertyName + " = " + Value + "                   {" + Type->GetName() + "}");
 	}
 }
 
 
 int main() {
-
 	/**
 	 * Class tests
 	 */
@@ -67,7 +67,9 @@ int main() {
 	ChildOneTwoObj->A = 10;
 	ChildOneTwoObj->B = 40;
 	ChildOneTwoObj->C = 50;
+	ChildOneTwoObj->D.B = { { 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12} };
 	ChildOneTwoObj->D.D = "CA MARCHE TROP BIEN";
+	ChildOneTwoObj->D.E = { 13, 14, 15, 16, 17, 18 };
 	ChildOneTwoObj->ParentOne::A = 4;
 	ChildOneTwoObj->ParentOne::B = 25;
 	ChildOneTwoObj->ParentOne::C = 24;
@@ -75,31 +77,34 @@ int main() {
 	ChildOneTwoObj->ParentTwo::B = 23;
 	ChildOneTwoObj->ParentTwo::C = 38;
 
-	// Serialize
-	SArchive ArchiveSerialize;
-	ArchiveSerialize.LinkObject("MyObject", MyClass, ChildOneTwoObj);
+	for (int i = 0; i < 1; ++i) {
 
-	std::ofstream output("test.pbin", std::ios::binary);
-	ArchiveSerialize.Serialize(output);
-	output.close();
+		// Serialize
+		SArchive ArchiveSerialize;
+		ArchiveSerialize.LinkObject("MyObject", MyClass, ChildOneTwoObj);
 
-	// Deserialize
-	SArchive ArchiveDeserialize;
-	ArchiveDeserialize.LinkObject("MyObject", MyClass, MyObject);
+		std::ofstream output("test.pbin", std::ios::binary);
+		ArchiveSerialize.Serialize(output);
+		output.close();
 
-	std::ifstream input("test.pbin", std::ios::binary);
-	ArchiveDeserialize.Deserialize(input);
-	input.close();
+		// Deserialize
+		SArchive ArchiveDeserialize;
+		ArchiveDeserialize.LinkObject("MyObject", MyClass, MyObject);
 
+		std::ifstream input("test.pbin", std::ios::binary);
+		ArchiveDeserialize.Deserialize(input);
+		input.close();
+	}
 	/**
 	 * Properties tests
 	 */
 	PrintClassProperties(MyClass, MyObject, "MyObject");
 	/**
 	 * Function tests
-	 */	
+	 */
 	RFunction<void, ChildOneTwo>* FuncA = MyClass->GetFunction<void, ChildOneTwo>("FunctionA");
 	RFunction<double, ChildOneTwo, int, int, int>* FuncB = MyClass->GetFunction<double, ChildOneTwo, int, int, int>("FunctionB");
 	if (FuncA) LOG(FuncA->GetName()); FuncA->Execute((ChildOneTwo*)MyObject);
 	if (FuncB) LOG(FuncB->GetName() + " : " + FuncB->Execute((ChildOneTwo*)MyObject, 10, 20, 30));
+
 }

@@ -41,6 +41,15 @@ RProperty* RClass::GetProperty(size_t PropertyId) const {
 	return Value->second;
 }
 
+void* RClass::NewType() {
+	return NewObject(this);
+}
+
+void RClass::DeleteType(void* Memory) {
+	// @TODO ADD PLACEMENT NEW AND DESTRUCTOR FUNCTION
+	delete(Memory);
+}
+
 inline static std::unordered_map<size_t, RClass*>* Classes = nullptr;
 
 std::unordered_map<size_t, RClass*>* GetClasses() {

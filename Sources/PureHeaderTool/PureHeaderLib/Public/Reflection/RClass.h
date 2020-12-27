@@ -130,6 +130,9 @@ struct RClass : public RType {
         return nullptr;
 	}
 
+	virtual void* NewType();
+    virtual void DeleteType(void* Memory);
+
 private:
 
 	inline RClass(const String& inTypeName, size_t inTypeSize) : RType(inTypeName, inTypeSize) {}

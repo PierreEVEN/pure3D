@@ -30,7 +30,12 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 	Result.Indent();
 	for (const auto& Type : Data->GetDynamicTypes()) {
 		if (Utils::IsTypeArray(Type)) {
-			Result.Line("if (!RType::GetType(\"" + Type + "\")) RArrayType::RegisterType<" + Type + ", " + Utils::GetTemplateInnerType(Type) + ">(\"" + Type + "\", \"" + Utils::GetTemplateInnerType(Type) + "\");");
+			Result.Line("if (!RType::GetType(\"" + Type + "\")) {");
+			Result.Indent();
+			Result.Line("RType* NewArrayType = RArrayType::RegisterType<" + Type + ", " + Utils::GetTemplateInnerType(Type) + ">(\"" + Type + "\", \"" + Utils::GetTemplateInnerType(Type) + "\");");
+			Result.Line("NewArrayType->SetSerializer(ISerializerInterface::Get<RSerializerInterface_Array>(\"RSerializerInterface_Array\"));");
+			Result.UnIndent();
+			Result.Line("}");
 		}
 		else {
 			Result.Line("if (!RType::GetType(\"" + Type + "\")) RType::RegisterType<" + Type + ", RType>(\"" + Type + "\");");

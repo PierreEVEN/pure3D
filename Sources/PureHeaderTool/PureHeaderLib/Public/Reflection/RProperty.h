@@ -1,6 +1,7 @@
 #pragma once
 #include "ReflectionUtilities.h"
 #include "Types/String.h"
+#include "RClass.h"
 
 struct RType;
 
