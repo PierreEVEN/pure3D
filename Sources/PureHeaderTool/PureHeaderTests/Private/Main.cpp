@@ -46,8 +46,48 @@ void PrintClassProperties(RType* Type, void* Object, String PropertyName) {
 	}
 }
 
+struct Obj {
+	float Func() { 
+		LOG("EXEC");
+		return 0; }
+};
+
+
+template<typename ReturnType, typename Class, typename... Args>
+using BaseFuncTest = ReturnType(Class::*) (Args...);
+
+
+template<typename ReturnType, typename... Args>
+using BaseFunc = std::function<ReturnType(Args...)>;
+
+template<typename ReturnType, typename... Arguments>
+static RFunction* MakeFunction_Internal(const String& InFunctionName, std::function<ReturnType(Arguments...)> InFunction) {
+	return new RFunction(InFunctionName,
+		std::make_any<BaseFunc<ReturnType, Arguments...>>(
+			[InFunction](Arguments&&... inArguments) -> ReturnType {
+				return InFunction(std::forward<Arguments>(inArguments)...);
+			})
+	);
+}
+
+
+template<typename ReturnType, typename Class, typename... Arguments>
+static RFunction* MakeFunction(const String& InFunctionName, BaseFuncTest<ReturnType, Class, Arguments...> Var) {
+	return MakeFunction_Internal<ReturnType, Class, Arguments...>(InFunctionName, Var);
+}
+
 
 int main() {
+
+	//Obj obj;
+	RFunction* Func = MakeFunction<float, Obj>("test", &Obj::Func);
+	std::cout << Func->FunctionPointer.type().name() << std::endl;
+	//if (!Func->IsValid<float, Obj>()) LOG_ASSERT("not valid");
+
+	//Func->Execute<float>(&obj);
+
+	//return 0;
+
 	/**
 	 * Class tests
 	 */
@@ -67,7 +107,9 @@ int main() {
 	ChildOneTwoObj->A = 10;
 	ChildOneTwoObj->B = 40;
 	ChildOneTwoObj->C = 50;
+	ChildOneTwoObj->D.A = 123456;
 	ChildOneTwoObj->D.B = { { 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12} };
+	ChildOneTwoObj->D.C = 5.323000001233;
 	ChildOneTwoObj->D.D = "CA MARCHE TROP BIEN";
 	ChildOneTwoObj->D.E = { 13, 14, 15, 16, 17, 18 };
 	ChildOneTwoObj->ParentOne::A = 4;
@@ -95,16 +137,22 @@ int main() {
 		ArchiveDeserialize.Deserialize(input);
 		input.close();
 	}
+
 	/**
 	 * Properties tests
 	 */
 	PrintClassProperties(MyClass, MyObject, "MyObject");
+
 	/**
 	 * Function tests
 	 */
-	RFunction<void, ChildOneTwo>* FuncA = MyClass->GetFunction<void, ChildOneTwo>("FunctionA");
-	RFunction<double, ChildOneTwo, int, int, int>* FuncB = MyClass->GetFunction<double, ChildOneTwo, int, int, int>("FunctionB");
-	if (FuncA) LOG(FuncA->GetName()); FuncA->Execute((ChildOneTwo*)MyObject);
-	if (FuncB) LOG(FuncB->GetName() + " : " + FuncB->Execute((ChildOneTwo*)MyObject, 10, 20, 30));
+	RFunction* FuncA = MyClass->GetFunction<void>("FunctionA");
+	RFunction* FuncB = MyClass->GetFunction<double, int, int, int>("FunctionB");
 
+	if (FuncA) {
+		FuncA->Execute<void>(MyObject);
+	}
+	if (FuncB) {
+		LOG(FuncB->GetName() + " : " + FuncB->Execute<double, int, int, int>(MyObject, 10, 20, 40));
+	}
 }

@@ -5,7 +5,7 @@ const bool DISPLAY_CODE_LOCATION = true;
 
 void Logger::Log(const String& logText, LogVerbosity verbosity)
 {
-	EngineIO.Lock();
+	EngineInputOutput::Get().Lock();
 	String type;
 	switch (verbosity)
 	{
@@ -36,9 +36,9 @@ void Logger::Log(const String& logText, LogVerbosity verbosity)
 	localtime_r(&now, &tstruct);
 #endif
 	strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-	EngineIO << '[' << buf << "] " << type << " - " << logText << String::ENDL;
+	EngineInputOutput::Get() << '[' << buf << "] " << type << " - " << logText << String::ENDL;
 	EngineInputOutput::SetTextColor(CONSOLE_DEFAULT);
-	EngineIO.Unlock();
+	EngineInputOutput::Get().Unlock();
 }
 
 void Logger::LogDetailed(const String& logText, LogVerbosity verbosity, const int& line, String fct) {

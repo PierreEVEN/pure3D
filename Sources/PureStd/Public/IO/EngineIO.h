@@ -3,8 +3,7 @@
 #include "Types/String.h"
 #include "Events/EventManager.h"
 #include <mutex>
-
-#define EngineIO EngineInputOutput::IO
+#include <fstream>
 
 enum ConsoleColor {
 	CONSOLE_FG_COLOR_BLACK = 0,
@@ -46,16 +45,19 @@ public:
 	EngineInputOutput& operator<<(const char* _Val);
 	EngineInputOutput& operator<<(char _Val);
 	EngineInputOutput& operator<<(const String& _Val);
-	EngineInputOutput& operator<<(const int32_t& _Val) { OutputText(ToString(_Val)); return IO; }
-	EngineInputOutput& operator<<(const uint32_t& _Val) { OutputText(ToString(_Val)); return IO; }
-	EngineInputOutput& operator<<(const int64_t& _Val) { OutputText(ToString(_Val)); return IO; }
-	EngineInputOutput& operator<<(const uint64_t& _Val) { OutputText(ToString(_Val)); return IO; }
-	EngineInputOutput& operator<<(const float& _Val) { OutputText(ToString(_Val)); return IO; }
-	EngineInputOutput& operator<<(const double& _Val) { OutputText(ToString(_Val)); return IO; }
+	EngineInputOutput& operator<<(const int32_t& _Val) { OutputText(ToString(_Val)); return *this; }
+	EngineInputOutput& operator<<(const uint32_t& _Val) { OutputText(ToString(_Val)); return *this; }
+	EngineInputOutput& operator<<(const int64_t& _Val) { OutputText(ToString(_Val)); return *this; }
+	EngineInputOutput& operator<<(const uint64_t& _Val) { OutputText(ToString(_Val)); return *this; }
+	EngineInputOutput& operator<<(const float& _Val) { OutputText(ToString(_Val)); return *this; }
+	EngineInputOutput& operator<<(const double& _Val) { OutputText(ToString(_Val)); return *this; }
 
 	EngineInputOutput& operator<<(const IStringable& _Val);
 
-	static EngineInputOutput IO;
+	inline static EngineInputOutput& Get() {
+		if (!Instance) Instance = new EngineInputOutput();
+		return *Instance;
+	}
 
 	static void SetTextColor(const ConsoleColor& color);
 
@@ -67,6 +69,10 @@ public:
 	inline static const ConsoleColor& GetConsoleColor() { return consoleColor; }
 
 private:
+
+	inline static EngineInputOutput* Instance = nullptr;
+
+	inline static std::ofstream outputFile;
 
 	EngineInputOutput();
 	~EngineInputOutput();

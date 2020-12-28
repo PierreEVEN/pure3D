@@ -3,32 +3,79 @@
 #include <unordered_map>
 #include <functional>
 #include "ReflectionUtilities.h"
+#include <any>
 
 struct RType;
 
-struct IFunctionPointer : public ReflectionObject {
-public:
-	IFunctionPointer(const String& inFunctionName) : FunctionName(inFunctionName), FunctionID(MakeUniqueID(inFunctionName)) {}
 
-	inline const String& GetName() const { return FunctionName; }
-	inline const RUID GetID() const { return FunctionID; }
-private:
-	const String FunctionName;
-	const RUID FunctionID;
-};
 
-template<typename ReturnType, typename ClassName, typename... Arguments>
-struct RFunction : public IFunctionPointer {
-	RFunction(const String& inFunctionName, const std::function<ReturnType(ClassName, Arguments...)>& inFunctionPointer, const RType* inReturnRType, const std::unordered_map<String, const RType*>& inFunctionRArguments)
-		: IFunctionPointer(inFunctionName), FunctionPointer(inFunctionPointer), ReturnRType(inReturnRType), FunctionRArguments(inFunctionRArguments) {}
+struct RFunction : public ReflectionObject {
 
-	inline ReturnType Execute(ClassName* Target, Arguments&&... inArguments) { 
-		return FunctionPointer(*Target, std::forward<Arguments>(inArguments)...);
+
+	template<typename ReturnType, typename... Args>
+	using MethodeFunc = std::function<ReturnType(void*, Args...)>;
+
+
+	template<typename ReturnType, typename... Args>
+	using BaseFunc = std::function<ReturnType(Args...)>;
+
+	template<typename ReturnType, typename... Arguments>
+	static RFunction* MakeFunction_Internal(const String& InFunctionName, std::function<ReturnType(Arguments...)> InFunction) {
+		return new RFunction(InFunctionName,
+			std::make_any<BaseFunc<ReturnType, Arguments...>>(
+				[InFunction](Arguments&&... inArguments) -> ReturnType {
+					return InFunction(std::forward<Arguments>(inArguments)...);
+				})
+		);
 	}
 
-private:
+	template<typename ReturnType, typename Class, typename... Arguments>
+	static RFunction* MakeFunction(const String& InFunctionName, ReturnType(Class::* Var) (Arguments...)) {
+		return MakeFunction_Internal<ReturnType, Class, Arguments...>(InFunctionName, Var);
+	}
 
-	const std::function<ReturnType(ClassName, Arguments...)> FunctionPointer;
-	const RType* ReturnRType;
-	std::unordered_map<String, const RType*> FunctionRArguments;
+
+	/**
+	 * Execute function with given parameter types
+	 */
+	template<typename ReturnType, typename... Arguments>
+	inline ReturnType Execute(void* Target, Arguments&&... inArguments) {
+		return (*std::any_cast<MethodeFunc<ReturnType, Arguments...>>(&FunctionPointer)) (Target, std::forward<Arguments>(inArguments)...);
+	}
+
+	/**
+	 * Ensure requested parameter types are valid
+	 */
+	template<typename ReturnType, typename... Arguments>
+	inline bool IsValid() const { return std::any_cast<MethodeFunc<ReturnType, Arguments...>>(&FunctionPointer); }
+
+
+	/**
+	 * Get function name
+	 */
+	inline const String& GetName() const { return FunctionName; }
+
+	/**
+	 * Get function ID
+	 */
+	inline const RUID GetID() const { return FunctionID; }
+
+	RFunction(const String& inFunctionName, const std::any inFunctionPointer)
+		: FunctionName(inFunctionName), FunctionID(MakeUniqueID(inFunctionName)), FunctionPointer(inFunctionPointer) {}
+
+	/**
+	 * Function name
+	 */
+	const String FunctionName;
+
+	/**
+	 * Function ID
+	 */
+	const RUID FunctionID;
+
+	/**
+	 * Function Pointer
+	 */
+	const std::any FunctionPointer;
 };
+

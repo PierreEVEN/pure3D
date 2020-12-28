@@ -7,35 +7,31 @@
 #include <filesystem>
 #include "IO/Log.h"
 
-std::ofstream outputFile;
-
 EngineInputOutput& EngineInputOutput::operator<<(bool _Val) {
 	OutputText(_Val ? "true" : "false");
-	return IO;
+	return *this;
 }
 
 EngineInputOutput& EngineInputOutput::operator<<(const char* _Val) {
 	OutputText(_Val);
-	return IO;
+	return *this;
 }
 
 EngineInputOutput& EngineInputOutput::operator<<(const String& _Val) {
 	OutputText(_Val);
-	return IO;
+	return *this;
 }
 
 EngineInputOutput& EngineInputOutput::operator<<(const IStringable& _Val) {
 	OutputText(_Val.ToString());
-	return IO;
+	return *this;
 }
 
 EngineInputOutput& EngineInputOutput::operator<<(char _Val)
 {
 	OutputText(_Val);
-	return IO;
+	return *this;
 }
-
-EngineInputOutput EngineInputOutput::IO = EngineInputOutput();
 
 #if _WIN32
     HANDLE hConsoleout = GetStdHandle(STD_OUTPUT_HANDLE);

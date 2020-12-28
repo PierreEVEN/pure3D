@@ -40,14 +40,14 @@ struct BasicStructure final {
 	RPROPERTY()
 		std::vector<int> E = { 1, 2, 3 };
 
-	RPROPERTY(Transient)
-		const double& C = 3.4;
+	RPROPERTY()
+		double C = 3.4;
 
 	RFUNCTION()
-		void TestFuncA() {}
+		void TestFuncA(int truc) {}
 
 	RFUNCTION()
-		int TestFuncB(bool inA, float inB, void* inC, std::vector<double> inD) { return 0;  }
+		int TestFuncB(bool inA, float inB, void* inC, std::vector<double> inD) { return (int)inB + (int)inD.size();  }
 };
 
 REFLECT();

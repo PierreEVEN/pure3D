@@ -6,6 +6,7 @@
 #include <fstream>
 #include "Serialization/Serialization.h"
 #include "AssetFactory.h"
+#include "EngineModule.h"
 
 
 SAsset* AssetManager::GetAsset(RUID AssetID) const {
@@ -62,4 +63,22 @@ void AssetManager::LoadAsset(const std::filesystem::path& AssetPath) {
 
 void AssetManager::UnRegisterAsset(SAsset* InAsset) {
 	AssetRegistry.erase(InAsset->GetAssetID());
+}
+
+
+MODULE_CONSTRUCTOR(AssetManager) {
+
+	/* Load content */
+	//AssetManager::Get()->LoadAssetLibrary(DEFAULT_ASSET_PATH);
+
+	/* Save all */
+	for (const auto& AssetIt : AssetManager::Get()->GetAssets()) { AssetIt.second->Save(); }
+
+	/* Create Asset */
+	//SAssetFactories::FindFactory(STexture2D::GetStaticClass())->CreateFromFiles("Content/Test/Truc.png");
+
+}
+
+MODULE_DESTRUCTOR() {
+
 }

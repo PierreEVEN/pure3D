@@ -84,8 +84,7 @@ String Writer::GenerateSource(Parser::SFileData* Data, const String& ReflHeaderP
 				String Params = Function.Parameters.size() == 0 ? "" : ", ";
 				for (int i = 0; i < Function.Parameters.size(); ++i)
 					Params << Function.Parameters[i].PropertyType << (i == Function.Parameters.size() - 1 ? "" : ", ");
-				
-				Result.Line(StaticClassName + "->AddFunction(new RFunction<" + Function.ReturnType + ", " + Object->GetName() + Params + ">(\"" + Function.FunctionName + "\", &" + Object->GetName() + "::" + Function.FunctionName + ", nullptr, {}));");
+				Result.Line(StaticClassName + "->AddFunction(RFunction::MakeFunction<" + Function.ReturnType + ", " + Object->GetName() + Params + ">(\"" + Function.FunctionName + "\", &" + Object->GetName() + "::" + Function.FunctionName + "));");
 			}
 
 			for (const auto& Constructor : ((Parser::SStruct*)Object)->GetConstructors()) {

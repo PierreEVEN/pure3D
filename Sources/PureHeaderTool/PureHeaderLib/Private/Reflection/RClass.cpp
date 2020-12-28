@@ -24,20 +24,23 @@ void RClass::AddProperty(RProperty* inProperty) {
 	Properties[inProperty->GetID()] = inProperty;
 }
 
-void RClass::AddFunction(IFunctionPointer* inFunction) {
-	ReflEnsure(Functions.find(inFunction->GetID()) == Functions.end(), inFunction->GetName() + " is already registered, or another function have the same hash value");
-	Functions[inFunction->GetID()] = inFunction;
-}
 
-IFunctionPointer* RClass::GetFunction(const RUID ProeprtyID) const {
-	const auto& Value = Functions.find(ProeprtyID);
-	if (Value == Functions.end()) return nullptr;
-	return Value->second;
+
+void RClass::AddFunction(RFunction* inFunction)
+{
+	ReflEnsure(Functions.find(inFunction->GetID()) == Functions.end(), inFunction->GetName() + " is already registered, or an other function have same hash value.");
+	Functions[inFunction->GetID()] = inFunction;
 }
 
 RProperty* RClass::GetProperty(size_t PropertyId) const {
 	const auto& Value = Properties.find(PropertyId);
 	if (Value == Properties.end()) return nullptr;
+	return Value->second;
+}
+
+RFunction* RClass::GetFunction(RUID FunctionID) const {
+	const auto& Value = Functions.find(FunctionID);
+	if (Value == Functions.end()) return nullptr;
 	return Value->second;
 }
 

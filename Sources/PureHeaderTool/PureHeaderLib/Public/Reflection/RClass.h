@@ -9,7 +9,6 @@
 #include "Events/EventManager.h"
 
 struct RProperty;
-struct IFunctionPointer;
 struct RClass;
 struct RCastFunction;
 
@@ -61,7 +60,7 @@ struct RClass : public RType {
     /**
      * Add reflected function for this class
      */
-    void AddFunction(IFunctionPointer* inProperty);
+    void AddFunction(RFunction* inFunction);
 
     /**
      * Add reflected constructor for this class
@@ -101,20 +100,31 @@ struct RClass : public RType {
 	inline virtual const ERType GetTypeVariant() const override { return ERType::ERType_RObject; }
 
     /**
-     * Get functions from RUID or name
-     */
-    inline IFunctionPointer* GetFunction(const String& PropertyName) const { return GetFunction(MakeUniqueID(PropertyName)); }
-	IFunctionPointer* GetFunction(const RUID PropertyID) const;
-
-	template<typename ReturnType, typename Class, typename... Arguments>
-	RFunction<ReturnType, Class, Arguments...>* GetFunction(const String& PropertyName) const { return (RFunction<ReturnType, Class, Arguments...>*)GetFunction(PropertyName); }
-    
-    /**
      * Get properties from RUID or Name
      */
 	inline std::unordered_map<RUID, RProperty*> GetProperties() const { return Properties; }
     inline RProperty* GetProperty(const String& PropertyID) const { return GetProperty(MakeUniqueID(PropertyID));  }
 	RProperty* GetProperty(RUID PropertyID) const;
+
+    /**
+     * Get function from RUID or Name
+	 */
+	inline std::unordered_map<RUID, RFunction*> GetFunctions() const { return Functions; }
+	inline RFunction* GetFunction(const String& FunctionName) const { return GetFunction(MakeUniqueID(FunctionName)); }
+	RFunction* GetFunction(RUID FunctionID) const;
+
+	template<typename ReturnType, typename... Arguments>
+	RFunction* GetFunction(RUID FunctionID) {
+		if (RFunction* Function = GetFunction(FunctionID))
+			return Function->IsValid<ReturnType, Arguments...>() ? Function : nullptr;
+		return nullptr;
+	}
+	template<typename ReturnType, typename... Arguments>
+    RFunction* GetFunction(String FunctionName) {
+		if (RFunction* Function = GetFunction(FunctionName))
+			return Function->IsValid<ReturnType, Arguments...>() ? Function : nullptr;
+		return nullptr;
+	}
 
     /**
      * Get parent classes
@@ -154,7 +164,7 @@ private:
     /**
      * Class Functions
      */
-    std::unordered_map<RUID, IFunctionPointer*> Functions;
+    std::unordered_map<RUID, RFunction*> Functions;
     /**
      * Class Constructors
      */

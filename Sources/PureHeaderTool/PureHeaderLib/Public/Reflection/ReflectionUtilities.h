@@ -1,5 +1,6 @@
 #pragma once
 #include "Types/String.h"
+#include <unordered_map>
 
 /**
  * Get reflected type name
@@ -45,3 +46,7 @@ inline RUID MakeUniqueID(const String& Name) {
 	return std::hash<String>{}(Name);
 }
 
+template<typename Type>
+inline bool UniqueIDAlreadyExist(const String& Name, std::unordered_map<RUID, Type> Container) {
+	return Container.find(MakeUniqueID(Name)) != Container.end();
+}
