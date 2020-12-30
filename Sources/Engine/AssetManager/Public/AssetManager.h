@@ -46,3 +46,4 @@ private:
 
 	std::unordered_map<RUID, SAsset*> AssetRegistry;
 };
+

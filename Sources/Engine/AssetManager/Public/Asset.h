@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Types/ByteArray.h"
-#include "Assets/Asset.refl.h"
+#include "Asset.refl.h"
 
 class SAssetFactories;
 

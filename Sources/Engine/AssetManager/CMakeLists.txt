@@ -1,3 +1,3 @@
 create_engine_library()
 use_reflection()
-add_public_dependencies(Engine)
+add_public_dependencies(Core)

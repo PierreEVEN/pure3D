@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Assets/Asset.h"
+#include "Asset.h"
 #include "Texture.refl.h"
 
 class STextureFactory;

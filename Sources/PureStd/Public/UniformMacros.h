@@ -10,3 +10,10 @@
 #define CONCAT_MACRO_FIVE_PARAMS(v,w,x,y,z) CONCAT_MACRO_FIVE_PARAMS_(v,w,x,y,z)
 #define CONCAT_MACRO_SIX_PARAMS_(u,v,w,x,y,z) v##w##x##y##z
 #define CONCAT_MACRO_SIX_PARAMS(u,v,w,x,y,z) CONCAT_MACRO_SIX_PARAMS_(u,v,w,x,y,z)
+
+#define STRINGIFY(a) _STRINGIFY(a)
+#define _STRINGIFY(a) #a
+
+#ifndef DEPENDENCIES_ROOT_PATH
+#define DEPENDENCIES_ROOT_PATH "./"
+#endif

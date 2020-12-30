@@ -36,7 +36,7 @@ double Atof(const String& value);
 class String
 {
 public:
-	static const char ENDL;
+	inline static const char ENDL = '\n';
 
 	/* Constructors */
 	String() = default;

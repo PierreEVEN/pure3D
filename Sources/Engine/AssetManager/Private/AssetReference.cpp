@@ -1,7 +1,7 @@
 
 #include "AssetReference.h"
 #include "Assetmanager.h"
-#include "Assets/Asset.h"
+#include "Asset.h"
 
 SAssetReference::SAssetReference(RUID InAssetID)
 	: AssetID(InAssetID), AssetPtr(nullptr) {

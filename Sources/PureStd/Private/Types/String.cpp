@@ -2,8 +2,6 @@
 #include <iostream>
 #include <string>
 
-const char String::ENDL = '\n';
-
 bool String::operator!=(const String& _Val) const
 {
 	if (_Val.length != length) return true;

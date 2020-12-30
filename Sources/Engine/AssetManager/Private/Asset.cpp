@@ -1,4 +1,4 @@
-#include "Assets/Asset.h"
+#include "Asset.h"
 #include "Assetmanager.h"
 #include "Serialization/Serialization.h"
 #include <fstream>
