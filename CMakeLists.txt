@@ -3,10 +3,12 @@ cmake_minimum_required(VERSION 3.8)
 #Global cmake features
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Editor)
 
 #Include extended cmake library
 add_subdirectory(Tools)
+
+#Set startup project
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Main)
 
 #set project name
 project(pure3D)
@@ -35,6 +37,7 @@ set(INTERMEDIATES_DIR ${PROJECT_ROOT}/Intermediates) # Intermediates dir
 set(REFLECTION_DIR ${PROJECT_ROOT}/Intermediates/Reflection) # Reflection dir
 
 
+
 function(create_custom_target_library TARGET)
 	add_library(${TARGET} SHARED ${ARGN})
 	_module_definition(${TARGET} ${ARGN})
@@ -60,4 +63,5 @@ function(create_executable)
 	_module_definition(${TARGET} ${ARGN})	
 endfunction()
 
+# Include sources
 add_subdirectory(Sources)

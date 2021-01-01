@@ -1,14 +1,12 @@
-#ImGui
-file(GLOB SOURCES imgui/*.cpp imgui/*.h)
-create_custom_target_library(ImGui ${SOURCES})
-#ImGuizmo
-file(GLOB SOURCES ImGuizmo/*.cpp ImGuizmo/*.h)
-create_custom_target_library(ImGuizmo ${SOURCES})
-target_include_directories(ImGuizmo PRIVATE "imgui")
-target_link_libraries(ImGuizmo PRIVATE "ImGui")
 #Stb
-file(GLOB SOURCES stb/stb_truetype.h stb/stb_image.h stb.cpp)
-create_custom_target_library(Stb ${SOURCES})
-	target_include_directories(Stb
-		PUBLIC
-			stb)
+create_virtual_module(Stb "" "./stb/")
+#Glfw
+create_virtual_module(Glfw "${INTERMEDIATES_DIR}/Dependencies/glfw3" "./glfw/include")
+#Gl3w
+add_library(Gl3w STATIC gl3w/src/gl3w.c)
+target_include_directories(Gl3w PUBLIC gl3w/include)
+	set_target_properties(Gl3w PROPERTIES 
+		ARCHIVE_OUTPUT_DIRECTORY "${BINARIES_DIR}/Lib"
+		RUNTIME_OUTPUT_DIRECTORY "${BINARIES_DIR}/Bin"
+		VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_ROOT}")
+

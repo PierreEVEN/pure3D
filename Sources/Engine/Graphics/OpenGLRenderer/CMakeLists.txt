@@ -1,0 +1,3 @@
+create_engine_library()
+add_public_dependencies(Renderer)
+add_public_dependencies(Gl3w)

@@ -84,7 +84,7 @@ public:
 		}
 	}
 
-	inline void Execute(Args&... inArgs) {
+	inline void Execute(Args... inArgs) {
 		for (const auto& fct : functions)
 		{
 			fct->Execute(inArgs...);

@@ -89,3 +89,15 @@ function(add_private_dependencies)
 	target_link_libraries(${TARGET} PRIVATE ${ARGN})
 endfunction()
 
+# Create interface to external compilled libraries
+function(create_virtual_module TARGET BINARIES)
+	log_module("External : ${TARGET} [${BINARIES}] => ${ARGN}")
+	add_library(${TARGET} INTERFACE)
+	if("${BINARIES}" STREQUAL "")
+	else()
+		target_link_libraries(${TARGET} INTERFACE ${BINARIES}.lib)
+	endif()
+	target_include_directories(${TARGET} INTERFACE ${ARGN})
+endfunction()
+
+

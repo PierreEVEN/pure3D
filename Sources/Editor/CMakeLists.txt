@@ -1,3 +1,6 @@
 create_engine_library()
-add_public_dependencies(Core)
 add_public_dependencies(AssetManager)
+add_public_dependencies(Renderer)
+add_public_dependencies(VulkanRenderer)
+add_public_dependencies(OpenGLRenderer)
+add_public_dependencies(GlfwWindow)

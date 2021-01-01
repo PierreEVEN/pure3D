@@ -17,3 +17,6 @@
 [submodule "Sources/ThirdParty/ImGuizmo"]
 	path = Sources/ThirdParty/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
+[submodule "Sources/ThirdParty/gl3w"]
+	path = Sources/ThirdParty/gl3w
+	url = https://github.com/skaslev/gl3w.git

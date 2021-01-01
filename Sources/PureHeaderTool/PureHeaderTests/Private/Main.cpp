@@ -46,47 +46,8 @@ void PrintClassProperties(RType* Type, void* Object, String PropertyName) {
 	}
 }
 
-struct Obj {
-	float Func() { 
-		LOG("EXEC");
-		return 0; }
-};
-
-
-template<typename ReturnType, typename Class, typename... Args>
-using BaseFuncTest = ReturnType(Class::*) (Args...);
-
-
-template<typename ReturnType, typename... Args>
-using BaseFunc = std::function<ReturnType(Args...)>;
-
-template<typename ReturnType, typename... Arguments>
-static RFunction* MakeFunction_Internal(const String& InFunctionName, std::function<ReturnType(Arguments...)> InFunction) {
-	return new RFunction(InFunctionName,
-		std::make_any<BaseFunc<ReturnType, Arguments...>>(
-			[InFunction](Arguments&&... inArguments) -> ReturnType {
-				return InFunction(std::forward<Arguments>(inArguments)...);
-			})
-	);
-}
-
-
-template<typename ReturnType, typename Class, typename... Arguments>
-static RFunction* MakeFunction(const String& InFunctionName, BaseFuncTest<ReturnType, Class, Arguments...> Var) {
-	return MakeFunction_Internal<ReturnType, Class, Arguments...>(InFunctionName, Var);
-}
-
 
 int main() {
-
-	//Obj obj;
-	RFunction* Func = MakeFunction<float, Obj>("test", &Obj::Func);
-	std::cout << Func->FunctionPointer.type().name() << std::endl;
-	//if (!Func->IsValid<float, Obj>()) LOG_ASSERT("not valid");
-
-	//Func->Execute<float>(&obj);
-
-	//return 0;
 
 	/**
 	 * Class tests

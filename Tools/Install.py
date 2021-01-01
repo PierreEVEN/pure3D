@@ -3,9 +3,10 @@
 import multiprocessing, os, platform, subprocess, sys, vswhere
 
 ENGINE_PATH = os.getcwd()
+QUIET_OUTPUT = False
 
 THIRD_PARTY_PATH = ENGINE_PATH + "/Sources/ThirdParty/"
-INSTALL_DIR = ENGINE_PATH + "/Intermediates/Dependencies"
+INSTALL_DIR = ENGINE_PATH + "/Intermediates/Dependencies/"
 
 class bcolors:
     HEADER = '\033[95m'
@@ -52,7 +53,7 @@ def CheckError(result):
 		PauseAssert()
 
 def RunSubProcess(Command):
-	CheckError(subprocess.run(Command, capture_output=True))
+	CheckError(subprocess.run(Command, capture_output=QUIET_OUTPUT))
 
 
 def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = ""):	
@@ -86,8 +87,5 @@ BuildModule(
 BuildModule(
 	"glfw",
 	"src/glfw.vcxproj")
-
-RunSubProcess(THIRD_PARTY_PATH + "/VulkanMemoryAllocator/premake/premake5.exe")
-LogSuccess("Success !")
-
+    
 LogSuccess("Install complete !")
