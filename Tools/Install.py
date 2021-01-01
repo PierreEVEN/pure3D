@@ -56,15 +56,21 @@ def LogWarning(message):
 	
 def CheckError(result):
 	if result.returncode:
-		if result.stdout:
-			LogWarning(str(result.stdout).replace("\\r\\n", "\n"))
-		if result.stderr:
-			LogError(str(result.stderr).replace("\\r\\n", "\n"))
+		if IsWindows():
+			if result.stdout:
+				LogWarning(str(result.stdout).replace("\\r\\n", "\n"))
+			if result.stderr:
+				LogError(str(result.stderr).replace("\\r\\n", "\n"))
+		else:
+			if result.stdout:
+				LogWarning(str(result.stdout).replace("\\n", "\n"))
+			if result.stderr:
+				LogError(str(result.stderr).replace("\\n", "\n"))
 		LogError("failed with exit code " + str(result.returncode))
 		PauseAssert()
 
 def RunSubProcess(Command):
-	CheckError(subprocess.run(Command, capture_output=True))
+	CheckError(subprocess.run(Command.split(), capture_output=True))
 
 
 def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = "", NinjaLibPath = "Null"):	
@@ -98,7 +104,7 @@ def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = "", 
 		
 		# Move libraries
 		LogInfo("Move libraries")
-		RunSubProcess("mv " + BuildPath + "/" + NinjaLibPath + "")
+		RunSubProcess("mv " + BuildPath + "/" + NinjaLibPath + " " + INSTALL_DIR)
 		LogSuccess("Success !")
 
 
@@ -106,16 +112,27 @@ def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = "", 
 
 #MAIN
 
-LogInfo("updating git submodules...")
+LogInfo("updating git submodules ...")
 RunSubProcess("git submodule update --init --recursive")
 
-BuildModule(
-	"assimp",
-	"code/assimp.vcxproj",
-	"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_NO_EXPORT=ON")
+RunSubProcess("mkdir -p " + INSTALL_DIR)
+
+if IsWindows():
+	BuildModule(
+		"assimp",
+		"code/assimp.vcxproj",
+		"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_NO_EXPORT=ON")
+else:
+	BuildModule(
+		"assimp",
+		"code/assimp.vcxproj",
+		"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF",
+		"lib/libassimp.a")
 
 BuildModule(
 	"glfw",
-	"src/glfw.vcxproj")
+	"src/glfw.vcxproj",
+	"",
+	"")
 
 LogSuccess("Install complete !")
