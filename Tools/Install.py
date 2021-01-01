@@ -133,6 +133,6 @@ BuildModule(
 	"glfw",
 	"src/glfw.vcxproj",
 	"",
-	"")
+	"src/libglfw3.a")
 
 LogSuccess("Install complete !")
