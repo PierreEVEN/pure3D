@@ -50,11 +50,15 @@ function(_module_definition TARGET)
 	#Set compiller features
 	target_compile_features(${TARGET} PUBLIC cxx_std_17)
 	set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
-	
+	if (UNIX)
+		target_link_options(${TARGET} PUBLIC -ldl -lpthread)
+	endif()
+
 	#Set solution directories
 	set_target_properties(${TARGET} PROPERTIES 
 		ARCHIVE_OUTPUT_DIRECTORY "${BINARIES_DIR}/Lib"
 		RUNTIME_OUTPUT_DIRECTORY "${BINARIES_DIR}/Bin"
+		LIBRARY_OUTPUT_DIRECTORY "${BINARIES_DIR}/Bin"
 		VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_ROOT}")
 	
 	# Display real hierarchy

@@ -11,6 +11,7 @@
 
 #if _WIN32
 String GetSharedLibExtension() { return "dll"; }
+String GetSharedLibPrefix() { return ""; }
 void* LoadModuleHandle(const String& Path) { return (void*)LoadLibraryA(Path.GetData()); }
 void* GetHandleSymbol(void* Handle, const String& SymbolName) { return GetProcAddress(static_cast<HMODULE>(Handle), SymbolName.GetData()); }
 void FreeModuleHandle(void* Handle) { FreeLibrary((HMODULE)Handle); }
@@ -26,6 +27,7 @@ String ReadLastError() {
 }
 #else
 void* LoadModuleHandle(const String& Path) { return dlopen(Path.GetData(), RTLD_LAZY); }
+String GetSharedLibPrefix() { return "lib"; }
 String GetSharedLibExtension() { return "so"; }
 void* GetHandleSymbol(void* Handle, const String& SymbolName) { return dlsym(Handle, SymbolName.GetData()); }
 void FreeModuleHandle(void* Handle) { dlclose(Handle); }
@@ -38,7 +40,7 @@ String ReadLastError() {
 
 SEngineModuleBase* ModuleManager::LoadModule(const String& ModuleName) {
 
-	String ModulePath = DEPENDENCIES_ROOT_PATH / ModuleName + "." + GetSharedLibExtension();
+	String ModulePath = DEPENDENCIES_ROOT_PATH / GetSharedLibPrefix() + ModuleName + "." + GetSharedLibExtension();
 	LOG("Load module '%s'", ModuleName.GetData());
 
 	void* handle = LoadModuleHandle(ModulePath.GetData());
