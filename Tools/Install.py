@@ -15,7 +15,6 @@ if IsWindows():
 	import vswhere
 
 ENGINE_PATH = os.getcwd()
-CAPTURE_OUTPUTS = False;
 
 THIRD_PARTY_PATH = ENGINE_PATH + "/Sources/ThirdParty/"
 INSTALL_DIR = ENGINE_PATH + "/Intermediates/Dependencies"
@@ -39,7 +38,7 @@ def PauseAssert():
 	if 0 == sys.platform.find("win"):
 		pauseCmd = "pause"
 	else:
-		pauseCmd = "echo \"Presse any key to continue\"; read"
+		pauseCmd = "read"
 	subprocess.call(pauseCmd, shell = True)
 	sys.exit(1)
 
@@ -65,10 +64,10 @@ def CheckError(result):
 		PauseAssert()
 
 def RunSubProcess(Command):
-	CheckError(subprocess.run(Command.split(), capture_output=CAPTURE_OUTPUTS))
+	CheckError(subprocess.run(Command, capture_output=True))
 
 
-def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = ""):
+def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = "", NinjaLibPath = "Null"):	
 	if IsWindows():
 		LibPath = THIRD_PARTY_PATH + ModuleName
 		BuildPath = LibPath + "/Build"
@@ -82,7 +81,7 @@ def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = ""):
 		
 		# Compile module
 		LogInfo("compiling ... ")
-		RunSubProcess(VsPath[0] + " " + VcxProjPath + " /t:build /p:Configuration=\"Release\" /p:Platform=\"x64\" /p:BuildInParallel=true /p:OutDir=" + BuildPath)
+		RunSubProcess(VsPath[0] + " " + VcxProjPath + " /t:build /p:Configuration=\"Release\" /p:Platform=\"x64\" /p:BuildInParallel=true /p:OutDir=" + INSTALL_DIR)
 		LogSuccess("Success !")
 	if IsLinux():
 		LibPath = THIRD_PARTY_PATH + ModuleName
@@ -96,7 +95,11 @@ def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = ""):
 		LogInfo("compiling ... ")
 		RunSubProcess("ninja -C " + BuildPath)
 		LogSuccess("Success !")
-
+		
+		# Move libraries
+		LogInfo("Move libraries")
+		RunSubProcess("mv " + BuildPath + "/" + NinjaLibPath + "")
+		LogSuccess("Success !")
 
 
 
@@ -109,7 +112,7 @@ RunSubProcess("git submodule update --init --recursive")
 BuildModule(
 	"assimp",
 	"code/assimp.vcxproj",
-	"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF")
+	"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_NO_EXPORT=ON")
 
 BuildModule(
 	"glfw",
