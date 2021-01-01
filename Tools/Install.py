@@ -143,7 +143,7 @@ BuildModule(
 # Gl3w
 LogInfo("downloading gl3w code ...")
 os.chdir(THIRD_PARTY_PATH + "/gl3w")
-RunSubProcess("python3 gl3w_gen.py")
+RunSubProcess("python gl3w_gen.py")
 os.chdir(ENGINE_PATH)
 
 LogSuccess("Install complete !")

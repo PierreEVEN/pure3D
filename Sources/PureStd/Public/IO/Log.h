@@ -11,15 +11,24 @@
 #endif
 #endif
 
-
-#define LOG(text, ...) Logger::LogDetailed(String::Format(text __VA_OPT__(,) __VA_ARGS__), LogVerbosity::VERB_DISPLAY, __LINE__, __FUNCTION_NAME__)
-#define LOG_ERROR(text, ...) Logger::LogDetailed(String::Format(text __VA_OPT__(,) __VA_ARGS__), LogVerbosity::VERB_ERROR, __LINE__, __FUNCTION_NAME__)
-#define LOG_WARNING(text, ...) Logger::LogDetailed(String::Format(text __VA_OPT__(,) __VA_ARGS__), LogVerbosity::VERB_WARNING, __LINE__, __FUNCTION_NAME__)
-
-#if _DEBUG
-	#define LOG_ASSERT(text, ...) { Logger::LogDetailedFull(String::Format(text, __VA_ARGS__), LogVerbosity::VERB_ASSERT, __LINE__, __FUNCTION_NAME__, __FILE__); __debugbreak(); exit(1); }
+#if _WIN32
+	#define LOG(text, ...) Logger::LogDetailed(String::Format(text, __VA_ARGS__), LogVerbosity::VERB_DISPLAY, __LINE__, __FUNCTION_NAME__)
+	#define LOG_ERROR(text, ...) Logger::LogDetailed(String::Format(text, __VA_ARGS__), LogVerbosity::VERB_ERROR, __LINE__, __FUNCTION_NAME__)
+	#define LOG_WARNING(text, ...) Logger::LogDetailed(String::Format(text, __VA_ARGS__), LogVerbosity::VERB_WARNING, __LINE__, __FUNCTION_NAME__)
+	#if _DEBUG
+		#define LOG_ASSERT(text, ...) { Logger::LogDetailedFull(String::Format(text, __VA_ARGS__), LogVerbosity::VERB_ASSERT, __LINE__, __FUNCTION_NAME__, __FILE__); __debugbreak(); exit(1); }
+	#else
+		#define LOG_ASSERT(text, ...) { Logger::LogDetailedFull(String::Format(text, __VA_ARGS__), LogVerbosity::VERB_ASSERT, __LINE__, __FUNCTION_NAME__, __FILE__); exit(1); }
+	#endif
 #else
-        #define LOG_ASSERT(text, ...) { Logger::LogDetailedFull(String::Format(text __VA_OPT__(,) __VA_ARGS__), LogVerbosity::VERB_ASSERT, __LINE__, __FUNCTION_NAME__, __FILE__); exit(1); }
+	#define LOG(text, ...) Logger::LogDetailed(String::Format(text __VA_OPT__(,) __VA_ARGS__), LogVerbosity::VERB_DISPLAY, __LINE__, __FUNCTION_NAME__)
+	#define LOG_ERROR(text, ...) Logger::LogDetailed(String::Format(text __VA_OPT__(,) __VA_ARGS__), LogVerbosity::VERB_ERROR, __LINE__, __FUNCTION_NAME__)
+	#define LOG_WARNING(text, ...) Logger::LogDetailed(String::Format(text __VA_OPT__(,) __VA_ARGS__), LogVerbosity::VERB_WARNING, __LINE__, __FUNCTION_NAME__)
+	#if _DEBUG
+		#define LOG_ASSERT(text, ...) { Logger::LogDetailedFull(String::Format(text __VA_OPT__(,) __VA_ARGS__), LogVerbosity::VERB_ASSERT, __LINE__, __FUNCTION_NAME__, __FILE__); __debugbreak(); exit(1); }
+	#else
+		#define LOG_ASSERT(text, ...) { Logger::LogDetailedFull(String::Format(text __VA_OPT__(,) __VA_ARGS__), LogVerbosity::VERB_ASSERT, __LINE__, __FUNCTION_NAME__, __FILE__); exit(1); }
+	#endif
 #endif
 
 enum class LogVerbosity
