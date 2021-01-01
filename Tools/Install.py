@@ -1,8 +1,21 @@
 
 
-import multiprocessing, os, platform, subprocess, sys, vswhere
+def IsWindows():
+	from sys import platform
+	return platform == "win32"
+
+def IsLinux():
+	from sys import platform
+	return platform == "linux" or platform == "linux2"
+
+
+import multiprocessing, os, platform, subprocess, sys
+
+if IsWindows():
+	import vswhere
 
 ENGINE_PATH = os.getcwd()
+CAPTURE_OUTPUTS = False;
 
 THIRD_PARTY_PATH = ENGINE_PATH + "/Sources/ThirdParty/"
 INSTALL_DIR = ENGINE_PATH + "/Intermediates/Dependencies"
@@ -26,7 +39,7 @@ def PauseAssert():
 	if 0 == sys.platform.find("win"):
 		pauseCmd = "pause"
 	else:
-		pauseCmd = "read"
+		pauseCmd = "echo \"Presse any key to continue\"; read"
 	subprocess.call(pauseCmd, shell = True)
 	sys.exit(1)
 
@@ -52,24 +65,39 @@ def CheckError(result):
 		PauseAssert()
 
 def RunSubProcess(Command):
-	CheckError(subprocess.run(Command, capture_output=True))
+	CheckError(subprocess.run(Command.split(), capture_output=CAPTURE_OUTPUTS))
 
 
-def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = ""):	
-	LibPath = THIRD_PARTY_PATH + ModuleName
-	BuildPath = LibPath + "/Build"
-	VcxProjPath = BuildPath + "/" + BuildProj
-	# Search for MSBuild path
-	VsPath = vswhere.find("MSBuild\**\Bin\MSBuild.exe")
-	
-	# Build module
-	LogInfo("building module : " + ModuleName)
-	RunSubProcess("cmake -S " + LibPath + " -B " + BuildPath + " " + CMakeOptions)
-	
-	# Compile module
-	LogInfo("compiling ... ")
-	RunSubProcess(VsPath[0] + " " + VcxProjPath + " /t:build /p:Configuration=\"Release\" /p:Platform=\"x64\" /p:BuildInParallel=true /p:OutDir=" + INSTALL_DIR)
-	LogSuccess("Success !")
+def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = ""):
+	if IsWindows():
+		LibPath = THIRD_PARTY_PATH + ModuleName
+		BuildPath = LibPath + "/Build"
+		VcxProjPath = BuildPath + "/" + BuildProj
+		# Search for MSBuild path
+		VsPath = vswhere.find("MSBuild\**\Bin\MSBuild.exe")
+		
+		# Build module
+		LogInfo("building module : " + ModuleName)
+		RunSubProcess("cmake -S " + LibPath + " -B " + BuildPath + " " + CMakeOptions)
+		
+		# Compile module
+		LogInfo("compiling ... ")
+		RunSubProcess(VsPath[0] + " " + VcxProjPath + " /t:build /p:Configuration=\"Release\" /p:Platform=\"x64\" /p:BuildInParallel=true /p:OutDir=" + BuildPath)
+		LogSuccess("Success !")
+	if IsLinux():
+		LibPath = THIRD_PARTY_PATH + ModuleName
+		BuildPath = LibPath + "/Build"
+
+		# Build module
+		LogInfo("building module : " + ModuleName)
+		RunSubProcess("cmake -S " + LibPath + " -G Ninja " + " -B " + BuildPath + " " + CMakeOptions)
+		
+		# Compile module
+		LogInfo("compiling ... ")
+		RunSubProcess("ninja -C " + BuildPath)
+		LogSuccess("Success !")
+
+
 
 
 
@@ -81,13 +109,10 @@ RunSubProcess("git submodule update --init --recursive")
 BuildModule(
 	"assimp",
 	"code/assimp.vcxproj",
-	"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_NO_EXPORT=ON")
+	"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF")
 
 BuildModule(
 	"glfw",
 	"src/glfw.vcxproj")
-
-RunSubProcess(THIRD_PARTY_PATH + "/VulkanMemoryAllocator/premake/premake5.exe")
-LogSuccess("Success !")
 
 LogSuccess("Install complete !")
