@@ -5,8 +5,8 @@ create_virtual_module(Glfw "${INTERMEDIATES_DIR}/Dependencies/glfw3" "./glfw/inc
 #Gl3w
 add_library(Gl3w STATIC gl3w/src/gl3w.c)
 target_include_directories(Gl3w PUBLIC gl3w/include)
-	set_target_properties(Gl3w PROPERTIES 
-		ARCHIVE_OUTPUT_DIRECTORY "${BINARIES_DIR}/Lib"
-		RUNTIME_OUTPUT_DIRECTORY "${BINARIES_DIR}/Bin"
-		VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_ROOT}")
-
+set_target_properties(Gl3w PROPERTIES 
+	ARCHIVE_OUTPUT_DIRECTORY "${BINARIES_DIR}/Lib"
+	RUNTIME_OUTPUT_DIRECTORY "${BINARIES_DIR}/Bin"
+	VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_ROOT}")
+set_target_properties(Gl3w PROPERTIES FOLDER ThirdParty)
