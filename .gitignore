@@ -8,3 +8,7 @@ Saved/
 *.sln
 *.filters
 *.user
+*.cmake
+**/Makefile
+**/CMakeFiles/
+**/CMakeCache.txt

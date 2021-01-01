@@ -1,12 +1,23 @@
 
 
-import multiprocessing, os, platform, subprocess, sys, vswhere
+def IsWindows():
+	from sys import platform
+	return platform == "win32"
+
+def IsLinux():
+	from sys import platform
+	return platform == "linux" or platform == "linux2"
+
+
+import multiprocessing, os, platform, subprocess, sys
+
+if IsWindows():
+	import vswhere
 
 ENGINE_PATH = os.getcwd()
-QUIET_OUTPUT = False
 
 THIRD_PARTY_PATH = ENGINE_PATH + "/Sources/ThirdParty/"
-INSTALL_DIR = ENGINE_PATH + "/Intermediates/Dependencies/"
+INSTALL_DIR = ENGINE_PATH + "/Intermediates/Dependencies"
 
 class bcolors:
     HEADER = '\033[95m'
@@ -45,47 +56,83 @@ def LogWarning(message):
 	
 def CheckError(result):
 	if result.returncode:
-		if result.stdout:
-			LogWarning(str(result.stdout).replace("\\r\\n", "\n"))
-		if result.stderr:
-			LogError(str(result.stderr).replace("\\r\\n", "\n"))
+		if IsWindows():
+			if result.stdout:
+				LogWarning(str(result.stdout).replace("\\r\\n", "\n"))
+			if result.stderr:
+				LogError(str(result.stderr).replace("\\r\\n", "\n"))
+		else:
+			if result.stdout:
+				LogWarning(str(result.stdout).replace("\\n", "\n"))
+			if result.stderr:
+				LogError(str(result.stderr).replace("\\n", "\n"))
 		LogError("failed with exit code " + str(result.returncode))
 		PauseAssert()
 
 def RunSubProcess(Command):
-	CheckError(subprocess.run(Command, capture_output=QUIET_OUTPUT))
+	CheckError(subprocess.run(Command.split(), capture_output=True))
 
 
-def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = ""):	
-	LibPath = THIRD_PARTY_PATH + ModuleName
-	BuildPath = LibPath + "/Build"
-	VcxProjPath = BuildPath + "/" + BuildProj
-	# Search for MSBuild path
-	VsPath = vswhere.find("MSBuild\**\Bin\MSBuild.exe")
-	
-	# Build module
-	LogInfo("building module : " + ModuleName)
-	RunSubProcess("cmake -S " + LibPath + " -B " + BuildPath + " " + CMakeOptions)
-	
-	# Compile module
-	LogInfo("compiling ... ")
-	RunSubProcess(VsPath[0] + " " + VcxProjPath + " /t:build /p:Configuration=\"Release\" /p:Platform=\"x64\" /p:BuildInParallel=true /p:OutDir=" + INSTALL_DIR)
-	LogSuccess("Success !")
+def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = "", NinjaLibPath = "Null"):	
+	if IsWindows():
+		LibPath = THIRD_PARTY_PATH + ModuleName
+		BuildPath = LibPath + "/Build"
+		VcxProjPath = BuildPath + "/" + BuildProj
+		# Search for MSBuild path
+		VsPath = vswhere.find("MSBuild\**\Bin\MSBuild.exe")
+		
+		# Build module
+		LogInfo("building module : " + ModuleName)
+		RunSubProcess("cmake -S " + LibPath + " -B " + BuildPath + " " + CMakeOptions)
+		
+		# Compile module
+		LogInfo("compiling ... ")
+		RunSubProcess(VsPath[0] + " " + VcxProjPath + " /t:build /p:Configuration=\"Release\" /p:Platform=\"x64\" /p:BuildInParallel=true /p:OutDir=" + INSTALL_DIR)
+		LogSuccess("Success !")
+	if IsLinux():
+		LibPath = THIRD_PARTY_PATH + ModuleName
+		BuildPath = LibPath + "/Build"
+
+		# Build module
+		LogInfo("building module : " + ModuleName)
+		RunSubProcess("cmake -S " + LibPath + " -G Ninja " + " -B " + BuildPath + " " + CMakeOptions)
+		
+		# Compile module
+		LogInfo("compiling ... ")
+		RunSubProcess("ninja -C " + BuildPath)
+		LogSuccess("Success !")
+		
+		# Move libraries
+		LogInfo("Move libraries")
+		RunSubProcess("mv " + BuildPath + "/" + NinjaLibPath + " " + INSTALL_DIR)
+		LogSuccess("Success !")
+
 
 
 
 #MAIN
 
-LogInfo("updating git submodules...")
+LogInfo("updating git submodules ...")
 RunSubProcess("git submodule update --init --recursive")
 
-BuildModule(
-	"assimp",
-	"code/assimp.vcxproj",
-	"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_NO_EXPORT=ON")
+RunSubProcess("mkdir -p " + INSTALL_DIR)
+
+if IsWindows():
+	BuildModule(
+		"assimp",
+		"code/assimp.vcxproj",
+		"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_NO_EXPORT=ON")
+else:
+	BuildModule(
+		"assimp",
+		"code/assimp.vcxproj",
+		"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF",
+		"lib/libassimp.a")
 
 BuildModule(
 	"glfw",
-	"src/glfw.vcxproj")
-    
+	"src/glfw.vcxproj",
+	"",
+	"")
+
 LogSuccess("Install complete !")
