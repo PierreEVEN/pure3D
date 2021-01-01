@@ -50,7 +50,7 @@ void* RClass::NewType() {
 
 void RClass::DeleteType(void* Memory) {
 	// @TODO ADD PLACEMENT NEW AND DESTRUCTOR FUNCTION
-	delete(Memory);
+	free(Memory);
 }
 
 inline static std::unordered_map<size_t, RClass*>* Classes = nullptr;

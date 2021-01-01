@@ -1,5 +1,5 @@
 #include "Asset.h"
-#include "Assetmanager.h"
+#include "AssetManager.h"
 #include "Serialization/Serialization.h"
 #include <fstream>
 #include "IO/Log.h"

@@ -1,7 +1,12 @@
 #Stb
 create_virtual_module(Stb "" "./stb/")
 #Glfw
-create_virtual_module(Glfw "${INTERMEDIATES_DIR}/Dependencies/glfw3" "./glfw/include")
+if (WIN32)
+	create_virtual_module(Glfw "${INTERMEDIATES_DIR}/Dependencies/glfw3" "./glfw/include")
+else()
+	create_virtual_module(Glfw "${INTERMEDIATES_DIR}/Dependencies/libglfw3" "./glfw/include")
+endif()
+
 #Gl3w
 add_library(Gl3w STATIC gl3w/src/gl3w.c)
 target_include_directories(Gl3w PUBLIC gl3w/include)

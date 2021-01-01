@@ -1,7 +1,7 @@
 #include "AssetFactory.h"
 #include "Reflection/ReflectionUtilities.h"
 #include "Asset.h"
-#include "Assetmanager.h"
+#include "AssetManager.h"
 
 inline static std::unordered_map<RClass*, SAssetFactories*> FactoryForClass;
 

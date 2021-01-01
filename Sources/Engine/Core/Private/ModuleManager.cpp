@@ -25,10 +25,13 @@ String ReadLastError() {
 	return Message.c_str();
 }
 #else
-void* LoadModuleHandle(const String& Path) { return dlopen(path.c_str(), RTLD_LAZY); }
+void* LoadModuleHandle(const String& Path) { return dlopen(Path.GetData(), RTLD_LAZY); }
 String GetSharedLibExtension() { return "so"; }
 void* GetHandleSymbol(void* Handle, const String& SymbolName) { return dlsym(Handle, SymbolName.GetData()); }
 void FreeModuleHandle(void* Handle) { dlclose(Handle); }
+String ReadLastError() {
+    return "";
+}
 #endif
 
 

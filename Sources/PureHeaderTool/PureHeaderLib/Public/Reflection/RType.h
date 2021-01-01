@@ -102,7 +102,7 @@ struct RType : public ReflectionObject {
     /**
      * Delete type
      */
-	virtual void DeleteType(void* Memory) { return delete(Memory); }
+	virtual void DeleteType(void* Memory) { return free(Memory); }
 
     inline static void AddAlias(const String& From, const String& To) { Alias[From] = To; }
 

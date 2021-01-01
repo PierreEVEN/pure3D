@@ -23,7 +23,7 @@ RType* RType::GetType(const String& inTypeName) {
 
 
 String RType::NormalizeTypeName(const String& TypeName) {
-	auto& RealTypeName = Alias.find(TypeName);
+	auto RealTypeName = Alias.find(TypeName);
 	if (RealTypeName != Alias.end()) return RealTypeName->second;
 	return TypeName;
 }

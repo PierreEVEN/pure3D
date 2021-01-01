@@ -37,7 +37,7 @@ public:
 
 	template<typename InterfaceClass = IWindow>
 	inline static InterfaceClass* GetWindow(void* Handle) {
-		auto& FoundElement = WindowHandleMap.find(Handle);
+		auto FoundElement = WindowHandleMap.find(Handle);
 		if (FoundElement == WindowHandleMap.end()) {
 			LOG_ERROR("Failed to get window handle");
 			return nullptr;

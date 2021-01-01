@@ -120,6 +120,7 @@ RunSubProcess("git submodule update --init --recursive")
 
 RunSubProcess("mkdir -p " + INSTALL_DIR)
 
+# Assimp
 if IsWindows():
 	BuildModule(
 		"assimp",
@@ -132,10 +133,17 @@ else:
 		"-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF",
 		"lib/libassimp.a")
 
+# Glfw
 BuildModule(
 	"glfw",
 	"src/glfw.vcxproj",
 	"",
 	"src/libglfw3.a")
+
+# Gl3w
+LogInfo("downloading gl3w code ...")
+os.chdir(THIRD_PARTY_PATH + "/gl3w")
+RunSubProcess("python3 gl3w_gen.py")
+os.chdir(ENGINE_PATH)
 
 LogSuccess("Install complete !")
