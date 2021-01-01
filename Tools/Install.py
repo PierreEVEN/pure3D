@@ -70,7 +70,10 @@ def CheckError(result):
 		PauseAssert()
 
 def RunSubProcess(Command):
-	CheckError(subprocess.run(Command.split(), capture_output=True))
+    if IsWindows():
+        CheckError(subprocess.run(Command, capture_output=True))
+    else:
+        CheckError(subprocess.run(Command.split(), capture_output=True))
 
 
 def BuildModule(ModuleName, BuildProj = "ALL_BUILD.vcxproj", CMakeOptions = "", NinjaLibPath = "Null"):	
