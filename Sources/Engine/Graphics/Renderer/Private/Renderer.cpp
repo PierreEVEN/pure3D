@@ -1,4 +1,6 @@
 #include "Renderer.h"
+#include "WindowInterface.h"
+#include "RendererInterface.h"
 
 void SRenderer::StartRenderer() {
 	while (WindowInterface && !WindowInterface->ShouldClose()) {
@@ -6,4 +8,9 @@ void SRenderer::StartRenderer() {
 		if (RendererInterface) RendererInterface->NextFrame();
 		WindowInterface->NextFrame();
 	}
+}
+
+SRenderer::~SRenderer() {
+	if (WindowInterface) delete WindowInterface;
+	if (RendererInterface) delete RendererInterface;
 }

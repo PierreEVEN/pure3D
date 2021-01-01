@@ -17,9 +17,11 @@ int main(int argc, const char* argv[]) {
 	String ModuleName;
 	String OutputPath;
 	String DebugMode;
+	String CMakeRebuildCommand;
 	Utils::Ensure(Utils::GetOption(argc, argv, "ModuleName", ModuleName), "Missing 'ModuleName' option");
 	Utils::Ensure(Utils::GetOption(argc, argv, "ModulePath", ModulePathStr), "Missing 'ModulePath' option");
 	Utils::Ensure(Utils::GetOption(argc, argv, "OutputPath", OutputPath), "Missing 'OutputPath' option");
+	Utils::Ensure(Utils::GetOption(argc, argv, "CmakeRebuild", CMakeRebuildCommand), "Missing 'CmakeRebuild' option");
 	if (Utils::GetOption(argc, argv, "Debug", DebugMode))
 		Utils::PHT_DEBUG_MODE = DebugMode == "ON";
 	else Utils::PHT_DEBUG_MODE = false;
@@ -51,6 +53,14 @@ int main(int argc, const char* argv[]) {
 	size_t UpToDates = Parser::ReflectedFiles.size();
 	for (const auto& File : Parser::ReflectedFiles) {
 		if (File.second->IsFileUpToDate()) UpToDates--;
+	}
+
+	if (UpToDates > 0) {
+		std::filesystem::current_path(CMakeRebuildCommand.GetData());
+		if (system("Build.sh")) {
+			Utils::Log("Failed to regenerate cmake cache");
+			exit(2);
+		}
 	}
 
 	Utils::Log("Running reflection tool on " + ModuleName + " (" + String(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count()) + " ms - " + String(Objects) + " objects)" + (Utils::PHT_DEBUG_MODE ? " - DEBUG MODE" : "") + " : " + UpToDates + " files updates.");

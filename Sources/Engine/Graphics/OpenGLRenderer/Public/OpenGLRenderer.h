@@ -1,11 +1,11 @@
 #pragma once
-#include "Renderer.h"
+#include "RendererInterface.h"
 
 
 class OpenGLRenderer : public IRenderer {
 
 public:
-	OpenGLRenderer();
+	OpenGLRenderer(int MajorVersion, int MinorVersion);
 
 protected:
 

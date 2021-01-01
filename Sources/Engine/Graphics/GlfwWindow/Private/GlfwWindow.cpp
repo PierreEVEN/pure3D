@@ -2,6 +2,7 @@
 #include "GlfwWindow.h"
 #include "GL/gl3w.h"
 #include "GLFW/glfw3.h"
+#include "IO/Log.h"
 
 
 void GlfwErrorCallback(int error, const char* description) {
@@ -37,14 +38,14 @@ void SGlfwWindow::OnResizeFrameBuffer_Internal(GLFWwindow* Handle, int Width, in
 /************************************************************************/
 /* OpenGL                                                               */
 /************************************************************************/
-SGlfwOpenGLWindow::SGlfwOpenGLWindow(uint32_t inSizeX /*= 800*/, uint32_t inSizeY /*= 600*/, bool inFullscreen /*= false*/)
-	: SGlfwWindow(CreateWindowHandle(inSizeX, inSizeY, inFullscreen), inSizeX, inSizeY, inFullscreen) {}
+SGlfwOpenGLWindow::SGlfwOpenGLWindow(int MajorVersion, int MinorVersion, uint32_t inSizeX /*= 800*/, uint32_t inSizeY /*= 600*/, bool inFullscreen /*= false*/)
+	: SGlfwWindow(CreateWindowHandle(MajorVersion, MinorVersion, inSizeX, inSizeY, inFullscreen), inSizeX, inSizeY, inFullscreen) {}
 
-void* SGlfwOpenGLWindow::CreateWindowHandle(uint32_t inSizeX, uint32_t inSizeY, bool inFullscreen) {
+void* SGlfwOpenGLWindow::CreateWindowHandle(int MajorVersion, int MinorVersion, uint32_t inSizeX, uint32_t inSizeY, bool inFullscreen) {
 	LOG("Initializing GLFW for OpenGL");
 	if (!glfwInit()) LOG_ASSERT("Failed to create glfw window");
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MajorVersion);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MinorVersion);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, inFullscreen ? GLFW_TRUE : GLFW_FALSE);

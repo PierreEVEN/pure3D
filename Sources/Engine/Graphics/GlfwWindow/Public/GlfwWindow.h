@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.h"
+#include "WindowInterface.h"
 
 struct GLFWwindow;
 
@@ -14,7 +14,6 @@ protected:
 
 	virtual void CaptureInputs() override;
 	virtual void NextFrame() override;
-	virtual void* CreateWindowHandle(uint32_t inSizeX, uint32_t inSizeY, bool inFullscreen) = 0;
 
 private:
 
@@ -25,10 +24,12 @@ private:
 
 class SGlfwOpenGLWindow : public SGlfwWindow {
 public:
-	SGlfwOpenGLWindow(uint32_t inSizeX = 800, uint32_t inSizeY = 600, bool inFullscreen = false);
+	SGlfwOpenGLWindow(int MajorVersion, int MinorVersion, uint32_t inSizeX = 800, uint32_t inSizeY = 600, bool inFullscreen = false);
 protected:
 
-	virtual void* CreateWindowHandle(uint32_t inSizeX, uint32_t inSizeY, bool inFullscreen) override;
+	virtual void* CreateWindowHandle(int MajorVersion, int MinorVersion, uint32_t inSizeX, uint32_t inSizeY, bool inFullscreen);
+private:
+
 };
 
 class SGlfwVulkanWindow : public SGlfwWindow {
@@ -36,5 +37,5 @@ public:
 	SGlfwVulkanWindow(uint32_t inSizeX = 800, uint32_t inSizeY = 600, bool inFullscreen = false);
 protected:
 
-	virtual void* CreateWindowHandle(uint32_t inSizeX, uint32_t inSizeY, bool inFullscreen) override;
+	virtual void* CreateWindowHandle(uint32_t inSizeX, uint32_t inSizeY, bool inFullscreen);
 };

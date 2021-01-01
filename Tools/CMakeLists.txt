@@ -28,8 +28,9 @@ function(use_reflection)
 					COMMAND "$<TARGET_FILE:PureHeaderGenerator>"
 					-ModuleName="${TARGET}"
 					-ModulePath="${CMAKE_CURRENT_SOURCE_DIR}"
-					-Debug=${PHT_DEBUG}
-					-OutputPath=${REFLECTION_DIR}/${TARGET})
+					-Debug="${PHT_DEBUG}"
+					-OutputPath="${REFLECTION_DIR}/${TARGET}"
+					-CmakeRebuild="${PROJECT_ROOT}")
 					
 	set_target_properties(${REFLECTION_TARGET} PROPERTIES FOLDER "PureHeaderTool/ReflectionData")
 	
