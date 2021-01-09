@@ -1,14 +1,33 @@
 ﻿
 #include "ModuleManager.h"
-#include "GlfwWindow.h"
 #include "OpenGLRenderer.h"
-#include "VulkanRenderer.h"
-#include "Renderer.h"
+#include "MeshComponent.h"
+
+
+
 
 
 MODULE_CONSTRUCTOR() {
-	SRenderer EditorRenderer;
-	EditorRenderer.CreateWindow<SGlfwOpenGLWindow>(4, 6, 800, 600, true);
-	EditorRenderer.CreateRenderer<OpenGLRenderer>(4, 6);
-	EditorRenderer.StartRenderer();
+
+	// Load ShaderModule
+
+	// Load StaticMesh Module (initialize Static mesh draw queue / Load ShaderModule too)
+
+	// Load AssetManager Module (load assets)
+
+	// Create renderer
+
+	SOpenGLRenderer::CreateOpenGLContext();
+
+	SRenderer* EditorRenderer = new SOpenGLRenderer();
+
+	// Create some components	
+	new MeshComponent(EditorRenderer, new IMesh());
+
+	// Temp render loop
+	while (true) {
+		EditorRenderer->NextFrame();
+	}
+
+	SOpenGLRenderer::CloseOpenGLContext();
 }

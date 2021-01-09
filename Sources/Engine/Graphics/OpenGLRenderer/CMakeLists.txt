@@ -1,3 +1,7 @@
 create_engine_library()
 add_public_dependencies(Renderer)
+add_public_dependencies(Mesh)
 add_public_dependencies(Gl3w)
+add_public_dependencies(Imgui)
+add_public_dependencies(Glfw)
+set_project_category(Modules/Renderer/Renderers)

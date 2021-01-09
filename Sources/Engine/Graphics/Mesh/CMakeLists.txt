@@ -1,0 +1,6 @@
+create_engine_library()
+use_reflection()
+add_public_dependencies(Renderer)
+add_public_dependencies(AssetManager)
+add_public_dependencies(Shaders)
+set_project_category(Modules/Renderer)

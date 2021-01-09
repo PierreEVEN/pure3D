@@ -45,16 +45,14 @@ int main(int argc, const char* argv[]) {
 		Writer::WriteFiles(File.second, ModulePathStr, OutputPath);
 	}
 
-	/**
-	 * Summary
-	 */
-	const auto& Duration = std::chrono::steady_clock::now() - StartTime;
-
 	size_t UpToDates = Parser::ReflectedFiles.size();
 	for (const auto& File : Parser::ReflectedFiles) {
 		if (File.second->IsFileUpToDate()) UpToDates--;
 	}
 
+	/**
+	 * Regenerate project files
+	 */
 	if (UpToDates > 0) {
 		std::filesystem::current_path(CMakeRebuildCommand.GetData());
 		if (system("Build.sh")) {
@@ -62,6 +60,12 @@ int main(int argc, const char* argv[]) {
 			exit(2);
 		}
 	}
+
+	/**
+	 * Summary
+	 */
+	const auto& Duration = std::chrono::steady_clock::now() - StartTime;
+
 
 	Utils::Log("Running reflection tool on " + ModuleName + " (" + String(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count()) + " ms - " + String(Objects) + " objects)" + (Utils::PHT_DEBUG_MODE ? " - DEBUG MODE" : "") + " : " + UpToDates + " files updates.");
 	if (Utils::PHT_DEBUG_MODE)

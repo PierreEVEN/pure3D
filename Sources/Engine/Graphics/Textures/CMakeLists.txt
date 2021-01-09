@@ -1,5 +1,5 @@
 create_engine_library()
 use_reflection()
 add_public_dependencies(AssetManager)
-add_public_dependencies(Core)
-add_public_dependencies(Stb)
+add_public_dependencies(Renderer)
+set_project_category(Modules/Renderer)

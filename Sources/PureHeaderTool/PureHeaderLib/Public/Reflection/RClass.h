@@ -21,7 +21,7 @@ struct RClass : public RType {
      * Get class from type
      */
     template<typename Class>
-    inline static const RClass* GetClass() {
+    inline static RClass* GetClass() {
 		static_assert(RIsReflected<Class>::Value, "Failed to get class : not a reflected class. Please declare this class as a reflected class.");
         return GetClass(RTypeName<Class>::Name);
     }

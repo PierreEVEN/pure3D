@@ -1,5 +1,6 @@
 create_engine_library()
+use_reflection()
 add_public_dependencies(AssetManager)
 add_public_dependencies(Renderer)
-add_public_dependencies(VulkanRenderer)
-add_public_dependencies(OpenGLRenderer)
+add_public_dependencies(Textures)
+set_project_category(Modules/Renderer)

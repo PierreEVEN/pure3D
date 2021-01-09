@@ -1,16 +1,20 @@
-#pragma once
-#include "RendererInterface.h"
 
+#include "Renderer.h"
+#include "Mesh.h"
+#include "IO/Log.h"
 
-class OpenGLRenderer : public IRenderer {
+struct SOpenGLRenderer : public SRenderer {
+	SOpenGLRenderer();
 
-public:
-	OpenGLRenderer(int MajorVersion, int MinorVersion);
+	static void CreateOpenGLContext();
+	static void CloseOpenGLContext();
 
 protected:
 
-	virtual void NextFrame() override;
+	virtual void PreDraw();
+	virtual void PostDraw();
 
-
-
+private:
+	inline static struct GLFWwindow* WindowHandle;
+	static void RenderMesh(SRenderer* Renderer, IPrimitiveProxy* Proxy);
 };

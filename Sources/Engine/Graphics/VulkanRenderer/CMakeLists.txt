@@ -1,2 +1,3 @@
 create_engine_library()
 add_public_dependencies(Renderer)
+set_project_category(Modules/Renderer/Renderers)
