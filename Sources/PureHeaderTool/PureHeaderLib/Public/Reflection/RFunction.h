@@ -20,18 +20,21 @@ struct RFunction : public ReflectionObject {
 	using BaseFunc = std::function<ReturnType(Args...)>;
 
 	template<typename ReturnType, typename... Arguments>
-	static RFunction* MakeFunction_Internal(const String& InFunctionName, std::function<ReturnType(Arguments...)> InFunction) {
-		return new RFunction(InFunctionName,
-			std::make_any<BaseFunc<ReturnType, Arguments...>>(
+	static BaseFunc<ReturnType, Arguments...> MakeFunction_Internal(std::function<ReturnType(Arguments...)> InFunction) {
+		return
+			BaseFunc<ReturnType, Arguments...>(
 				[InFunction](Arguments&&... inArguments) -> ReturnType {
 					return InFunction(std::forward<Arguments>(inArguments)...);
-				})
-		);
+				});
+
 	}
 
 	template<typename ReturnType, typename Class, typename... Arguments>
 	static RFunction* MakeFunction(const String& InFunctionName, ReturnType(Class::* Var) (Arguments...)) {
-		return MakeFunction_Internal<ReturnType, Class, Arguments...>(InFunctionName, Var);
+		return new RFunction(InFunctionName,
+			std::make_any<MethodeFunc<ReturnType, Arguments...>>([Var](void* Target, Arguments&&... inArguments)->ReturnType {
+				return MakeFunction_Internal<ReturnType, Class, Arguments...>(Var)(*(Class*)Target, std::forward<Arguments>(inArguments)...);
+				}));
 	}
 
 
@@ -47,7 +50,10 @@ struct RFunction : public ReflectionObject {
 	 * Ensure requested parameter types are valid
 	 */
 	template<typename ReturnType, typename... Arguments>
-	inline bool IsValid() const { return std::any_cast<MethodeFunc<ReturnType, Arguments...>>(&FunctionPointer); }
+	inline bool IsValid() const {
+		MethodeFunc<ReturnType, Arguments...> truc;
+		return std::any_cast<MethodeFunc<ReturnType, Arguments...>>(&FunctionPointer);
+	}
 
 
 	/**
@@ -61,7 +67,8 @@ struct RFunction : public ReflectionObject {
 	inline const RUID GetID() const { return FunctionID; }
 
 	RFunction(const String& inFunctionName, const std::any inFunctionPointer)
-		: FunctionName(inFunctionName), FunctionID(MakeUniqueID(inFunctionName)), FunctionPointer(inFunctionPointer) {}
+		: FunctionName(inFunctionName), FunctionID(MakeUniqueID(inFunctionName)), FunctionPointer(inFunctionPointer) {
+	}
 
 	/**
 	 * Function name

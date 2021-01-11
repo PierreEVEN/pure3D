@@ -1,35 +1,19 @@
 #pragma once
-
 #include "Asset.h"
-#include "Texture.refl.h"
 
-class STextureFactory;
+#include "RenderApi.h"
+#include "Shader.refl.h"
 
 REFLECT()
-class STexture2D : public SAsset {
-
+class SMaterial : public SAsset {
 	REFLECT_BODY()
 
 public:
+		SMaterial(const String& VertexShader, const String& FragmentShader);
 
-	friend STextureFactory;
-
-protected:
-
-	RCONSTRUCTOR()
-		STexture2D();
+		inline const SShaderHandle& GetHandle() const { return ShaderHandle; }
 
 private:
 
-	RPROPERTY()
-		ByteArray TextureData;
-
-	RPROPERTY()
-		uint8_t Channels;
-
-	RPROPERTY()
-		uint32_t SizeX;
-
-	RPROPERTY()
-		uint32_t SizeY;
+	SShaderHandle ShaderHandle;
 };

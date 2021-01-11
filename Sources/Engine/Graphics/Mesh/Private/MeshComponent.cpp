@@ -3,7 +3,7 @@
 
 MeshComponent::MeshComponent(SRenderer* InContext, IMesh* InMesh)
 	: Context(InContext), Mesh(InMesh) {
-	MeshProxy* Proxy = new MeshProxy();
+	SMeshProxy* Proxy = new SMeshProxy();
 	Sections.push_back(Proxy);
 	InContext->AddProxy(Proxy);
 }

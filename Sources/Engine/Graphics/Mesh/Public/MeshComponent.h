@@ -3,7 +3,7 @@
 #include "MeshComponent.refl.h"
 
 struct SRenderer;
-struct MeshProxy;
+struct SMeshProxy;
 struct IMesh;
 
 REFLECT()
@@ -21,7 +21,7 @@ private:
 
 	IMesh* Mesh;
 
-	std::vector<MeshProxy*> Sections;
+	std::vector<SMeshProxy*> Sections;
 	SRenderer* Context;
 };
 

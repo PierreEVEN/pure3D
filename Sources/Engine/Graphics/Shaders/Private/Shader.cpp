@@ -1,6 +1,9 @@
-#include "Texture.h"
+#include "Shader.h"
+#include "RenderApi.h"
+//#include <GL/gl3w.h>
 
-STexture2D::STexture2D()
-	: SizeX(0), SizeY(0), Channels(0) {
-	TextureData.SetData(nullptr, 0);
+SMaterial::SMaterial(const String& VertexShader, const String& FragmentShader) :
+	ShaderHandle(SRendererApi::ExecuteFunction<SShaderHandle, const String&, const String&>("CompileShader", VertexShader, FragmentShader)) {
+
 }
+

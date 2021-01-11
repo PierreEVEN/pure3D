@@ -207,6 +207,7 @@ struct ChildOneTwo : public ParentOne, public ParentTwo {
 
 	RFUNCTION()
 		virtual void FunctionA() override {
+		LOG("CALL FUNCTION A CHILD");
 		return ParentTwo::FunctionA();
 	}
 

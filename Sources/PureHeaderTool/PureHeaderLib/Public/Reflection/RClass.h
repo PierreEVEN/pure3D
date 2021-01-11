@@ -40,7 +40,7 @@ struct RClass : public RType {
      * Register class
      */
     template<typename Class>
-    static RClass* RegisterClass(const String& inClassName) {
+    static RClass* RegisterReflectClass(const String& inClassName) {
         static_assert(RIsReflected<Class>::Value, "Failed to register class : not a reflected class. Please declare this class as a reflected class.");
         RClass* RegisteredClass = RType::RegisterType<Class, RClass>(inClassName);
         RegisterClass_Internal(RegisteredClass);

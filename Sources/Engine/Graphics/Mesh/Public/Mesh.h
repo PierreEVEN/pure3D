@@ -2,24 +2,52 @@
 
 #include "Types/Transform.h"
 #include "Renderer.h"
+#include "Asset.h"
+#include "Types/Color.h"
+
+#include "RenderApi.h"
+
 #include "Mesh.refl.h"
 
+struct SMeshData {
+	struct SVertice {
+		SVertice(const SVector& inPosition) : Position(inPosition) {}
+		SVector Position;
+		SVector2D UV;
+		SVector Normal;
+		SLinearColor Color;
+		SVector Tangent;
+	};
 
-struct IMesh {};
-
-
-struct MeshData {
-	// Vertices tangent uv etc...
-	int UBoVboEbo;
-	// Material
+	std::vector<SVertice> Mesh;
+	std::vector<uint32_t> Triangles;
 };
 
 
 REFLECT()
-struct MeshProxy : public IPrimitiveProxy {
+struct IMesh : public SAsset {
+
+	IMesh(const SMeshData& InMeshData, const SMeshHandle& inMeshHandle) : MeshData(InMeshData), MeshHandle(inMeshHandle) {}
 
 	REFLECT_BODY()
 
+public:
+
+	inline SMeshHandle GetHandle() const { return MeshHandle; }
+
+private:
+
+	SMeshData MeshData;
+	SMeshHandle MeshHandle;
+};
+
+REFLECT()
+struct SMeshProxy : public IPrimitiveProxy {
+
+	REFLECT_BODY()
+public:
+
 	STransform Transform;
-	MeshData Data;
+
+	SMeshHandle MeshHandle;
 };

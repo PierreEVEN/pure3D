@@ -110,10 +110,8 @@ int main() {
 	RFunction* FuncA = MyClass->GetFunction<void>("FunctionA");
 	RFunction* FuncB = MyClass->GetFunction<double, int, int, int>("FunctionB");
 
-	if (FuncA) {
-		FuncA->Execute<void>(MyObject);
-	}
-	if (FuncB) {
-		LOG(FuncB->GetName() + " : " + FuncB->Execute<double, int, int, int>(MyObject, 10, 20, 40));
-	}
+	if (FuncA) FuncA->Execute<void>(MyObject);
+	else LOG("failed to execute FunctionA");
+	if (FuncB) LOG(FuncB->GetName() + " : " + FuncB->Execute<double, int, int, int>(MyObject, 10, 20, 40));
+	else LOG("failed to execute FunctionB");
 }
