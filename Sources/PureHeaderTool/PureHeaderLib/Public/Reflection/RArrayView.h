@@ -71,7 +71,7 @@ template<typename T>
 struct TArrayViewPolicyStdVector : public TArrayViewPolicyBase<T, TArrayViewPolicyStdVector<T>> {
 	inline static std::any GetValuePtr(void* Container, std::any AdditionalData) {
 		size_t Index = std::any_cast<size_t>(AdditionalData);
-		return static_cast<void*>((reinterpret_cast<std::vector<T>*>(Container)->begin() + Index)._Ptr);
+		return static_cast<void*>(&(*(reinterpret_cast<std::vector<T>*>(Container)->begin() + Index)));
 	}
 
 	inline static std::any Length(void* Container, std::any AdditionalData) {

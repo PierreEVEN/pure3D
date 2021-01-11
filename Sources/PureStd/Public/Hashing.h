@@ -17,3 +17,4 @@ void hash_combine(std::size_t& seed, const T& v, const Rest&... rest)
             }\
         };\
     }
+

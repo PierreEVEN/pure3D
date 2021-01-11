@@ -55,7 +55,11 @@ int main(int argc, const char* argv[]) {
 	 */
 	if (UpToDates > 0) {
 		std::filesystem::current_path(CMakeRebuildCommand.GetData());
+#if _WIN32
 		if (system("Build.sh")) {
+#else
+        if (system("sh Build.sh")) {
+#endif
 			Utils::Log("Failed to regenerate cmake cache");
 			exit(2);
 		}

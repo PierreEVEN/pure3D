@@ -120,7 +120,7 @@ void EngineInputOutput::TextToScreen(const String& text)
 #if _WIN32
 	SetConsoleTextAttribute(hConsoleout, consoleColor);
 #endif
-	printf(text.GetData());
+	printf("%s", text.GetData());
 #if _WIN32
 	SetConsoleTextAttribute(hConsoleout, CONSOLE_DEFAULT);
 #endif
@@ -131,7 +131,7 @@ std::vector<char> ReadFile(const String& filePath)
 	std::ifstream file(filePath.GetData(), std::ios::ate);
 
 	if (!file.is_open()) {
-		LOG_ASSERT(String("Failed to open file ") + filePath);
+		LOG_ASSERT(String("Failed to open file %s"), filePath.GetData());
 	}
 	size_t fileSize = (size_t)file.tellg();
 	std::vector<char> buffer(fileSize);

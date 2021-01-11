@@ -82,7 +82,7 @@ struct SColor : public IColor<uint8_t, DEFAULT_COLOR_RED_VALUE, DEFAULT_COLOR_GR
 
 	SColor(const SLinearColor& source);
 
-	inline const uint32_t& AsInt() const { return r + (g << 8) + (b << 16) + (a << 24); }
+	inline const uint32_t AsInt() const { return r + (g << 8) + (b << 16) + (a << 24); }
 	inline static SColor FromInt(const uint32_t& source) { return SColor(source & redMask, (source & greenMask) >> 8, (source & blueMask) >> 16, (source & alphaMask) >> 24); }
 };
 

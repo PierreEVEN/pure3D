@@ -13,27 +13,13 @@ struct RFunction : public ReflectionObject {
 
 
 	template<typename ReturnType, typename... Args>
-	using MethodeFunc = std::function<ReturnType(void*, Args...)>;
-
-
-	template<typename ReturnType, typename... Args>
-	using BaseFunc = std::function<ReturnType(Args...)>;
-
-	template<typename ReturnType, typename... Arguments>
-	static BaseFunc<ReturnType, Arguments...> MakeFunction_Internal(std::function<ReturnType(Arguments...)> InFunction) {
-		return
-			BaseFunc<ReturnType, Arguments...>(
-				[InFunction](Arguments&&... inArguments) -> ReturnType {
-					return InFunction(std::forward<Arguments>(inArguments)...);
-				});
-
-	}
+	using VoidFunction = std::function<ReturnType(void*, Args...)>;
 
 	template<typename ReturnType, typename Class, typename... Arguments>
-	static RFunction* MakeFunction(const String& InFunctionName, ReturnType(Class::* Var) (Arguments...)) {
+	static RFunction* MakeFunction(const String& InFunctionName, ReturnType(Class::* BaseMethod) (Arguments...)) {
 		return new RFunction(InFunctionName,
-			std::make_any<MethodeFunc<ReturnType, Arguments...>>([Var](void* Target, Arguments&&... inArguments)->ReturnType {
-				return MakeFunction_Internal<ReturnType, Class, Arguments...>(Var)(*(Class*)Target, std::forward<Arguments>(inArguments)...);
+			std::make_any<VoidFunction<ReturnType, Arguments...>>([BaseMethod](void* Target, Arguments&&... inArguments) -> ReturnType {
+				return (((Class*)Target)->*BaseMethod)(std::forward<Arguments>(inArguments)...);
 				}));
 	}
 
@@ -43,7 +29,7 @@ struct RFunction : public ReflectionObject {
 	 */
 	template<typename ReturnType, typename... Arguments>
 	inline ReturnType Execute(void* Target, Arguments&&... inArguments) {
-		return (*std::any_cast<MethodeFunc<ReturnType, Arguments...>>(&FunctionPointer)) (Target, std::forward<Arguments>(inArguments)...);
+		return (*std::any_cast<VoidFunction<ReturnType, Arguments...>>(&FunctionPointer)) (Target, std::forward<Arguments>(inArguments)...);
 	}
 
 	/**
@@ -51,8 +37,8 @@ struct RFunction : public ReflectionObject {
 	 */
 	template<typename ReturnType, typename... Arguments>
 	inline bool IsValid() const {
-		MethodeFunc<ReturnType, Arguments...> truc;
-		return std::any_cast<MethodeFunc<ReturnType, Arguments...>>(&FunctionPointer);
+		VoidFunction<ReturnType, Arguments...> truc;
+		return std::any_cast<VoidFunction<ReturnType, Arguments...>>(&FunctionPointer);
 	}
 
 

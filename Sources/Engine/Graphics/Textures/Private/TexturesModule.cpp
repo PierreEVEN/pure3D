@@ -1,7 +1,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "TextureFactory.h"
 #include "Texture.h"
 #include "IO/Log.h"
 

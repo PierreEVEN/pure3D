@@ -49,7 +49,7 @@ endfunction()
 # Global module definition
 function(_module_definition TARGET)
 	#Set compiller features
-	target_compile_features(${TARGET} PUBLIC cxx_std_17)
+	target_compile_features(${TARGET} PUBLIC cxx_std_20)
 	set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
 	if (UNIX)
 		target_link_options(${TARGET} PUBLIC -ldl -lpthread)
