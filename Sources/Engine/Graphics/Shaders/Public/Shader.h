@@ -12,9 +12,9 @@ class SMaterial : public SAsset {
 public:
 		SMaterial(const String& VertexShader, const String& FragmentShader);
 
-		inline const SShaderHandle& GetHandle() const { return ShaderHandle; }
+		inline SShaderHandle* GetHandle() const { return ShaderHandle; }
 
 private:
 
-	SShaderHandle ShaderHandle;
+	SShaderHandle* ShaderHandle;
 };

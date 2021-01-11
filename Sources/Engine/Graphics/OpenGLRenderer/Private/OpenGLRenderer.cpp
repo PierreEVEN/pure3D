@@ -25,14 +25,5 @@ SOpenGLRenderer::SOpenGLRenderer() {
 
 void SOpenGLRenderer::RenderMesh(SRenderer* Renderer, IPrimitiveProxy* Proxy)
 {
-	SMeshProxy* Meshproxy = static_cast<SMeshProxy*>(Proxy);
-
-
-// 	//Meshproxy->Transform; // Material->setMat4
-// 	Meshproxy->MeshHandle;
-// 	glBindVertexArray(static_cast<SOpenGLMeshHandle>(Meshproxy->MeshHandle));
-// 	if (GetSectionData()->indicesCount > 0)
-// 		glDrawElements(GL_TRIANGLES, GetSectionData()->indicesCount, GL_UNSIGNED_INT, 0);
-// 	else
-// 		glDrawArrays(GL_TRIANGLES, 0, GetSectionData()->verticesCount);
+	SRendererApi::Get()->DrawMesh(Renderer, Proxy);
 }

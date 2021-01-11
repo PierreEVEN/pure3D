@@ -7,11 +7,20 @@
 #define REGISTER_RENDERAPI_FUNCTION(FunctionName, Return, ...) \
 SRendererApi::GetStaticClass()->AddFunction(RFunction::MakeFunction<Return, SOpenGlRenderApi, __VA_ARGS__>(#FunctionName, &SOpenGlRenderApi::FunctionName))
 
-struct SShaderHandle {};
+struct SShaderHandle {
+	virtual ~SShaderHandle() = default;
+};
 
-struct STextureHandle {};
+struct STextureHandle {
+	virtual ~STextureHandle() = default;
+};
 
-struct SMeshHandle {};
+struct SMeshHandle {
+	virtual ~SMeshHandle() = default;
+};
+
+struct SRenderer;
+struct IPrimitiveProxy;
 
 REFLECT()
 class SRendererApi {
@@ -27,6 +36,11 @@ public:
 		LOG_ASSERT("Invalid operation : " + FunctionName);
 	}
 
+
+	virtual void DrawMesh(SRenderer* Renderer, IPrimitiveProxy* Proxy) = 0;
+	virtual SShaderHandle* CompileShader(const String& VertexShader, const String& FragmentShader) = 0;
+	virtual STextureHandle* CreateTexture(const uint8_t* TextureData, uint32_t Width, uint32_t Height, uint32_t Channels) = 0;
+	virtual SMeshHandle* CreateMesh(const struct SMeshData* Data) = 0;
 
 	template<typename T>
 	inline static void Create() { SetInstance(new T()); }

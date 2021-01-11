@@ -13,8 +13,9 @@ struct SOpenGLTexture2DHandle : STextureHandle {
 };
 
 struct SOpenGLMeshHandle : SMeshHandle {
-	SOpenGLMeshHandle(GLuint inVbo, GLuint inEbo, GLuint inVao) : Vbo(inVbo), Ebo(inEbo), Vao(inVao) {}
+	SOpenGLMeshHandle(GLuint inVbo, GLuint inEbo, GLuint inVao, uint32_t inVertices, uint32_t inTriangles) : Vbo(inVbo), Ebo(inEbo), Vao(inVao), Vertices(inVertices), Triangles(inTriangles) {}
 	GLuint Vbo, Ebo, Vao;
+	uint32_t Vertices, Triangles;
 };
 
 void checkCompileErrors(unsigned int shader, const char* type) {
@@ -37,10 +38,6 @@ void checkCompileErrors(unsigned int shader, const char* type) {
 }
 
 SOpenGlRenderApi::SOpenGlRenderApi() {
-	REGISTER_RENDERAPI_FUNCTION(CompileShader, SShaderHandle, const String&, const String&);
-	REGISTER_RENDERAPI_FUNCTION(CreateTexture, STextureHandle, const uint8_t*, uint32_t, uint32_t, uint32_t);
-	REGISTER_RENDERAPI_FUNCTION(CreateMesh, SMeshHandle, const SMeshData*);
-
 	StartOpenGL();
 }
 
@@ -67,6 +64,20 @@ void SOpenGlRenderApi::StartOpenGL() {
 	LOG("OpenGL %s, GLSL %s", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
+void SOpenGlRenderApi::DrawMesh(SRenderer* Renderer, IPrimitiveProxy* Proxy) {
+	SMeshProxy* Meshproxy = static_cast<SMeshProxy*>(Proxy);
+	SOpenGLMeshHandle* MeshHandle = static_cast<SOpenGLMeshHandle*>(Meshproxy->MeshHandle);
+	//Meshproxy->Transform; // Material->setMat4
+
+	if (!MeshHandle) return;
+
+	glBindVertexArray(MeshHandle->Vbo);
+	if (MeshHandle->Triangles > 0)
+		glDrawElements(GL_TRIANGLES, MeshHandle->Triangles, GL_UNSIGNED_INT, 0);
+	else
+		glDrawArrays(GL_TRIANGLES, 0, MeshHandle->Vertices);
+}
+
 void SOpenGlRenderApi::BeginFrame() {
 	glfwPollEvents();
 }
@@ -75,7 +86,7 @@ void SOpenGlRenderApi::EndFrame() {
 	glfwSwapBuffers(WindowHandle);
 }
 
-SShaderHandle SOpenGlRenderApi::CompileShader(const String& VertexShader, const String& FragmentShader) {
+SShaderHandle* SOpenGlRenderApi::CompileShader(const String& VertexShader, const String& FragmentShader) {
 	const char* vShaderCode = VertexShader.GetData();
 	const char* fShaderCode = FragmentShader.GetData();
 
@@ -100,10 +111,10 @@ SShaderHandle SOpenGlRenderApi::CompileShader(const String& VertexShader, const 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
-	return SOpenGLShaderHandle(ShaderID);
+	return new SOpenGLShaderHandle(ShaderID);
 }
 
-STextureHandle SOpenGlRenderApi::CreateTexture(const uint8_t* TextureData, uint32_t Width, uint32_t Height, uint32_t Channels) {
+STextureHandle* SOpenGlRenderApi::CreateTexture(const uint8_t* TextureData, uint32_t Width, uint32_t Height, uint32_t Channels) {
 	GLuint TextureID;
 
 	GLenum format = GL_RED;
@@ -130,10 +141,10 @@ STextureHandle SOpenGlRenderApi::CreateTexture(const uint8_t* TextureData, uint3
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load image, create texture and generate mipmaps
 
-	return SOpenGLTexture2DHandle(TextureID);
+	return new SOpenGLTexture2DHandle(TextureID);
 }
 
-SMeshHandle SOpenGlRenderApi::CreateMesh(const SMeshData* Data) {
+SMeshHandle* SOpenGlRenderApi::CreateMesh(const SMeshData* Data) {
 
 	GLuint Vbo, Ebo, Vao;
 
@@ -175,5 +186,5 @@ SMeshHandle SOpenGlRenderApi::CreateMesh(const SMeshData* Data) {
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(SMeshData::SVertice), (void*)offsetof(SMeshData::SVertice, Tangent));
 
 	glBindVertexArray(0);
-	return SOpenGLMeshHandle(Vbo, Ebo, Vao);
+	return new SOpenGLMeshHandle(Vbo, Ebo, Vao, static_cast<uint32_t>(Data->Mesh.size()), static_cast<uint32_t>(Data->Triangles.size()));
 }
