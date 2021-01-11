@@ -27,18 +27,18 @@ struct SMeshData {
 REFLECT()
 struct IMesh : public SAsset {
 
-	IMesh(const SMeshData& InMeshData, SMeshHandle* inMeshHandle) : MeshData(InMeshData), MeshHandle(inMeshHandle) {}
+	IMesh(const SMeshData& InMeshData, std::shared_ptr<SMeshHandle> inMeshHandle) : MeshData(InMeshData), MeshHandle(inMeshHandle) {}
 
 	REFLECT_BODY()
 
 public:
 
-	inline SMeshHandle* GetHandle() const { return MeshHandle; }
+	inline const std::shared_ptr<SMeshHandle>& GetHandle() const { return MeshHandle; }
 
 private:
 
 	SMeshData MeshData;
-	SMeshHandle* MeshHandle;
+	std::shared_ptr<SMeshHandle> MeshHandle;
 };
 
 REFLECT()
@@ -49,5 +49,5 @@ public:
 
 	STransform Transform;
 
-	SMeshHandle* MeshHandle;
+	std::shared_ptr<SMeshHandle> MeshHandle;
 };

@@ -12,9 +12,9 @@ class SMaterial : public SAsset {
 public:
 		SMaterial(const String& VertexShader, const String& FragmentShader);
 
-		inline SShaderHandle* GetHandle() const { return ShaderHandle; }
+		inline const std::shared_ptr<SShaderHandle>& GetHandle() const { return ShaderHandle; }
 
 private:
 
-	SShaderHandle* ShaderHandle;
+	std::shared_ptr<SShaderHandle> ShaderHandle;
 };

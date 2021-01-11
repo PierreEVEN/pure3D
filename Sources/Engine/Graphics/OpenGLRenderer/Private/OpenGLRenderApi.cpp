@@ -66,7 +66,7 @@ void SOpenGlRenderApi::StartOpenGL() {
 
 void SOpenGlRenderApi::DrawMesh(SRenderer* Renderer, IPrimitiveProxy* Proxy) {
 	SMeshProxy* Meshproxy = static_cast<SMeshProxy*>(Proxy);
-	SOpenGLMeshHandle* MeshHandle = static_cast<SOpenGLMeshHandle*>(Meshproxy->MeshHandle);
+	std::shared_ptr<SOpenGLMeshHandle> MeshHandle = dynamic_pointer_cast<SOpenGLMeshHandle>(Meshproxy->MeshHandle);
 	//Meshproxy->Transform; // Material->setMat4
 
 	if (!MeshHandle) return;
@@ -86,7 +86,7 @@ void SOpenGlRenderApi::EndFrame() {
 	glfwSwapBuffers(WindowHandle);
 }
 
-SShaderHandle* SOpenGlRenderApi::CompileShader(const String& VertexShader, const String& FragmentShader) {
+std::shared_ptr<SShaderHandle> SOpenGlRenderApi::CompileShader(const String& VertexShader, const String& FragmentShader) {
 	const char* vShaderCode = VertexShader.GetData();
 	const char* fShaderCode = FragmentShader.GetData();
 
@@ -111,10 +111,10 @@ SShaderHandle* SOpenGlRenderApi::CompileShader(const String& VertexShader, const
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
-	return new SOpenGLShaderHandle(ShaderID);
+	return std::make_shared<SOpenGLShaderHandle>(ShaderID);
 }
 
-STextureHandle* SOpenGlRenderApi::CreateTexture(const uint8_t* TextureData, uint32_t Width, uint32_t Height, uint32_t Channels) {
+std::shared_ptr<STextureHandle> SOpenGlRenderApi::CreateTexture(const uint8_t* TextureData, uint32_t Width, uint32_t Height, uint32_t Channels) {
 	GLuint TextureID;
 
 	GLenum format = GL_RED;
@@ -141,10 +141,10 @@ STextureHandle* SOpenGlRenderApi::CreateTexture(const uint8_t* TextureData, uint
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load image, create texture and generate mipmaps
 
-	return new SOpenGLTexture2DHandle(TextureID);
+	return std::make_shared<SOpenGLTexture2DHandle>(TextureID);
 }
 
-SMeshHandle* SOpenGlRenderApi::CreateMesh(const SMeshData* Data) {
+std::shared_ptr<SMeshHandle> SOpenGlRenderApi::CreateMesh(const SMeshData* Data) {
 
 	GLuint Vbo, Ebo, Vao;
 
@@ -186,5 +186,5 @@ SMeshHandle* SOpenGlRenderApi::CreateMesh(const SMeshData* Data) {
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(SMeshData::SVertice), (void*)offsetof(SMeshData::SVertice, Tangent));
 
 	glBindVertexArray(0);
-	return new SOpenGLMeshHandle(Vbo, Ebo, Vao, static_cast<uint32_t>(Data->Mesh.size()), static_cast<uint32_t>(Data->Triangles.size()));
+	return std::make_shared<SOpenGLMeshHandle>(Vbo, Ebo, Vao, static_cast<uint32_t>(Data->Mesh.size()), static_cast<uint32_t>(Data->Triangles.size()));
 }
