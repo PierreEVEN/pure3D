@@ -1,6 +1,7 @@
 #pragma once
 #include "Vector.h"
 #include "Maths/BaseOperations.h"
+#include "Maths/MathDefaults.h"
 #include <valarray>
 
 template<typename T>

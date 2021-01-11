@@ -41,3 +41,4 @@ extern "C" SEngineModuleBase* MODULE_FUNC_NAME() { \
 	return ModuleManager::CreateModule<__VA_ARGS__>(); \
 } \
 void _Construct_Module_Function()
+
