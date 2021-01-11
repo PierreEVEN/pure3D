@@ -266,7 +266,7 @@ struct IVector2 final
 
 	inline static const IVector2<T> Normalize(const IVector2<T> inVector) {
 		double length = inVector.Length();
-		return IVector2<T>(inVector.x / length, inVector.y / length, inVector.z / length)
+		return IVector2<T>(inVector.x / length, inVector.y / length, inVector.z / length);
 	}
 
 	inline static const T Dot(const IVector2<T>& a, const IVector2<T>& b) {
