@@ -1,28 +1,32 @@
 #pragma once
 
+#include "Types/Transform.h"
+#include "Scene/PrimitiveComponent.h"
 #include "MeshComponent.refl.h"
 
 struct SRenderer;
 struct SMeshProxy;
 struct IMesh;
+class SMaterial;
 
 REFLECT()
-struct MeshComponent {
+class SMeshComponent : public SPrimitiveComponent {
 
 	REFLECT_BODY()
+public:
 
-		MeshComponent(SRenderer* InContext, IMesh* InMesh);
+	SMeshComponent(SRenderer* InContext, IMesh* InMesh, const std::vector<SMaterial*>& inMaterialOverrides);
 
-	// transform
+	void SetMesh(IMesh* inMesh);
+
+protected:
+
+	virtual void UpdateProxy(IPrimitiveProxy* Proxy, size_t ProxyID);
 
 private:
-
-	void UpdateProxy() {}
-
+	// Data
 	IMesh* Mesh;
-
-	std::vector<SMeshProxy*> Sections;
-	SRenderer* Context;
+	std::vector<SMaterial*> MaterialOverrides;
 };
 
 

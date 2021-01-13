@@ -41,6 +41,10 @@ SOpenGlRenderApi::SOpenGlRenderApi() {
 	StartOpenGL();
 }
 
+void ResizeCallback(GLFWwindow* windows, int x, int y) {
+	glViewport(0, 0, x, y);
+}
+
 void SOpenGlRenderApi::StartOpenGL() {
 	LOG("Create Glfw context");
 	if (!glfwInit()) LOG_ASSERT("Failed to create glfw window");
@@ -53,6 +57,7 @@ void SOpenGlRenderApi::StartOpenGL() {
 	WindowHandle = glfwCreateWindow(800, 600, "test", 0, 0);
 	if (!WindowHandle) LOG_ASSERT("Failed to create Glfw window handle");
 	glfwMakeContextCurrent(WindowHandle);
+	glfwSetFramebufferSizeCallback(WindowHandle, &ResizeCallback);
 
 	LOG("Initialize OpenGL context");
 	if (gl3wInit()) {
@@ -70,6 +75,9 @@ void SOpenGlRenderApi::DrawMesh(SRenderer* Renderer, IPrimitiveProxy* Proxy) {
 	//Meshproxy->Transform; // Material->setMat4
 
 	if (!MeshHandle) return;
+
+	glUseProgram(dynamic_pointer_cast<SOpenGLShaderHandle>(Meshproxy->MaterialHandle)->ShaderHandle);
+
 
 	glBindVertexArray(MeshHandle->Vbo);
 	if (MeshHandle->Triangles > 0)

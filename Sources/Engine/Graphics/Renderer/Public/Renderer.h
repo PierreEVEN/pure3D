@@ -29,6 +29,8 @@ struct SRenderer {
 
 	inline void AddProxy(IPrimitiveProxy* Proxy) { Proxies.push_back(Proxy); }
 
+	inline void FreeProxy(IPrimitiveProxy* Proxy) { Proxies.erase(std::find(Proxies.begin(), Proxies.end(), Proxy)); }
+
 	template<typename Class>
 	inline void RegisterRenderFunction(FRenderFunction&& RenderOperation) {
 		RenderFunctions[Class::GetStaticClass()] = std::move(RenderOperation);

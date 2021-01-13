@@ -25,6 +25,5 @@ void SRenderer::RenderItem(IPrimitiveProxy* Proxy) {
 		LOG_ERROR("invalid operation : %s can't be rendered in current context", Proxy->GetClass()->GetName().GetData());
 		return;
 	}
-
 	RenderFunction->second(this, Proxy);
 }

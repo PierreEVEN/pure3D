@@ -29,7 +29,7 @@ void main() \
 	Normal = mat3(transpose(inverse(model))) * aNormal; \
 	TexCoords = aTexCoords; \
 	FragPos = vec3(model * vec4(aPos, 1.0)); \
-	gl_Position = projection * view * vec4(FragPos, 1.0); \
+	gl_Position = vec4(aPos, 1.0); \
 }";
 
 const char* Default_Fs = "#version 330 core \n\
@@ -41,14 +41,14 @@ in vec2 TexCoords; \
  \
 void main() \
 { \
-	FragColor = vec4(1,0,0,1); \
+	FragColor = vec4(TexCoords.xy,0,1); \
 }";
 
 std::vector<SMeshData::SVertice> Default_Vertices{
-	SMeshData::SVertice(SVector(0, 0, 0)),
-	SMeshData::SVertice(SVector(1, 0, 0)),
-	SMeshData::SVertice(SVector(1, 1, 0)),
-	SMeshData::SVertice(SVector(0, 1, 0)),
+	SMeshData::SVertice(SVector(-.9f, -.9f, 0), SVector2D(0,0)),
+	SMeshData::SVertice(SVector(.9f, -.9f, 0), SVector2D(1,0)),
+	SMeshData::SVertice(SVector(.9f, .9f, 0), SVector2D(1,1)),
+	SMeshData::SVertice(SVector(-.9f, .9f, 0), SVector2D(0,1)),
 };
 std::vector<uint32_t> Default_Triangles{
 	0, 1, 2,
@@ -66,13 +66,14 @@ MODULE_CONSTRUCTOR() {
 	SRendererApi::Create<SOpenGlRenderApi>();
 	SRenderer* EditorRenderer = new SOpenGLRenderer();
 
+	SMaterial BasicMaterial = SMaterial(Default_VS, Default_Fs);
 	// Create some components	
 	SMeshData BasicMeshData = SMeshData();
 	BasicMeshData.Mesh = Default_Vertices;
 	BasicMeshData.Triangles = Default_Triangles;
-	SMaterial BasicMaterial = SMaterial(Default_VS, Default_Fs);	
+	BasicMeshData.Material = &BasicMaterial;
 	IMesh* BasicMesh = new SStaticMesh(BasicMeshData);
-	new MeshComponent(EditorRenderer, BasicMesh);
+	new SMeshComponent(EditorRenderer, BasicMesh, {});
 
 
 	// Temp render loop

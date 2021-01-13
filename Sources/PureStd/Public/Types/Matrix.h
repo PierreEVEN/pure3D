@@ -1,13 +1,10 @@
 #pragma once
 #include "Vector.h"
 #include "Types/Rotator.h"
-#include "Types\Matrix.refl.h" // automatically generated reflection header
 
-REFLECT(template = { {float, Mat3f}, {double, Mat3d} })
 template<typename T>
 struct IMatrix3 final
 {
-	REFLECT_BODY()
 		inline IMatrix3() : IMatrix3(1) {}
 	inline IMatrix3(const T& scalar) :
 		x1(scalar), x2(0), x3(0),
@@ -37,11 +34,9 @@ struct IMatrix3 final
 };
 
 
-REFLECT(template = { {float, Mat4f}, {double, Mat4d} })
 template<typename T>
 struct IMatrix4 final
 {
-	REFLECT_BODY()
 	inline IMatrix4() : IMatrix4(1) {}
 	inline IMatrix4(IVector4<T> ina, IVector4<T> inb, IVector4<T> inc, IVector4<T> ind) : a(ina), b(inb), c(inc), d(ind) {}
 	inline IMatrix4(const IMatrix4<T>& other) { memcpy(coords, other.coords, sizeof(coords)); }
@@ -177,8 +172,8 @@ struct IMatrix4 final
 		Row[0] = Row[0].Scale(static_cast<T>(1));
 
 		// Compute XY shear factor and make 2nd row orthogonal to 1st.
-		Skew.z = SVector::Dot(Row[0], Row[1]);
-		Row[1] = SVector::Combine(Row[1], Row[0], static_cast<T>(1), -Skew.z);
+		Skew.z = IVector3<T>::Dot(Row[0], Row[1]);
+		Row[1] = IVector3<T>::Combine(Row[1], Row[0], static_cast<T>(1), -Skew.z);
 
 		// Now, compute Y scale and normalize 2nd row.
 		Scale.y = Row[1].Length();
@@ -186,10 +181,10 @@ struct IMatrix4 final
 		Skew.z /= Scale.y;
 
 		// Compute XZ and YZ shears, orthogonalize 3rd row.
-		Skew.y = SVector::Dot(Row[0], Row[2]);
-		Row[2] = SVector::Combine(Row[2], Row[0], static_cast<T>(1), -Skew.y);
-		Skew.x = SVector::Dot(Row[1], Row[2]);
-		Row[2] = SVector::Combine(Row[2], Row[1], static_cast<T>(1), -Skew.x);
+		Skew.y = IVector3<T>::Dot(Row[0], Row[2]);
+		Row[2] = IVector3<T>::Combine(Row[2], Row[0], static_cast<T>(1), -Skew.y);
+		Skew.x = IVector3<T>::Dot(Row[1], Row[2]);
+		Row[2] = IVector3<T>::Combine(Row[2], Row[1], static_cast<T>(1), -Skew.x);
 
 		// Next, get Z scale and normalize 3rd row.
 		Scale.z = Row[2].Length();
@@ -200,8 +195,8 @@ struct IMatrix4 final
 		// At this point, the matrix (in rows[]) is orthonormal.
 		// Check for a coordinate system flip.  If the determinant
 		// is -1, then negate the matrix and the scaling factors.
-		Pdum3 = SVector::Cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
-		if (SVector::Dot(Row[0], Pdum3) < 0)
+		Pdum3 = IVector3<T>::Cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
+		if (IVector3<T>::Dot(Row[0], Pdum3) < 0)
 		{
 			for (size_t i = 0; i < 3; i++)
 			{
@@ -452,14 +447,18 @@ private:
 	}
 };
 
+typedef IMatrix3<float> SMatrix3;
+typedef IMatrix4<float> SMatrix4;
+typedef IMatrix4<double> SMatrix3Double;
+typedef IMatrix4<double> SMatrix4Double;
 
 
 namespace Matrix
 {
-	inline const Mat4f MakePerspectiveMatrix(float fov, float aspectRatio, float zNear, float zFar) {
+	inline const SMatrix4 MakePerspectiveMatrix(float fov, float aspectRatio, float zNear, float zFar) {
 		float const tanHalfFovy = tan(fov / 2.f);
 
-		Mat4f Result(0.f);
+		SMatrix4 Result(0.f);
 		Result.a.x = 1.f / (aspectRatio * tanHalfFovy);
 		Result.b.y = 1.f / (tanHalfFovy);
 		Result.c.z = -(zFar + zNear) / (zFar - zNear);
@@ -468,13 +467,13 @@ namespace Matrix
 		return Result;
 	}
 
-	inline const Mat4f MakeLookAtMatrix(const SVector& cameraLocation, const SVector& viewTarget, const SVector& upVector)
+	inline const SMatrix4 MakeLookAtMatrix(const SVector& cameraLocation, const SVector& viewTarget, const SVector& upVector)
 	{
 		SVector const f(SVector::Normalize(viewTarget - cameraLocation));
 		SVector const s(SVector::Normalize(SVector::Cross(f, upVector)));
 		SVector const u(SVector::Cross(s, f));
 
-		Mat4f Result(1);
+		SMatrix4 Result(1);
 		Result[0][0] = s.x;
 		Result[1][0] = s.y;
 		Result[2][0] = s.z;

@@ -1,17 +1,81 @@
 #pragma once
 #include "Vector.h"
 #include "Rotator.h"
+#include "Matrix.h"
 
 struct STransform
 {
-	STransform() : scale3d(1) {}
-	STransform(const SVectorDouble& inLocation) : location(inLocation), scale3d(1) {}
-	STransform(const SQuatd& inRotation) : rotation(inRotation), scale3d(1) {}
-	STransform(const SVectorDouble& inLocation, const SVectorDouble& inScale3d) : location(inLocation), scale3d(inScale3d) {}
-	STransform(const SVectorDouble& inLocation, const SQuatd& inRotation) : location(inLocation), rotation(inRotation), scale3d(1) {}
-	STransform(const SVectorDouble& inLocation, const SQuatd& inRotation, const SVectorDouble& inScale3d) : location(inLocation), rotation(inRotation), scale3d(inScale3d) {}
+public:
 
-	SVectorDouble location;
-	SVectorDouble scale3d;
-	SQuatd rotation;
+	STransform() : Scale3D(1) {}
+	STransform(const SVectorDouble& inLocation) : Location(inLocation), Scale3D(1) {}
+	STransform(const SQuatd& inRotation) : Rotation(inRotation), Scale3D(1) {}
+	STransform(const SVectorDouble& inLocation, const SVectorDouble& inScale3d) : Location(inLocation), Scale3D(inScale3d) {}
+	STransform(const SVectorDouble& inLocation, const SQuatd& inRotation) : Location(inLocation), Rotation(inRotation), Scale3D(1) {}
+	STransform(const SVectorDouble& inLocation, const SQuatd& inRotation, const SVectorDouble& inScale3d) : Location(inLocation), Rotation(inRotation), Scale3D(inScale3d) {}
+
+	inline const SMatrix4Double& GetTransformation() {
+		TryRebuildTransform();
+		return TransformationMatrix;
+	}
+	inline const SVectorDouble& GetLocation() {
+		TryRebuildAxes();
+		return Location;
+	}
+	inline const SQuatd& GetRotation() {
+		TryRebuildAxes();
+		return Rotation;
+	}
+	inline const SVectorDouble& GetScale() {
+		TryRebuildAxes();
+		return Scale3D;
+	}
+
+	inline void SetTransformation(const SMatrix4Double& inTransform) {
+		TryRebuildAxes();
+		TransformationMatrix = inTransform;
+		bAreAxesDirty = true;
+	}
+	inline void SetLocation(const SVectorDouble& inLocation) {
+		TryRebuildTransform();
+		Location = inLocation;
+		bIsTransformDirty = true;
+	}
+	inline void SetRotation(const SQuatd& inRotation) {
+		TryRebuildTransform();
+		Rotation = inRotation;
+		bIsTransformDirty = true;
+	}
+	inline void SetScale(const SVectorDouble& inScale3D) {
+		TryRebuildTransform();
+		Scale3D = inScale3D;
+		bIsTransformDirty = true;
+	}
+
+private:
+
+	inline void TryRebuildTransform() {
+		if (bIsTransformDirty) {
+			TransformationMatrix = SMatrix4Double(Location, Rotation, Scale3D);
+			bIsTransformDirty = false;
+		}
+	}
+
+	inline void TryRebuildAxes() {
+		if (bAreAxesDirty) {
+			SVectorDouble Skew;
+			SVector4Double Perspective;
+			TransformationMatrix.Decompose(Scale3D, Rotation, Location, Skew, Perspective);
+			bAreAxesDirty = false;
+		}
+	}
+
+	bool bIsTransformDirty = true;
+	bool bAreAxesDirty = false;
+
+	SMatrix4Double TransformationMatrix;
+
+	SVectorDouble Location;
+	SQuatd Rotation;
+	SVectorDouble Scale3D;
 };
