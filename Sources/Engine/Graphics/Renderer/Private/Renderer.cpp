@@ -1,29 +1,52 @@
 #include "Renderer.h"
 #include "IO/Log.h"
 #include "Reflection/RClass.h"
+#include "Scene/PrimitiveComponent.h"
 
-void SRenderer::NextFrame() {
-	PreDraw();
-	RenderDrawList(BuildDrawList());
-	PostDraw();
-}
-
-void SRenderer::RenderDrawList(const std::vector<IPrimitiveProxy*>& DrawList) {
-	for (const auto& Item : DrawList) {
-		RenderItem(Item);
-	}
-}
-
-std::vector<IPrimitiveProxy*> SRenderer::BuildDrawList()
+void SRenderer::DrawFrame()
 {
-	return Proxies;
+	RegisterNewProxies();
+	RebuildDirtyProxyData();
+
+	BeginFrame();
+	DrawRenderPasses();
+
+	EndFrame();
+
+	FlushOutdatedProxies();
 }
 
-void SRenderer::RenderItem(IPrimitiveProxy* Proxy) {
-	auto RenderFunction = RenderFunctions.find(Proxy->GetClass());
-	if (RenderFunction == RenderFunctions.end()) {
-		LOG_ERROR("invalid operation : %s can't be rendered in current context", Proxy->GetClass()->GetName().GetData());
-		return;
+void SRenderer::DrawRenderPasses() {
+	for (const auto& RenderPasses : RenderPasses) {
+		RenderPasses->Begin();
+		RenderPasses->QueryRenderedProxies(RendererProxies);
+		RenderPasses->SortProxies();
+		RenderPasses->DrawProxies();
+		RenderPasses->End();
 	}
-	RenderFunction->second(this, Proxy);
+}
+
+void SRenderer::RegisterNewProxies() {
+	RendererProxies.insert(RendererProxies.end(), PendingRegistrationProxies.begin(), PendingRegistrationProxies.end());
+	PendingRegistrationProxies.clear();
+}
+
+void SRenderer::RebuildDirtyProxyData() {
+	for (const auto& Proxy : RendererProxies) if (Proxy->IsDirty) Proxy->ParentComponent->UpdateProxies_Internal();
+}
+
+void SRenderer::FlushOutdatedProxies() {
+	for (const auto& Proxy : OutdatedProxies) RendererProxies.erase(std::find(RendererProxies.begin(), RendererProxies.end(), Proxy));
+	OutdatedProxies.clear();
+}
+
+void IRenderPass::QueryRenderedProxies(const std::vector<IPrimitiveProxy*>& AvailableProxies) {
+	PassProxies.clear();
+	for (const auto& Proxy : AvailableProxies) if (Proxy->RenderPass & RenderPass) PassProxies.push_back(Proxy);
+}
+
+void IRenderPass::DrawProxies() {
+	for (const auto& Proxy : PassProxies) {
+		LOG("draw proxy");
+	}
 }

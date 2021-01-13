@@ -21,7 +21,7 @@ public:
 
 protected:
 
-	virtual void UpdateProxy(IPrimitiveProxy* Proxy, size_t ProxyID);
+	virtual void UpdateProxies();
 
 private:
 	// Data

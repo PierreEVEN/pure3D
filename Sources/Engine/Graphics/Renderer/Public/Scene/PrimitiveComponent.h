@@ -9,15 +9,14 @@ struct SRenderer;
 REFLECT()
 class SPrimitiveComponent : public SSceneComponent {
 
+	friend struct SRenderer;
+
 	REFLECT_BODY()
 public:
 
 	SPrimitiveComponent(SRenderer* inContext);
 
-	inline void MarkProxiesDirty() { 
-		bAreProxiesDirty = true;
-		UpdateProxies_Internal(); // @TODO Remove
-	}
+	void MarkProxiesDirty();
 
 	// Mark proxies dirty on component moved
 	inline virtual void SetRelativeTransform(const STransform& inTransform) { SSceneComponent::SetRelativeTransform(inTransform); MarkProxiesDirty(); }
@@ -27,18 +26,15 @@ public:
 protected:
 
 	void AddProxy(IPrimitiveProxy* NewProxy);
+	inline const std::vector<IPrimitiveProxy*>& GetProxies() const { return Proxies; }
 	void ClearProxies();
 
-	virtual void UpdateProxy(IPrimitiveProxy* Proxy, size_t ProxyID) = 0;
+	virtual void UpdateProxies() = 0;
 
 private:
 
-	inline void UpdateProxies_Internal() {
-		for (int i = 0; i < Proxies.size(); ++i) UpdateProxy(*(Proxies.begin() + i), i);
-		bAreProxiesDirty = false;
-	}
+	void UpdateProxies_Internal();
 
 	SRenderer* Context;
 	std::vector<IPrimitiveProxy*> Proxies;
-	bool bAreProxiesDirty;
 };

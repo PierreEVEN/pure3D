@@ -12,43 +12,94 @@ struct SRenderer;
 struct IPrimitiveProxy;
 struct RCLass;
 
+enum class ERenderPass {
+	ERenderPass_COLOR = 1,
+	ERenderPass_NORMAL = 1 << 1,
+	ERenderPass_SHADOWS = 1 << 2,
+	ERenderPass_PICKING = 1 << 3,
+	ERenderPass_POSTPROCESS = 1 << 4
+};
+
+class SPrimitiveComponent;
+
 REFLECT()
 struct IPrimitiveProxy {
 	REFLECT_BODY()
 
-	uint32_t RenderPass; // Bitmask for used render pass
+public:
+
+	friend struct SRenderer;
+	friend class SPrimitiveComponent;
+	using FProxyUpdateFunc = std::function<void()>;
+
+	IPrimitiveProxy(SPrimitiveComponent* inParentComponent, uint32_t inRenderPass) : ParentComponent(inParentComponent), RenderPass(inRenderPass) {}
+
+	uint32_t RenderPass = 0;
+
+	virtual void Render(SRenderer* Context) = 0;
+
+private:
+	bool IsOutOfDate = false;
+	bool IsDirty = true;
+	SPrimitiveComponent* ParentComponent;
+};
+
+struct IRenderPass {
+	
+	IRenderPass(uint32_t inRenderPass) : RenderPass(inRenderPass) {}
+
+	void Begin() {}
+	void End() {}
+
+	virtual void QueryRenderedProxies(const std::vector<IPrimitiveProxy*>& AvailableProxies);
+	virtual void SortProxies() {}
+	virtual void DrawProxies();
+
+private:
+	uint32_t RenderPass;
+	std::vector<IPrimitiveProxy*> PassProxies;
 };
 
 struct SRenderer {
 
-	using FRenderFunction = std::function<void(SRenderer*, IPrimitiveProxy*)>;
-
 	SRenderer() = default;
 
-	virtual void NextFrame();
+public:
 
-	inline void AddProxy(IPrimitiveProxy* Proxy) { Proxies.push_back(Proxy); }
+	virtual void DrawFrame();
 
-	inline void FreeProxy(IPrimitiveProxy* Proxy) { Proxies.erase(std::find(Proxies.begin(), Proxies.end(), Proxy)); }
-
-	template<typename Class>
-	inline void RegisterRenderFunction(FRenderFunction&& RenderOperation) {
-		RenderFunctions[Class::GetStaticClass()] = std::move(RenderOperation);
-	}
-
-	void RenderItem(IPrimitiveProxy* Proxy);
+	inline void AddProxy(IPrimitiveProxy* Proxy) { PendingRegistrationProxies.push_back(Proxy); }
+	inline void FreeProxy(IPrimitiveProxy* Proxy) { OutdatedProxies.push_back(Proxy); }
 
 protected:
-	virtual void PreDraw() = 0;
-	virtual void RenderDrawList(const std::vector<IPrimitiveProxy*>& DrawList);
-	virtual void PostDraw() = 0;
+
+	/**
+	 * Before new frame
+	 */
+	virtual void RegisterNewProxies();
+	virtual void RebuildDirtyProxyData();
+
+	/**
+	 * After frame end
+	 */
+	virtual void FlushOutdatedProxies();
+
+	virtual void BeginFrame() {}
+	virtual void EndFrame() {}
+
+	/**
+	 * Render pass
+	 */
+	virtual void DrawRenderPasses();
+
+	inline void AddRenderPass(IRenderPass* RenderPass) { RenderPasses.push_back(RenderPass); }
 
 private:
 
-	std::vector<IPrimitiveProxy*> BuildDrawList();
-
-	std::vector<IPrimitiveProxy*> Proxies; // Proxies array
-	std::unordered_map<RClass*, FRenderFunction> RenderFunctions;
+	std::vector<IPrimitiveProxy*> PendingRegistrationProxies;
+	std::vector<IPrimitiveProxy*> RendererProxies;
+	std::vector<IPrimitiveProxy*> OutdatedProxies;
+	std::vector<IRenderPass*> RenderPasses;
 };
 
 

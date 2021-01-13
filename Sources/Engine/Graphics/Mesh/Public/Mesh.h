@@ -54,6 +54,8 @@ struct SMeshProxy : public IPrimitiveProxy {
 	REFLECT_BODY()
 public:
 
+	using IPrimitiveProxy::IPrimitiveProxy;
+
 	STransform Transform;
 
 	std::shared_ptr<SShaderHandle> MaterialHandle;

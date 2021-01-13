@@ -9,13 +9,15 @@ SMeshComponent::SMeshComponent(SRenderer* InContext, IMesh* InMesh, const std::v
 void SMeshComponent::SetMesh(IMesh* inMesh) {
 	Mesh = inMesh;
 	ClearProxies();
-	for (int i = 0; i < Mesh->GetSections().size(); ++i) AddProxy(new SMeshProxy);
+	for (int i = 0; i < Mesh->GetSections().size(); ++i) AddProxy(new SMeshProxy(this, (uint32_t)ERenderPass::ERenderPass_COLOR | (uint32_t)ERenderPass::ERenderPass_NORMAL));
 }
 
-void SMeshComponent::UpdateProxy(IPrimitiveProxy* Proxy, size_t ProxyID) {
-	const IMesh::SMeshSection& Section = *(Mesh->GetSections().begin() + ProxyID);
-	SMeshProxy* MeshProxy = static_cast<SMeshProxy*>(Proxy);
-	MeshProxy->MeshHandle = Section.MeshHandle;
-	MeshProxy->MaterialHandle = Section.MeshData.Material->GetHandle();
-	MeshProxy->Transform = GetAbsoluteTransform();
+void SMeshComponent::UpdateProxies() {
+	for (int i = 0; i < GetProxies().size(); ++i) {
+		const IMesh::SMeshSection& Section = *(Mesh->GetSections().begin() + i);
+		SMeshProxy* MeshProxy = static_cast<SMeshProxy*>(GetProxies()[i]);
+		MeshProxy->MeshHandle = Section.MeshHandle;
+		MeshProxy->MaterialHandle = Section.MeshData.Material->GetHandle();
+		MeshProxy->Transform = GetAbsoluteTransform();
+	}
 }

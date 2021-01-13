@@ -21,7 +21,6 @@ public:
 protected:
 	SOpenGlRenderApi();
 
-	virtual void DrawMesh(SRenderer* Renderer, IPrimitiveProxy* Proxy);
 	virtual std::shared_ptr<SShaderHandle> CompileShader(const String& VertexShader, const String& FragmentShader);
 	virtual std::shared_ptr<STextureHandle> CreateTexture(const uint8_t* TextureData, uint32_t Width, uint32_t Height, uint32_t Channels);
 	virtual std::shared_ptr<SMeshHandle> CreateMesh(const struct SMeshData* Data);

@@ -1,9 +1,14 @@
 #include "Scene/PrimitiveComponent.h"
 #include "Renderer.h"
+#include "IO/Log.h"
 
 SPrimitiveComponent::SPrimitiveComponent(SRenderer* inContext)
-	: Context(nullptr), bAreProxiesDirty(true) {
+	: Context(nullptr) {
 	SetRenderContext(inContext);
+}
+
+void SPrimitiveComponent::MarkProxiesDirty() {
+	for (const auto& Proxy : Proxies) Proxy->IsDirty = true;
 }
 
 void SPrimitiveComponent::SetRenderContext(SRenderer* inContext) {
@@ -22,4 +27,9 @@ void SPrimitiveComponent::ClearProxies() {
 	for (auto& Proxy : Proxies) Context->FreeProxy(Proxy);
 	Proxies.clear();
 	MarkProxiesDirty();
+}
+
+void SPrimitiveComponent::UpdateProxies_Internal() {
+	UpdateProxies();
+	for (const auto& Proxy : Proxies) Proxy->IsDirty = false;
 }

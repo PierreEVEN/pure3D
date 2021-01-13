@@ -36,8 +36,6 @@ public:
 		LOG_ASSERT("Invalid operation : " + FunctionName);
 	}
 
-
-	virtual void DrawMesh(SRenderer* Renderer, IPrimitiveProxy* Proxy) = 0;
 	virtual std::shared_ptr<SShaderHandle> CompileShader(const String& VertexShader, const String& FragmentShader) = 0;
 	virtual std::shared_ptr<STextureHandle> CreateTexture(const uint8_t* TextureData, uint32_t Width, uint32_t Height, uint32_t Channels) = 0;
 	virtual std::shared_ptr<SMeshHandle> CreateMesh(const struct SMeshData* Data) = 0;

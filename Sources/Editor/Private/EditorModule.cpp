@@ -79,7 +79,7 @@ MODULE_CONSTRUCTOR() {
 	// Temp render loop
 	while (true) {
 		SRendererApi::Get()->BeginFrame();
-		EditorRenderer->NextFrame();
+		EditorRenderer->DrawFrame();
 		SRendererApi::Get()->EndFrame();
 	}
 }

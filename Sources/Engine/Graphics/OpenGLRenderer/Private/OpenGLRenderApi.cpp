@@ -69,28 +69,12 @@ void SOpenGlRenderApi::StartOpenGL() {
 	LOG("OpenGL %s, GLSL %s", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
-void SOpenGlRenderApi::DrawMesh(SRenderer* Renderer, IPrimitiveProxy* Proxy) {
-	SMeshProxy* Meshproxy = static_cast<SMeshProxy*>(Proxy);
-	std::shared_ptr<SOpenGLMeshHandle> MeshHandle = dynamic_pointer_cast<SOpenGLMeshHandle>(Meshproxy->MeshHandle);
-	//Meshproxy->Transform; // Material->setMat4
-
-	if (!MeshHandle) return;
-
-	glUseProgram(dynamic_pointer_cast<SOpenGLShaderHandle>(Meshproxy->MaterialHandle)->ShaderHandle);
-
-
-	glBindVertexArray(MeshHandle->Vbo);
-	if (MeshHandle->Triangles > 0)
-		glDrawElements(GL_TRIANGLES, MeshHandle->Triangles, GL_UNSIGNED_INT, 0);
-	else
-		glDrawArrays(GL_TRIANGLES, 0, MeshHandle->Vertices);
-}
-
 void SOpenGlRenderApi::BeginFrame() {
 	glfwPollEvents();
 }
 
 void SOpenGlRenderApi::EndFrame() {
+	glFlush();
 	glfwSwapBuffers(WindowHandle);
 }
 
