@@ -7,6 +7,7 @@ class SceneRootComponent;
 struct RCLass;
 struct SRenderPass;
 struct IPrimitiveProxy;
+class SCamera;
 
 
 class SRenderer {
@@ -18,9 +19,11 @@ public:
 	inline void AddProxy(IPrimitiveProxy* Proxy) { PendingRegistrationProxies.push_back(Proxy); }
 	inline void FreeProxy(IPrimitiveProxy* Proxy) { OutdatedProxies.push_back(Proxy); }
 
+	inline SCamera* GetCamera() const { return Camera; }
+
 protected:
 
-	SRenderer() = default;
+	SRenderer();
 
 	/**
 	 * Before new frame
@@ -28,13 +31,13 @@ protected:
 	virtual void RegisterNewProxies();
 	virtual void RebuildDirtyProxyData();
 
+	virtual void BeginFrame() {}
+	virtual void EndFrame() {}
+
 	/**
 	 * After frame end
 	 */
 	virtual void FlushOutdatedProxies();
-
-	virtual void BeginFrame() {}
-	virtual void EndFrame() {}
 
 	/**
 	 * Render pass
@@ -44,6 +47,7 @@ protected:
 	inline void AddRenderPass(SRenderPass* RenderPass) { RenderPasses.push_back(RenderPass); }
 
 private:
+	SCamera* Camera;
 
 	std::vector<IPrimitiveProxy*> PendingRegistrationProxies;
 	std::vector<IPrimitiveProxy*> RendererProxies;

@@ -3,6 +3,13 @@
 #include "Scene/PrimitiveComponent.h"
 #include "RenderPass.h"
 #include "PrimitiveProxy.h"
+#include "Camera.h"
+
+
+SRenderer::SRenderer()
+{
+	Camera = new SCamera();
+}
 
 void SRenderer::DrawFrame()
 {
@@ -26,6 +33,7 @@ void SRenderer::DrawRenderPasses() {
 		RenderPasses->End();
 	}
 }
+
 
 void SRenderer::RegisterNewProxies() {
 	RendererProxies.insert(RendererProxies.end(), PendingRegistrationProxies.begin(), PendingRegistrationProxies.end());
