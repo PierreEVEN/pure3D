@@ -24,6 +24,12 @@ uniform mat4 model; \
 uniform mat4 view; \
 uniform mat4 projection; \
  \
+ \
+layout(std140) uniform shader_data \
+{ \
+	float DeltaTime; \
+}; \
+ \
 void main() \
 { \
 	Normal = mat3(transpose(inverse(model))) * aNormal; \
@@ -39,9 +45,15 @@ in vec3 FragPos; \
 in vec3 Normal; \
 in vec2 TexCoords; \
  \
+ \
+layout(std140) uniform shader_data \
+{ \
+	float DeltaTime; \
+}; \
+ \
 void main() \
 { \
-	FragColor = vec4(TexCoords.xy,0,1); \
+	FragColor = vec4(TexCoords.xy + sin(DeltaTime), sin(DeltaTime),1); \
 }";
 
 std::vector<SMeshData::SVertice> Default_Vertices{

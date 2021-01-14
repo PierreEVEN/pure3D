@@ -10,18 +10,13 @@ void checkCompileErrors(unsigned int shader, const char* type) {
 	GLchar infoLog[1024];
 	if (type != "PROGRAM") {
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+		GL_CHECK_ERROR();
 		if (!success) {
 			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
 			LOG_ERROR("Failed to compile shader %s : %s", type, infoLog);
 		}
 	}
-	else {
-		glGetProgramiv(shader, GL_LINK_STATUS, &success);
-		if (!success) {
-			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-			LOG_ERROR("Failed to compile shader %s : %s", type, infoLog);
-		}
-	}
+	GL_CHECK_ERROR();
 }
 
 SOpenGlRenderApi::SOpenGlRenderApi() {
@@ -33,6 +28,7 @@ SOpenGlRenderApi::SOpenGlRenderApi() {
 
 void ResizeCallback(GLFWwindow* windows, int x, int y) {
 	glViewport(0, 0, x, y);
+	GL_CHECK_ERROR();
 }
 
 void SOpenGlRenderApi::StartOpenGL() {
@@ -57,6 +53,7 @@ void SOpenGlRenderApi::StartOpenGL() {
 		LOG_ASSERT("OpenGL 3.2 not supported");
 	}
 	LOG("OpenGL %s, GLSL %s", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
+	GL_CHECK_ERROR();
 }
 
 void SOpenGlRenderApi::BeginFrame() {
@@ -66,6 +63,7 @@ void SOpenGlRenderApi::BeginFrame() {
 void SOpenGlRenderApi::EndFrame() {
 	glFlush();
 	glfwSwapBuffers(WindowHandle);
+	GL_CHECK_ERROR();
 }
 
 std::shared_ptr<SShaderHandle> SOpenGlRenderApi::CompileShader(const String& VertexShader, const String& FragmentShader) {
@@ -88,11 +86,34 @@ std::shared_ptr<SShaderHandle> SOpenGlRenderApi::CompileShader(const String& Ver
 	glAttachShader(ShaderID, vertex);
 	glAttachShader(ShaderID, fragment);
 	glLinkProgram(ShaderID);
-	checkCompileErrors(ShaderID, "PROGRAM");
-
+	glDetachShader(ShaderID, vertex);
+	glDetachShader(ShaderID, fragment);
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
+	/* Bind uniform buffer */
+	int32_t UniformBlockIndex = glGetUniformBlockIndex(ShaderID, "shader_data");
+	if (UniformBlockIndex < 0) {
+		String error = "Error linking shader : cannot find shader_data block index";
+		LOG_ERROR(error);
+	}
+	else {
+		glUniformBlockBinding(ShaderID, UniformBlockIndex, 0);
+	}
+
+	int BufferCount;
+	glGetProgramiv(ShaderID, GL_ACTIVE_UNIFORMS, &BufferCount);
+	for (int i = 0; i < BufferCount; i++)
+	{
+		int BufferLength, BufferSize;
+		GLenum BufferType;
+		GLchar name[256];
+		glGetActiveUniform(ShaderID, i, 256, &BufferLength, &BufferSize, &BufferType, name);
+		LOG("found uniform : %s", name);
+		//_uniforms.put(name, glGetUniformLocation(ShaderID, name));
+	}
+
+	GL_CHECK_ERROR();
 	return std::make_shared<SOpenGLShaderHandle>(ShaderID);
 }
 
@@ -123,6 +144,7 @@ std::shared_ptr<STextureHandle> SOpenGlRenderApi::CreateTexture(const uint8_t* T
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load image, create texture and generate mipmaps
 
+	GL_CHECK_ERROR();
 	return std::make_shared<SOpenGLTexture2DHandle>(TextureID);
 }
 
@@ -168,5 +190,6 @@ std::shared_ptr<SMeshHandle> SOpenGlRenderApi::CreateMesh(const SMeshData* Data)
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(SMeshData::SVertice), (void*)offsetof(SMeshData::SVertice, Tangent));
 
 	glBindVertexArray(0);
+	GL_CHECK_ERROR();
 	return std::make_shared<SOpenGLMeshHandle>(Vbo, Ebo, Vao, static_cast<uint32_t>(Data->Mesh.size()), static_cast<uint32_t>(Data->Triangles.size()));
 }

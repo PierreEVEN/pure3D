@@ -60,7 +60,7 @@ int main() {
 	 * Instantiate tests
 	 */
 	void* MyObject = MyClass->InstantiateNew<int, double, float>(5, 20.4, 3.5f);
-	ChildOneTwo* ChildOneTwoObj = NewObject<ChildOneTwo>();
+	ChildOneTwo* ChildOneTwoObj = NewObject<ChildOneTwo>(ChildOneTwo::GetStaticClass());
 
 	/**
 	 * Serialization tests

@@ -32,6 +32,7 @@ protected:
 	virtual void RebuildDirtyProxyData();
 
 	virtual void BeginFrame() {}
+	virtual void UpdateUniformBuffers() {}
 	virtual void EndFrame() {}
 
 	/**

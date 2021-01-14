@@ -17,6 +17,8 @@ void SRenderer::DrawFrame()
 	RebuildDirtyProxyData();
 
 	BeginFrame();
+	UpdateUniformBuffers();
+
 	DrawRenderPasses();
 
 	EndFrame();

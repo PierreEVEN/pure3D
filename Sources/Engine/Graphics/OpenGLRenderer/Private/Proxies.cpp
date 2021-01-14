@@ -1,6 +1,7 @@
 #include "Proxies.h"
 #include <GL/gl3w.h>
 #include "Handles.h"
+#include "OpenGLRenderer.h"
 
 void SOpenGLMeshProxy::Render(SRenderer* Context)
 {
