@@ -7,6 +7,7 @@
 #include "RFunction.h"
 #include "RConstructor.h"
 #include "Events/EventManager.h"
+#include "IO/Log.h"
 
 struct RProperty;
 struct RClass;
@@ -137,6 +138,7 @@ struct RClass : public RType {
             if (void* InstanciedObject = Ctor->InstanciateNew<Arguments...>(std::forward<Arguments>(inArguments)...))
                 return InstanciedObject;
         }
+        LOG_ERROR("Failed to instantiate class of type %s", GetName().GetData());
         return nullptr;
 	}
 
@@ -182,13 +184,4 @@ private:
 template<typename T = void, typename... Arguments>
 T* NewObject(RClass* inClass, Arguments... inArguments) {
 	return reinterpret_cast<T*>(inClass->InstantiateNew<Arguments...>(std::forward<Arguments>(inArguments)...));
-}
-
-/**
- * Create a new object of T type
- */
-template<typename T = void, typename... Arguments>
-T* NewObject(Arguments... inArguments) {
-	RClass* ObjectClass = T::GetStaticClass();
-	return reinterpret_cast<T*>(ObjectClass->InstantiateNew<Arguments...>(std::forward<Arguments>(inArguments)...));
 }

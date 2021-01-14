@@ -4,7 +4,7 @@
 #include "Scene/PrimitiveComponent.h"
 #include "MeshComponent.refl.h"
 
-struct SRenderer;
+class SRenderer;
 struct SMeshProxy;
 struct IMesh;
 class SMaterial;

@@ -1,6 +1,7 @@
 #include "Scene/PrimitiveComponent.h"
 #include "Renderer.h"
 #include "IO/Log.h"
+#include "PrimitiveProxy.h"
 
 SPrimitiveComponent::SPrimitiveComponent(SRenderer* inContext)
 	: Context(nullptr) {

@@ -1,5 +1,6 @@
 #include "MeshComponent.h"
 #include "Mesh.h"
+#include "RenderPass.h"
 
 SMeshComponent::SMeshComponent(SRenderer* InContext, IMesh* InMesh, const std::vector<SMaterial*>& inMaterialOverrides)
 	: MaterialOverrides(inMaterialOverrides), SPrimitiveComponent(InContext) {
@@ -9,7 +10,7 @@ SMeshComponent::SMeshComponent(SRenderer* InContext, IMesh* InMesh, const std::v
 void SMeshComponent::SetMesh(IMesh* inMesh) {
 	Mesh = inMesh;
 	ClearProxies();
-	for (int i = 0; i < Mesh->GetSections().size(); ++i) AddProxy(new SMeshProxy(this, (uint32_t)ERenderPass::ERenderPass_COLOR | (uint32_t)ERenderPass::ERenderPass_NORMAL));
+	for (int i = 0; i < Mesh->GetSections().size(); ++i) AddProxy(SRendererApi::Get()->CreateProxyFor(SMeshProxy::GetStaticClass(), this, (uint32_t)ERenderPass::ERenderPass_COLOR | (uint32_t)ERenderPass::ERenderPass_NORMAL));
 }
 
 void SMeshComponent::UpdateProxies() {

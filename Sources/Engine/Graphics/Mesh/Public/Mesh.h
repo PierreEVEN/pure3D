@@ -8,6 +8,7 @@
 #include "RenderApi.h"
 #include "Shader.h"
 
+#include "PrimitiveProxy.h"
 #include "Mesh.refl.h"
 
 struct SMeshData {
@@ -53,8 +54,6 @@ struct SMeshProxy : public IPrimitiveProxy {
 
 	REFLECT_BODY()
 public:
-
-	using IPrimitiveProxy::IPrimitiveProxy;
 
 	STransform Transform;
 

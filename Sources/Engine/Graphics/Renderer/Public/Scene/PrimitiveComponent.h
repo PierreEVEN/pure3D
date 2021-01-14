@@ -4,12 +4,12 @@
 #include "Scene/PrimitiveComponent.refl.h"
 
 struct IPrimitiveProxy;
-struct SRenderer;
+class SRenderer;
 
 REFLECT()
 class SPrimitiveComponent : public SSceneComponent {
 
-	friend struct SRenderer;
+	friend SRenderer;
 
 	REFLECT_BODY()
 public:

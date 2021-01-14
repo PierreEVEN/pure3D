@@ -1,7 +1,8 @@
 #include "Renderer.h"
 #include "IO/Log.h"
-#include "Reflection/RClass.h"
 #include "Scene/PrimitiveComponent.h"
+#include "RenderPass.h"
+#include "PrimitiveProxy.h"
 
 void SRenderer::DrawFrame()
 {
@@ -21,7 +22,7 @@ void SRenderer::DrawRenderPasses() {
 		RenderPasses->Begin();
 		RenderPasses->QueryRenderedProxies(RendererProxies);
 		RenderPasses->SortProxies();
-		RenderPasses->DrawProxies();
+		RenderPasses->DrawProxies(this);
 		RenderPasses->End();
 	}
 }
@@ -40,13 +41,13 @@ void SRenderer::FlushOutdatedProxies() {
 	OutdatedProxies.clear();
 }
 
-void IRenderPass::QueryRenderedProxies(const std::vector<IPrimitiveProxy*>& AvailableProxies) {
+void SRenderPass::QueryRenderedProxies(const std::vector<IPrimitiveProxy*>& AvailableProxies) {
 	PassProxies.clear();
 	for (const auto& Proxy : AvailableProxies) if (Proxy->RenderPass & RenderPass) PassProxies.push_back(Proxy);
 }
 
-void IRenderPass::DrawProxies() {
+void SRenderPass::DrawProxies(SRenderer* Context) {
 	for (const auto& Proxy : PassProxies) {
-		LOG("draw proxy");
+		Proxy->Render(Context);
 	}
 }

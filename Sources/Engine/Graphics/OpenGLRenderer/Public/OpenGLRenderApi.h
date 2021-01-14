@@ -2,10 +2,10 @@
 #include "RenderApi.h"
 #include <GL/gl3w.h>
 #include "GLFW/glfw3.h"
-
-#include "OpenGLRenderApi.refl.h"
+#include "Mesh.h"
 #include <memory>
 
+#include "OpenGLRenderApi.refl.h"
 
 
 REFLECT()
@@ -30,5 +30,5 @@ private:
 	void StartOpenGL();
 
 	struct GLFWwindow* WindowHandle;
-
 };
+
