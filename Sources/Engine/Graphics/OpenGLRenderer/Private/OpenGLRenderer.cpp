@@ -36,13 +36,11 @@ void SOpenGLRenderer::BeginFrame() {
 	GL_CHECK_ERROR();
 }
 
-void SOpenGLRenderer::UpdateUniformBuffers()
+void SOpenGLRenderer::CopyUniformBufferData()
 {
 	GenerateUniformBuffer();
-	UniformBufferData.DeltaTime = (float)glfwGetTime();
-
 	glBindBuffer(GL_UNIFORM_BUFFER, RendererUniformBuffer);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLUniformBufferData), &UniformBufferData);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SRenderer::UniformBufferData), &SRenderer::GetUniformBuffer());
 	GL_CHECK_ERROR();
 }
 
@@ -52,8 +50,8 @@ void SOpenGLRenderer::GenerateUniformBuffer() {
 	bIsRendererUniformBufferValid = true;
 	glGenBuffers(1, &RendererUniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, RendererUniformBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(GLUniformBufferData), &UniformBufferData, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(SRenderer::UniformBufferData), &SRenderer::GetUniformBuffer(), GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, RendererUniformBuffer, 0, sizeof(GLUniformBufferData));
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, RendererUniformBuffer, 0, sizeof(SRenderer::UniformBufferData));
 	GL_CHECK_ERROR();
 }

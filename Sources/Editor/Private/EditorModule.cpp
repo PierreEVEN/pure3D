@@ -27,7 +27,12 @@ uniform mat4 projection; \
  \
 layout(std140) uniform shader_data \
 { \
-	float DeltaTime; \
+	mat4 viewMatrix; \
+	mat4 projectionMatrix; \
+	vec4 cameraPosition; \
+	vec4 cameraDirection; \
+	vec2 framebufferResolution; \
+	float Time; \
 }; \
  \
 void main() \
@@ -35,7 +40,9 @@ void main() \
 	Normal = mat3(transpose(inverse(model))) * aNormal; \
 	TexCoords = aTexCoords; \
 	FragPos = vec3(model * vec4(aPos, 1.0)); \
-	gl_Position = vec4(aPos, 1.0); \
+ \
+	vec4 pos = vec4(aPos, 1.0) + vec4(0, 0, -2, 0); \
+	gl_Position = projectionMatrix * viewMatrix * pos; \
 }";
 
 const char* Default_Fs = "#version 330 core \n\
@@ -48,18 +55,23 @@ in vec2 TexCoords; \
  \
 layout(std140) uniform shader_data \
 { \
-	float DeltaTime; \
+	mat4 viewMatrix; \
+	mat4 projectionMatrix; \
+	vec4 cameraPosition; \
+	vec4 cameraDirection; \
+	vec2 framebufferResolution; \
+	float Time; \
 }; \
  \
 void main() \
 { \
-	FragColor = vec4(TexCoords.xy + sin(DeltaTime), sin(DeltaTime),1); \
+	FragColor = vec4(TexCoords.xy + sin(Time), 0, 1); \
 }";
 
 std::vector<SMeshData::SVertice> Default_Vertices{
 	SMeshData::SVertice(SVector(-.9f, -.9f, 0), SVector2D(0,0)),
 	SMeshData::SVertice(SVector(.9f, -.9f, 0), SVector2D(1,0)),
-	SMeshData::SVertice(SVector(.9f, .9f, 0), SVector2D(1,1)),
+	SMeshData::SVertice(SVector(.9f, .9f, .5f), SVector2D(1,1)),
 	SMeshData::SVertice(SVector(-.9f, .9f, 0), SVector2D(0,1)),
 };
 std::vector<uint32_t> Default_Triangles{
@@ -71,7 +83,7 @@ std::vector<uint32_t> Default_Triangles{
 
 MODULE_CONSTRUCTOR() {
 
-// 	// Load AssetManager Module (load assets)
+// 	Load AssetManager Module (load assets)
 // 	AssetManager::Get()->LoadAssetLibrary("");
 // 	AssetManager::Get()->GetAsset()
 

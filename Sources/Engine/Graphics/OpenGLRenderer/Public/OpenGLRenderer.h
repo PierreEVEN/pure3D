@@ -5,11 +5,6 @@
 #include <GL/gl3w.h>
 #include "Types/String.h"
 
-struct GLUniformBufferData {
-
-	float DeltaTime;
-
-};
 
 #define GL_CHECK_ERROR() SOpenGLRenderer::CheckGLError(__LINE__, __FILE__)
 
@@ -22,7 +17,7 @@ public:
 protected:
 	virtual void BeginFrame();
 
-	virtual void UpdateUniformBuffers();
+	virtual void CopyUniformBufferData();
 
 private:
 
@@ -30,5 +25,4 @@ private:
 
 	bool bIsRendererUniformBufferValid;
 	GLuint RendererUniformBuffer;
-	GLUniformBufferData UniformBufferData;
 };

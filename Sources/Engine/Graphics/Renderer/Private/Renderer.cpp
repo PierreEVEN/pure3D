@@ -4,11 +4,11 @@
 #include "RenderPass.h"
 #include "PrimitiveProxy.h"
 #include "Camera.h"
+#include <chrono>
 
 
 SRenderer::SRenderer()
 {
-	Camera = new SCamera();
 }
 
 void SRenderer::DrawFrame()
@@ -18,6 +18,7 @@ void SRenderer::DrawFrame()
 
 	BeginFrame();
 	UpdateUniformBuffers();
+	CopyUniformBufferData();
 
 	DrawRenderPasses();
 
@@ -44,6 +45,15 @@ void SRenderer::RegisterNewProxies() {
 
 void SRenderer::RebuildDirtyProxyData() {
 	for (const auto& Proxy : RendererProxies) if (Proxy->IsDirty) Proxy->ParentComponent->UpdateProxies_Internal();
+}
+
+auto StartTime = std::chrono::steady_clock::now();
+
+void SRenderer::UpdateUniformBuffers()
+{
+	UniformBuffer.Time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - StartTime).count() / 1000.f;
+	UniformBuffer.ViewMatrix = Camera.GetView();
+	UniformBuffer.ProjectionMatrix = Camera.GetPerspective();
 }
 
 void SRenderer::FlushOutdatedProxies() {

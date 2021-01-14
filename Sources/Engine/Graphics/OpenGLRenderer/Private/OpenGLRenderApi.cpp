@@ -109,7 +109,6 @@ std::shared_ptr<SShaderHandle> SOpenGlRenderApi::CompileShader(const String& Ver
 		GLenum BufferType;
 		GLchar name[256];
 		glGetActiveUniform(ShaderID, i, 256, &BufferLength, &BufferSize, &BufferType, name);
-		LOG("found uniform : %s", name);
 		//_uniforms.put(name, glGetUniformLocation(ShaderID, name));
 	}
 
