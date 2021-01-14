@@ -41,7 +41,7 @@ void main() \
 	TexCoords = aTexCoords; \
 	FragPos = vec3(model * vec4(aPos, 1.0)); \
  \
-	vec4 pos = vec4(aPos, 1.0) + vec4(0, 0, -2, 0); \
+	vec4 pos = vec4(aPos, 1.0) + vec4(5, 0, -1, 0); \
 	gl_Position = projectionMatrix * viewMatrix * pos; \
 }";
 
@@ -100,8 +100,10 @@ MODULE_CONSTRUCTOR() {
 	new SMeshComponent(EditorRenderer, BasicMesh, {});
 
 
+	EditorRenderer->GetCamera().SetFieldOfView(120);
+
 	// Temp render loop
-	while (true) {
+	while (!SRendererApi::Get()->ShouldCloseWindow()) {
 		SRendererApi::Get()->BeginFrame();
 		EditorRenderer->DrawFrame();
 		SRendererApi::Get()->EndFrame();

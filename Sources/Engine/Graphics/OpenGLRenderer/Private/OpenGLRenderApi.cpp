@@ -66,6 +66,11 @@ void SOpenGlRenderApi::EndFrame() {
 	GL_CHECK_ERROR();
 }
 
+bool SOpenGlRenderApi::ShouldCloseWindow()
+{
+	return glfwWindowShouldClose(WindowHandle);
+}
+
 std::shared_ptr<SShaderHandle> SOpenGlRenderApi::CompileShader(const String& VertexShader, const String& FragmentShader) {
 	const char* vShaderCode = VertexShader.GetData();
 	const char* fShaderCode = FragmentShader.GetData();

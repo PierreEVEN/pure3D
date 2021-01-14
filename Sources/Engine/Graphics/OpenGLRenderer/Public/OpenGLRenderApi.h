@@ -18,6 +18,9 @@ public:
 	virtual void BeginFrame();
 	virtual void EndFrame();
 
+	struct GLFWwindow* WindowHandle;
+	virtual bool ShouldCloseWindow();
+
 protected:
 	SOpenGlRenderApi();
 
@@ -29,6 +32,5 @@ private:
 
 	void StartOpenGL();
 
-	struct GLFWwindow* WindowHandle;
 };
 

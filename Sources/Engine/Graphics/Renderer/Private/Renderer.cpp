@@ -7,9 +7,7 @@
 #include <chrono>
 
 
-SRenderer::SRenderer()
-{
-}
+SRenderer::SRenderer() {}
 
 void SRenderer::DrawFrame()
 {
@@ -53,7 +51,8 @@ void SRenderer::UpdateUniformBuffers()
 {
 	UniformBuffer.Time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - StartTime).count() / 1000.f;
 	UniformBuffer.ViewMatrix = Camera.GetView();
-	UniformBuffer.ProjectionMatrix = Camera.GetPerspective();
+	UniformBuffer.framebufferResolution = GetFramebufferSize();
+	UniformBuffer.ProjectionMatrix = Camera.GetPerspective(UniformBuffer.framebufferResolution.x / UniformBuffer.framebufferResolution.y);
 }
 
 void SRenderer::FlushOutdatedProxies() {

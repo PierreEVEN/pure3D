@@ -19,6 +19,8 @@ protected:
 
 	virtual void CopyUniformBufferData();
 
+	virtual SVector2D GetFramebufferSize();
+
 private:
 
 	void GenerateUniformBuffer();

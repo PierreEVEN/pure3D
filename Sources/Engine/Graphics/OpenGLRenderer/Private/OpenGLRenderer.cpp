@@ -4,6 +4,7 @@
 #include "IO/Log.h"
 #include "RenderPass.h"
 #include "GLFW/glfw3.h"
+#include "OpenGLRenderApi.h"
 
 void SOpenGLRenderer::CheckGLError(int64_t Line, const String& File) {
 	int errCode;
@@ -44,6 +45,12 @@ void SOpenGLRenderer::CopyUniformBufferData()
 	GL_CHECK_ERROR();
 }
 
+
+SVector2D SOpenGLRenderer::GetFramebufferSize() {
+	int SizeX, SizeY;
+	glfwGetFramebufferSize(((SOpenGlRenderApi*)SRendererApi::Get())->WindowHandle, &SizeX, &SizeY);
+	return SVector2D((float)SizeX, (float)SizeY);
+}
 
 void SOpenGLRenderer::GenerateUniformBuffer() {
 	if (bIsRendererUniformBufferValid) return;

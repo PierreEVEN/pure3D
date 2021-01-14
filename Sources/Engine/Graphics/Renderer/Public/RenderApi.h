@@ -35,6 +35,7 @@ public:
 
 	virtual void BeginFrame() = 0;
 	virtual void EndFrame() = 0;
+	virtual bool ShouldCloseWindow() { return false; }
 
 	IPrimitiveProxy* CreateProxyFor(RClass* ProxyType, SPrimitiveComponent* inParentComponent, uint32_t inRenderPass);
 

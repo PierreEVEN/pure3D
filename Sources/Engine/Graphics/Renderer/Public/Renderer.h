@@ -22,7 +22,7 @@ public:
 	inline void AddProxy(IPrimitiveProxy* Proxy) { PendingRegistrationProxies.push_back(Proxy); }
 	inline void FreeProxy(IPrimitiveProxy* Proxy) { OutdatedProxies.push_back(Proxy); }
 
-	inline const SCamera& GetCamera() const { return Camera; }
+	inline SCamera& GetCamera() { return Camera; }
 
 
 	struct UniformBufferData {
@@ -62,6 +62,8 @@ protected:
 	inline void AddRenderPass(SRenderPass* RenderPass) { RenderPasses.push_back(RenderPass); }
 
 	const UniformBufferData& GetUniformBuffer() const { return UniformBuffer; }
+
+	virtual SVector2D GetFramebufferSize() = 0;
 
 private:
 	SCamera Camera;

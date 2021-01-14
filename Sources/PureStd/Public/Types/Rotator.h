@@ -25,24 +25,24 @@ struct IQuaternion final
 		return ToString(x) + ", " + ToString(y) + ", " + ToString(z) + ", " + ToString(w);
 	}
 
-	inline const SVector GetForwardVector() const {
-		return SVector(
+	inline const IVector3<T> GetForwardVector() const {
+		return IVector3<T>(
 			1 - 2 * (y * y + z * z),
 			2 * (x * y + w * z),
 			2 * (x * z - w * y)
 		);
 	}
 
-	inline const SVector GetRightVector() const {
-		return SVector(
+	inline const IVector3<T> GetRightVector() const {
+		return IVector3<T>(
 			2 * (x * y - w * z),
 			1 - 2 * (x * x + z * z),
 			2 * (y * z + w * x)
 		);
 	}
 
-	inline const SVector GetUpVector() const {
-		return SVector(
+	inline const IVector3<T> GetUpVector() const {
+		return IVector3<T>(
 			2 * (x * z + w * y),
 			2 * (y * z - w * x),
 			1 - 2 * (x * x + y * y)
