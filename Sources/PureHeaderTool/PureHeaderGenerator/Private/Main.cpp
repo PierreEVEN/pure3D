@@ -15,12 +15,12 @@ int main(int argc, const char* argv[]) {
 
 	String ModulePathStr;
 	String ModuleName;
-	String OutputPath;
+	String OutputPathStr;
 	String DebugMode;
 	String CMakeRebuildCommand;
 	Utils::Ensure(Utils::GetOption(argc, argv, "ModuleName", ModuleName), "Missing 'ModuleName' option");
 	Utils::Ensure(Utils::GetOption(argc, argv, "ModulePath", ModulePathStr), "Missing 'ModulePath' option");
-	Utils::Ensure(Utils::GetOption(argc, argv, "OutputPath", OutputPath), "Missing 'OutputPath' option");
+	Utils::Ensure(Utils::GetOption(argc, argv, "OutputPath", OutputPathStr), "Missing 'OutputPath' option");
 	Utils::Ensure(Utils::GetOption(argc, argv, "CmakeRebuild", CMakeRebuildCommand), "Missing 'CmakeRebuild' option");
 	if (Utils::GetOption(argc, argv, "Debug", DebugMode))
 		Utils::PHT_DEBUG_MODE = DebugMode == "ON";
@@ -30,9 +30,11 @@ int main(int argc, const char* argv[]) {
 	 * Scanning
 	 */
 	std::filesystem::path ModulePath(ModulePathStr.GetData());
+	std::filesystem::path OutputPath(OutputPathStr.GetData());
 
 	// Get all potential reflected headers
 	std::vector<Parser::SFileReference> ScannedFiles = Parser::ScanFiles(ModulePath);
+	std::vector<Parser::SFileReference> ExistingReflFiles = Parser::ScanFiles(OutputPath);
 
 	size_t Objects = 0;
 	// Parse every header found
@@ -42,12 +44,24 @@ int main(int argc, const char* argv[]) {
 	 * Writting
 	 */
 	for (const auto& File : Parser::ReflectedFiles) {
-		Writer::WriteFiles(File.second, ModulePathStr, OutputPath);
+		Writer::WriteFiles(File.second, ModulePathStr, OutputPathStr);
 	}
 
 	size_t UpToDates = Parser::ReflectedFiles.size();
 	for (const auto& File : Parser::ReflectedFiles) {
 		if (File.second->IsFileUpToDate()) UpToDates--;
+		for (int64_t i = ExistingReflFiles.size() - 1; i >= 0; --i) {
+			String FilePath = File.second->GetFile().GetFilePath().string().c_str();
+			Utils::Log(FilePath.SubString(0, FilePath.Length() - String::GetFileExtension(FilePath).Length() - 2) + ".refl.h");
+			if (String(ExistingReflFiles[i].GetFilePath().string().c_str()) == FilePath.SubString(0, FilePath.Length() - String::GetFileExtension(FilePath).Length() - 2) + ".refl.h") {
+				ExistingReflFiles.erase(ExistingReflFiles.begin() + i);
+			} //@TODO FAIRE LE BON CHEMIN POUR CE TRUC!!!!!
+		}
+	}
+
+	//Remove outdated reflection files
+	for (auto& File : ExistingReflFiles) {
+		Utils::Log("ÈRemove old file : " + String(File.GetFilePath().string().c_str()));
 	}
 
 	/**

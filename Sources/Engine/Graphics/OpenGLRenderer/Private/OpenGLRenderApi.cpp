@@ -40,7 +40,7 @@ void SOpenGlRenderApi::StartOpenGL() {
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
 
-	WindowHandle = glfwCreateWindow(800, 600, "test", 0, 0);
+	WindowHandle = glfwCreateWindow(800, 600, "Pure3D - OpenGL", 0, 0);
 	if (!WindowHandle) LOG_ASSERT("Failed to create Glfw window handle");
 	glfwMakeContextCurrent(WindowHandle);
 	glfwSetFramebufferSizeCallback(WindowHandle, &ResizeCallback);
