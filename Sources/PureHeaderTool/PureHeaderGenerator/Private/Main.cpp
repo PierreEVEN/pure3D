@@ -40,8 +40,6 @@ int main(int argc, const char* argv[]) {
 	// Parse every header found
 	for (const auto& File : ScannedFiles) Objects += Parser::ParseFile(File)->GetObjects().size();
 
-    Utils::Log("test");
-
 	/**
 	 * Writting
 	 */
@@ -61,8 +59,8 @@ int main(int argc, const char* argv[]) {
         PrivateDirectory /= File.second->GetFile().GetName() + ".refl.cpp";
 
 		for (int64_t i = ExistingReflFiles.size() - 1; i >= 0; --i) {
-			if (String(ExistingReflFiles[i].GetFilePath().string().c_str()) == PublicDirectory ||
-                    String(ExistingReflFiles[i].GetFilePath().string().c_str()) == PrivateDirectory) {
+			if (ExistingReflFiles[i].GetFilePath() == std::filesystem::path(PublicDirectory.GetData()) ||
+                    ExistingReflFiles[i].GetFilePath() == std::filesystem::path(PrivateDirectory.GetData())) {
 				ExistingReflFiles.erase(ExistingReflFiles.begin() + i);
 			}
 		}
