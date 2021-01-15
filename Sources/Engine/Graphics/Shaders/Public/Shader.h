@@ -5,6 +5,14 @@
 #include "RenderApi.h"
 #include "Shader.refl.h"
 
+
+
+
+
+
+
+
+
 REFLECT()
 class SMaterial : public SAsset {
 	REFLECT_BODY()
@@ -17,4 +25,16 @@ public:
 private:
 
 	std::shared_ptr<SShaderHandle> ShaderHandle;
+
+	RPROPERTY()
+		String VertexShaderSourcePath;
+
+	RPROPERTY()
+		String FragmentShaderSourcePath;
+
+	RPROPERTY()
+		String VertexShaderData;
+
+	RPROPERTY()
+		String FragmentShaderData;
 };

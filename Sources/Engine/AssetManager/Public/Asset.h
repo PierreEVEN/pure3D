@@ -19,6 +19,8 @@ public:
 	
 	void Save();
 
+	void Reload();
+
 protected:
 
 	RCONSTRUCTOR()
