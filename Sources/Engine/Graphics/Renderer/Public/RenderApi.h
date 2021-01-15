@@ -20,7 +20,7 @@ struct SMeshHandle {
 };
 
 REFLECT()
-class SRendererApi {
+class IRendererApi {
 	REFLECT_BODY()
 
 public:
@@ -31,7 +31,7 @@ public:
 
 	template<typename T>
 	inline static void Create() { SetInstance(new T()); }
-	static SRendererApi* Get();
+	static IRendererApi* Get();
 
 	virtual void BeginFrame() = 0;
 	virtual void EndFrame() = 0;
@@ -47,8 +47,8 @@ protected:
 	}
 
 private:
-	static void SetInstance(SRendererApi* NewInstance);
-	static SRendererApi* RenderApiInstance;
+	static void SetInstance(IRendererApi* NewInstance);
+	static IRendererApi* RenderApiInstance;
 
 	std::unordered_map<RClass*, RClass*> ProxyTypes;
 };

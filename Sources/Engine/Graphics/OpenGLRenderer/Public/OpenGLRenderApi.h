@@ -9,8 +9,8 @@
 
 
 REFLECT()
-class SOpenGlRenderApi : public SRendererApi {
-	friend SRendererApi;
+class SOpenGlRenderApi : public IRendererApi {
+	friend IRendererApi;
 
 	REFLECT_BODY()
 public:

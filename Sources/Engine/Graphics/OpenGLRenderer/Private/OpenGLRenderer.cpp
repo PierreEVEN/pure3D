@@ -48,7 +48,7 @@ void SOpenGLRenderer::CopyUniformBufferData()
 
 SVector2D SOpenGLRenderer::GetFramebufferSize() {
 	int SizeX, SizeY;
-	glfwGetFramebufferSize(((SOpenGlRenderApi*)SRendererApi::Get())->WindowHandle, &SizeX, &SizeY);
+	glfwGetFramebufferSize(((SOpenGlRenderApi*)IRendererApi::Get())->WindowHandle, &SizeX, &SizeY);
 	return SVector2D((float)SizeX, (float)SizeY);
 }
 

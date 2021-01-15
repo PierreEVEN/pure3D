@@ -3,14 +3,14 @@
 #include "Renderer.h"
 #include "PrimitiveProxy.h"
 
-SRendererApi* SRendererApi::RenderApiInstance = nullptr;
+IRendererApi* IRendererApi::RenderApiInstance = nullptr;
 
-SRendererApi* SRendererApi::Get() {
-	if (!SRendererApi::RenderApiInstance) LOG_ASSERT("Render api is not initialized (ie : SRendererApi::Create<SOpenGlRenderApi>(); )");
-	return SRendererApi::RenderApiInstance;
+IRendererApi* IRendererApi::Get() {
+	if (!IRendererApi::RenderApiInstance) LOG_ASSERT("Render api is not initialized (ie : SRendererApi::Create<SOpenGlRenderApi>(); )");
+	return IRendererApi::RenderApiInstance;
 }
 
-IPrimitiveProxy* SRendererApi::CreateProxyFor(RClass* ProxyType, SPrimitiveComponent* inParentComponent, uint32_t inRenderPass) {
+IPrimitiveProxy* IRendererApi::CreateProxyFor(RClass* ProxyType, SPrimitiveComponent* inParentComponent, uint32_t inRenderPass) {
 	auto FoundProxyClass = ProxyTypes.find(ProxyType);
 	if (FoundProxyClass == ProxyTypes.end()) LOG_ASSERT("%s is not a suported proxy type : register proxy type with AddProxyType<ProxyType, ProxyClass>()", ProxyType->GetName().GetData());
 	IPrimitiveProxy* Proxy = NewObject<IPrimitiveProxy>(FoundProxyClass->second);
@@ -20,8 +20,8 @@ IPrimitiveProxy* SRendererApi::CreateProxyFor(RClass* ProxyType, SPrimitiveCompo
 	return Proxy;
 }
 
-void SRendererApi::SetInstance(SRendererApi* NewInstance) {
-	if (SRendererApi::RenderApiInstance) delete SRendererApi::RenderApiInstance;
-	SRendererApi::RenderApiInstance = NewInstance;
+void IRendererApi::SetInstance(IRendererApi* NewInstance) {
+	if (IRendererApi::RenderApiInstance) delete IRendererApi::RenderApiInstance;
+	IRendererApi::RenderApiInstance = NewInstance;
 }
 

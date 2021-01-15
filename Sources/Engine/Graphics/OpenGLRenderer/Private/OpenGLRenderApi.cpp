@@ -31,6 +31,10 @@ void ResizeCallback(GLFWwindow* windows, int x, int y) {
 	GL_CHECK_ERROR();
 }
 
+void ErrorCallback(int Code, const char* Message) {
+	LOG_ERROR("GLFW error %d : %s", Code, Message);
+}
+
 void SOpenGlRenderApi::StartOpenGL() {
 	LOG("Create Glfw context");
 	if (!glfwInit()) LOG_ASSERT("Failed to create glfw window");
@@ -44,6 +48,9 @@ void SOpenGlRenderApi::StartOpenGL() {
 	if (!WindowHandle) LOG_ASSERT("Failed to create Glfw window handle");
 	glfwMakeContextCurrent(WindowHandle);
 	glfwSetFramebufferSizeCallback(WindowHandle, &ResizeCallback);
+	glfwSetErrorCallback(&ErrorCallback);
+	glfwSetInputMode(WindowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 
 	LOG("Initialize OpenGL context");
 	if (gl3wInit()) {
@@ -56,9 +63,7 @@ void SOpenGlRenderApi::StartOpenGL() {
 	GL_CHECK_ERROR();
 }
 
-void SOpenGlRenderApi::BeginFrame() {
-	glfwPollEvents();
-}
+void SOpenGlRenderApi::BeginFrame() {}
 
 void SOpenGlRenderApi::EndFrame() {
 	glFlush();
