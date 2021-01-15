@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "String.h"
 #include "Hashing.h"
+#include <cmath>
 
 template<typename T>
 struct IVector3 final

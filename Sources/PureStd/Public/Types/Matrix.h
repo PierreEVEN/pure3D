@@ -1,4 +1,6 @@
 #pragma once
+
+#include <cstring>
 #include "Vector.h"
 #include "Types/Rotator.h"
 
