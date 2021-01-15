@@ -8,6 +8,8 @@
 using namespace Parser;
 
 std::vector<SFileReference> Parser::ScanFiles(const std::filesystem::path& inDirectory) {
+    if (!std::filesystem::exists(inDirectory)) return {};
+
 	std::vector<SFileReference> Result;
 
 	for (const auto& Child : std::filesystem::directory_iterator(inDirectory)) {

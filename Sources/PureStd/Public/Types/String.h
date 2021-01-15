@@ -198,11 +198,11 @@ public:
 		return *this;
 	}
 
-	inline String SubString(const size_t From) {
+	inline String SubString(const size_t From) const {
 		return SubString(From, Length() - 1);
 	}
 
-	inline String SubString(size_t From, const size_t To) {
+	inline String SubString(size_t From, const size_t To) const {
 		String Result = "";
 		for (size_t i = From; i <= To && i < Length(); ++i) {
 			Result << data[i];

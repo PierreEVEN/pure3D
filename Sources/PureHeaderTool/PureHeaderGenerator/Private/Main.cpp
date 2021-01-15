@@ -40,6 +40,8 @@ int main(int argc, const char* argv[]) {
 	// Parse every header found
 	for (const auto& File : ScannedFiles) Objects += Parser::ParseFile(File)->GetObjects().size();
 
+    Utils::Log("test");
+
 	/**
 	 * Writting
 	 */
@@ -50,18 +52,26 @@ int main(int argc, const char* argv[]) {
 	size_t UpToDates = Parser::ReflectedFiles.size();
 	for (const auto& File : Parser::ReflectedFiles) {
 		if (File.second->IsFileUpToDate()) UpToDates--;
+
+
+        String PublicDirectory;
+        String PrivateDirectory;
+        Utils::SourceToIntermediate(PublicDirectory, PrivateDirectory, File.second->GetFile().GetFilePath(), OutputPathStr);
+        PublicDirectory /= File.second->GetFile().GetName() + ".refl.h";
+        PrivateDirectory /= File.second->GetFile().GetName() + ".refl.cpp";
+
 		for (int64_t i = ExistingReflFiles.size() - 1; i >= 0; --i) {
-			String FilePath = File.second->GetFile().GetFilePath().string().c_str();
-			Utils::Log(FilePath.SubString(0, FilePath.Length() - String::GetFileExtension(FilePath).Length() - 2) + ".refl.h");
-			if (String(ExistingReflFiles[i].GetFilePath().string().c_str()) == FilePath.SubString(0, FilePath.Length() - String::GetFileExtension(FilePath).Length() - 2) + ".refl.h") {
+			if (String(ExistingReflFiles[i].GetFilePath().string().c_str()) == PublicDirectory ||
+                    String(ExistingReflFiles[i].GetFilePath().string().c_str()) == PrivateDirectory) {
 				ExistingReflFiles.erase(ExistingReflFiles.begin() + i);
-			} //@TODO FAIRE LE BON CHEMIN POUR CE TRUC!!!!!
+			}
 		}
 	}
 
 	//Remove outdated reflection files
 	for (auto& File : ExistingReflFiles) {
-		Utils::Log("ÈRemove old file : " + String(File.GetFilePath().string().c_str()));
+	    UpToDates++;
+        std::filesystem::remove(File.GetFilePath());
 	}
 
 	/**

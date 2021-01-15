@@ -1,5 +1,6 @@
 #pragma once
 #include <Types/String.h>
+#include <filesystem>
 
 namespace Utils {
 	bool GetOption(int argc, const char* argv[], const String& inOptionName, String& outOptionValue);
@@ -16,4 +17,6 @@ namespace Utils {
 
 	inline static bool PHT_DEBUG_MODE;
 	size_t GenURID();
+
+    void SourceToIntermediate(String& OutPublic, String& OutPrivate, const std::filesystem::path& SourcePath, String IntermediatesDir);
 }

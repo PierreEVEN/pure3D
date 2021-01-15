@@ -9,21 +9,16 @@
 using namespace Writer;
 
 void Writer::WriteFiles(Parser::SFileData* File, const String& ModulePath, const String& OutputPath) {
-	String FilePath = std::filesystem::absolute(File->GetFile().GetFilePath().parent_path()).string().c_str();
-
-	String RelativePath = FilePath.SubString(std::filesystem::absolute(ModulePath.GetData()).string().size());
-
-	// Replace \ with /
-	for (auto& Chr : RelativePath) if (Chr == '\\') Chr = '/';
-
-	// Remove 'Public' directory from path
-	if (RelativePath.IsStartingWith("/Public")) RelativePath = RelativePath.SubString(String("/Public/").Length());
 
 	File->BuildDynamicTypes();
 
 	// Create missing directories
-	String PublicDirectory = OutputPath / "Public" / RelativePath;
-	String PrivateDirectory = OutputPath / "Private" / RelativePath;	
+	String PublicDirectory;
+	String PrivateDirectory;
+
+    Utils::SourceToIntermediate(PublicDirectory, PrivateDirectory, File->GetFile().GetFilePath(),OutputPath);
+
+
 	std::filesystem::create_directories(PublicDirectory.GetData());
 	std::filesystem::create_directories(PrivateDirectory.GetData());
 
