@@ -13,6 +13,6 @@ class SStaticMeshFactory : public SAssetFactory
 
 public:
 		RFUNCTION()
-		SAsset* CreateFromData_Internal(const std::vector<SMeshData::SVertice>& Vertices, const std::vector<uint32_t>& Triangles, const std::vector<SMaterial*>& Materials);
+		SAsset* CreateFromData_Internal(const std::vector<SMeshSectionData>& Sections);
 };
 

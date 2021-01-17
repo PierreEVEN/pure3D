@@ -16,8 +16,15 @@ IPrimitiveProxy* IRendererApi::CreateProxyFor(RClass* ProxyType, SPrimitiveCompo
 	IPrimitiveProxy* Proxy = NewObject<IPrimitiveProxy>(FoundProxyClass->second);
 	Proxy->ParentComponent = inParentComponent;
 	Proxy->RenderPass = inRenderPass;
+	Proxy->RenderHelper = GetHelperForProxy(ProxyType);
 	if (!Proxy) LOG_ASSERT("Failed to create proxy for %s", ProxyType->GetName().GetData());
 	return Proxy;
+}
+
+IRendererHelper* IRendererApi::GetHelperForProxy(RClass* ProxyType) {
+	auto Helper = ProxyHelpers.find(ProxyType);
+	if (Helper != ProxyHelpers.end()) return Helper->second;
+	return nullptr;
 }
 
 void IRendererApi::SetInstance(IRendererApi* NewInstance) {

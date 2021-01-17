@@ -10,8 +10,7 @@ class SStaticMesh : public IMesh {
 	friend class SStaticMeshFactory;
 	
 	REFLECT_BODY()
-
-
+		
 public:
 
 	SStaticMesh() = default;
@@ -19,12 +18,7 @@ public:
 	void Reload() override {}
 	void PostLoad() override;
 
-	RPROPERTY()
-	std::vector<SMeshData::SVertice> Vertices;
-
-	RPROPERTY()
-	std::vector<uint32_t> Triangles;
-
-	RPROPERTY()
-	std::vector<SMaterial*> Materials;
+private:
+	
+	std::vector<SMeshSectionData> SectionsData;
 };

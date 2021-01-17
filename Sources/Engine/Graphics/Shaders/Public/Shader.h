@@ -5,6 +5,10 @@
 #include "RenderApi.h"
 #include "Shader.refl.h"
 
+struct SShaderHandle
+{
+	
+};
 
 REFLECT()
 class SMaterial : public SAsset {

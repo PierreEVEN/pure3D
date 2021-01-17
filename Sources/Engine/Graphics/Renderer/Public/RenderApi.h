@@ -8,28 +8,14 @@ class SRenderer;
 struct IPrimitiveProxy;
 class SPrimitiveComponent;
 
-struct SShaderHandle {
-	virtual ~SShaderHandle() = default;
-};
-
-struct STextureHandle {
-	virtual ~STextureHandle() = default;
-};
-
-struct SMeshHandle {
-	virtual ~SMeshHandle() = default;
-};
+class IRendererHelper {};
 
 REFLECT()
 class IRendererApi {
 	REFLECT_BODY()
 
 public:
-
-	virtual std::shared_ptr<SShaderHandle> CompileShader(const String& VertexShader, const String& FragmentShader) = 0;
-	virtual std::shared_ptr<STextureHandle> CreateTexture(const uint8_t* TextureData, uint32_t Width, uint32_t Height, uint32_t Channels) = 0;
-	virtual std::shared_ptr<SMeshHandle> CreateMesh(const struct SMeshData* Data) = 0;
-
+	
 	template<typename T>
 	inline static void Create() { SetInstance(new T()); }
 	static IRendererApi* Get();
@@ -39,19 +25,20 @@ public:
 	virtual bool ShouldCloseWindow() { return false; }
 
 	IPrimitiveProxy* CreateProxyFor(RClass* ProxyType, SPrimitiveComponent* inParentComponent, uint32_t inRenderPass);
-
-	virtual void setMatrixParameter(String parameterName, int shaderID, SMatrix4 Transform) {}
+	IRendererHelper* GetHelperForProxy(RClass* ProxyType);
 
 protected:
 
-	template<typename ProxyType, typename ProxyClass>
+	template<typename ProxyType, typename ProxyClass, typename HelperClass>
 	void AddProxyType() {
 		ProxyTypes[ProxyType::GetStaticClass()] = ProxyClass::GetStaticClass();
+		ProxyHelpers[ProxyType::GetStaticClass()] = new HelperClass();
 	}
 
 private:
 	static void SetInstance(IRendererApi* NewInstance);
 	static IRendererApi* RenderApiInstance;
 
+	std::unordered_map<RClass*, IRendererHelper*> ProxyHelpers;
 	std::unordered_map<RClass*, RClass*> ProxyTypes;
 };

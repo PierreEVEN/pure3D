@@ -68,11 +68,11 @@ void main() \
 	FragColor = vec4(TexCoords.xy + sin(Time), 0, 1); \
 }";
 
-std::vector<SMeshData::SVertice> DEFAULT_VERTICES{
-	SMeshData::SVertice(SVector(-.9f, -.9f, 0), SVector2D(0,0)),
-	SMeshData::SVertice(SVector(.9f, -.9f, 0), SVector2D(1,0)),
-	SMeshData::SVertice(SVector(.9f, .9f, .5f), SVector2D(1,1)),
-	SMeshData::SVertice(SVector(-.9f, .9f, 0), SVector2D(0,1)),
+std::vector<SMeshSectionData::SVertice> DEFAULT_VERTICES{
+	SMeshSectionData::SVertice(SVector(-.9f, -.9f, 0), SVector2D(0,0)),
+	SMeshSectionData::SVertice(SVector(.9f, -.9f, 0), SVector2D(1,0)),
+	SMeshSectionData::SVertice(SVector(.9f, .9f, .5f), SVector2D(1,1)),
+	SMeshSectionData::SVertice(SVector(-.9f, .9f, 0), SVector2D(0,1)),
 };
 std::vector<uint32_t> DEFAULT_TRIANGLES{
 	0, 1, 2,
@@ -190,11 +190,11 @@ MODULE_CONSTRUCTOR() {
 	SMaterial* BasicMaterial = SAssetFactory::CreateFromData<SMaterial, const String&, const String&>(Default_VS, Default_Fs);
 	if (!BasicMaterial) LOG_ASSERT("failed to create material");
 	// Create some components	
-	SMeshData BasicMeshData = SMeshData();
+	SMeshSectionData BasicMeshData = SMeshSectionData();
 	BasicMeshData.Mesh = DEFAULT_VERTICES;
 	BasicMeshData.Triangles = DEFAULT_TRIANGLES;
 	BasicMeshData.Material = BasicMaterial;
-	IMesh* BasicMesh = SAssetFactory::CreateFromData<SStaticMesh, const std::vector<SMeshData::SVertice>&, const std::vector<uint32_t>&, const std::vector<SMaterial*>&>(DEFAULT_VERTICES, DEFAULT_TRIANGLES, {});
+	IMesh* BasicMesh = SAssetFactory::CreateFromData<SStaticMesh, const std::vector<SMeshSectionData::SVertice>&, const std::vector<uint32_t>&, const std::vector<SMaterial*>&>(DEFAULT_VERTICES, DEFAULT_TRIANGLES, {});
 	if (!BasicMesh) LOG_ASSERT("failed to create mesh");
 	SSceneComponent* root = new SMeshComponent(EditorRenderer, BasicMesh, {});
 	

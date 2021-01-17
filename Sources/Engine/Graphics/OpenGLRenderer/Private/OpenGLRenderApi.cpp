@@ -19,9 +19,15 @@ void checkCompileErrors(unsigned int shader, const char* type) {
 	GL_CHECK_ERROR();
 }
 
+class SOpenGLMeshHelper : public SMeshRenderHelper
+{
+	
+};
+
+
 SOpenGlRenderApi::SOpenGlRenderApi() {
 
-	AddProxyType<SMeshProxy, SOpenGLMeshProxy>();
+	AddProxyType<SMeshProxy, SOpenGLMeshProxy, SOpenGLMeshHelper>();
 
 	StartOpenGL();
 }
@@ -161,7 +167,7 @@ std::shared_ptr<STextureHandle> SOpenGlRenderApi::CreateTexture(const uint8_t* T
 	return std::make_shared<SOpenGLTexture2DHandle>(TextureID);
 }
 
-std::shared_ptr<SMeshHandle> SOpenGlRenderApi::CreateMesh(const std::vector<SMeshData::SVertice>& Vertices, const std::vector<uint32_t>& Triangles) {
+std::shared_ptr<SMeshHandle> SOpenGlRenderApi::CreateMesh(const std::vector<SMeshSectionData::SVertice>& Vertices, const std::vector<uint32_t>& Triangles) {
 
 	GLuint Vbo, Ebo, Vao;
 
@@ -177,7 +183,7 @@ std::shared_ptr<SMeshHandle> SOpenGlRenderApi::CreateMesh(const std::vector<SMes
 	// The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
 	// again translates to 3/2 floats which translates to a byte array.
 
-	glBufferData(GL_ARRAY_BUFFER, Data->Mesh.size() * sizeof(SMeshData::SVertice), &Data->Mesh[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, Data->Mesh.size() * sizeof(SMeshSectionData::SVertice), &Data->Mesh[0], GL_STATIC_DRAW);
 
 	if (Data->Triangles.size() > 0)
 	{
@@ -188,19 +194,19 @@ std::shared_ptr<SMeshHandle> SOpenGlRenderApi::CreateMesh(const std::vector<SMes
 	// set the vertex attribute pointers
 	// vertex Positions
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SMeshData::SVertice), (void*)offsetof(SMeshData::SVertice, Position));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SMeshSectionData::SVertice), (void*)offsetof(SMeshSectionData::SVertice, Position));
 	// vertex normals
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SMeshData::SVertice), (void*)offsetof(SMeshData::SVertice, UV));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SMeshSectionData::SVertice), (void*)offsetof(SMeshSectionData::SVertice, UV));
 	// vertex texture coords
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(SMeshData::SVertice), (void*)offsetof(SMeshData::SVertice, Normal));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(SMeshSectionData::SVertice), (void*)offsetof(SMeshSectionData::SVertice, Normal));
 	// vertex tangent
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(SMeshData::SVertice), (void*)offsetof(SMeshData::SVertice, Color));
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(SMeshSectionData::SVertice), (void*)offsetof(SMeshSectionData::SVertice, Color));
 	// vertex bitangent
 	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(SMeshData::SVertice), (void*)offsetof(SMeshData::SVertice, Tangent));
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(SMeshSectionData::SVertice), (void*)offsetof(SMeshSectionData::SVertice, Tangent));
 
 	glBindVertexArray(0);
 	GL_CHECK_ERROR();

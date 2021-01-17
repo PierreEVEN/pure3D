@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <unordered_map>
 #include "Types/Matrix.h"
 #include "Types/Vector.h"
 #include "Camera.h"

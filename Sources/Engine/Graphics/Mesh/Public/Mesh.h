@@ -11,50 +11,106 @@
 #include "PrimitiveProxy.h"
 #include "Mesh.refl.h"
 
-struct SMeshData {
-	struct SVertice {
-		SVertice(const SVector& inPosition) : Position(inPosition) {}
-		SVertice(const SVector& inPosition, SVector2D inUVS) : Position(inPosition), UV(inUVS) {}
-		SVector Position;
-		SVector2D UV;
-		SVector Normal;
-		SLinearColor Color;
-		SVector Tangent;
-	};
-
-	SMaterial* Material;
-	std::vector<SVertice> Mesh;
-	std::vector<uint32_t> Triangles;
+struct SVertex {
+	SVertex(const SVector& inPosition) : Position(inPosition) {}
+	SVertex(const SVector& inPosition, SVector2D inUVS) : Position(inPosition), Uv(inUVS) {}
+	SVector Position;
+	SVector2D Uv;
+	SVector Normal;
+	SLinearColor Color;
+	SVector Tangent;
 };
 
+struct SMeshSectionData {
+	struct Lod {
+		/**
+		 * Lod material
+		 */
+		SMaterial* Material;
+		
+		/**
+		 * Lod mesh
+		 */
+		std::vector<SVertex> Mesh;
 
-REFLECT()
-class IMesh : public SAsset {
+		/**
+		 * Lod triangles
+		 */
+		std::vector<uint32_t> Triangles;
+	};
+	
+	/**
+	 * Section transform
+	 */
+	SMatrix4Double Transformation;
+	
+	/**
+	 * Lods data
+	 */
+	std::vector<Lod> Lods;
+};
 
-	REFLECT_BODY()
+struct SMeshHandle {};
 
+class SMeshRenderHelper : public IRendererHelper {
 public:
-
-	struct SMeshSection {
-		SMeshSection(const SMeshData& inMeshData, const std::shared_ptr<SMeshHandle>& inMeshHandle) : MeshData(inMeshData), MeshHandle(inMeshHandle) {}
-		SMeshData MeshData;
-		std::shared_ptr<SMeshHandle> MeshHandle;
-	};
-
-	inline const std::vector<SMeshSection>& GetSections() const { return Sections; }
-
-protected:
-	std::vector<SMeshSection> Sections;
+	virtual std::shared_ptr<SMeshHandle> CreateMesh() = 0;
+	virtual void DrawMesh(const SMeshHandle& Handle) = 0;
 };
 
+/**
+ * Contains everything needed to draw a mesh section on screen
+ */
 REFLECT()
 struct SMeshProxy : public IPrimitiveProxy {
 
-	REFLECT_BODY()
+	REFLECT_BODY();
+
+public:
+	
+	struct Lod
+	{
+		/**
+		 * Lod mesh
+		 */
+		std::shared_ptr<SMeshHandle> MeshHandle;
+
+		/**
+		 * Lod material
+		 */
+		std::shared_ptr<SShaderHandle> MaterialHandle;		
+	};
+
+	/**
+	 * Section transform
+	 */
+	SMatrix4Double Transformation;
+	
+	/**
+	 * Section Lods
+	 */
+	std::vector<Lod> Lods;
+
+	size_t GetLOD() { return 0; }
+
+	void Render(SRenderer* Context) override;
+};
+
+/**
+ * Mesh base structure
+ */
+REFLECT()
+class IMesh : public SAsset {
+
+	REFLECT_BODY();
+
 public:
 
-	STransform Transform;
+	[[nodiscard]] const std::vector<SMeshProxy>& GetProxies() const { return LodProxies; }
 
-	std::shared_ptr<SShaderHandle> MaterialHandle;
-	std::shared_ptr<SMeshHandle> MeshHandle;
+protected:
+	/**
+	 * Mesh handles
+	 */
+	std::vector<SMeshProxy> LodProxies;	
 };

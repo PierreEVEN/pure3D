@@ -7,26 +7,26 @@
 
 class SRenderer;
 class SPrimitiveComponent;
+class IRendererHelper;
 
 REFLECT()
 struct IPrimitiveProxy {
-	REFLECT_BODY()
-
-public:
+	REFLECT_BODY();
 
 	friend SRenderer;
 	friend SPrimitiveComponent;
 
-	using FProxyUpdateFunc = std::function<void()>;
+public:
 
 	IPrimitiveProxy() = default;
+	virtual void Render(SRenderer * Context) = 0;
 
 	uint32_t RenderPass = 0;
 	SPrimitiveComponent* ParentComponent;
-
-	virtual void Render(SRenderer* Context) = 0;
+	IRendererHelper* RenderHelper = nullptr;
 
 private:
+
 	bool IsOutOfDate = false;
 	bool IsDirty = true;
 };
