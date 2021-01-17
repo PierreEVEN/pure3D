@@ -10,6 +10,13 @@ SPrimitiveComponent::SPrimitiveComponent(SRenderer* inContext)
 
 void SPrimitiveComponent::MarkProxiesDirty() {
 	for (const auto& Proxy : Proxies) Proxy->IsDirty = true;
+	for (const auto& Child : GetChildren())
+	{
+		if (SPrimitiveComponent* chld = static_cast<SPrimitiveComponent*>(Child))
+		{
+			chld->MarkProxiesDirty();
+		}
+	}
 }
 
 void SPrimitiveComponent::SetRenderContext(SRenderer* inContext) {

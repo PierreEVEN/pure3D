@@ -2,6 +2,7 @@
 #include "Types/String.h"
 
 #include "RenderApi.refl.h"
+#include "Types/Matrix.h"
 
 class SRenderer;
 struct IPrimitiveProxy;
@@ -38,6 +39,8 @@ public:
 	virtual bool ShouldCloseWindow() { return false; }
 
 	IPrimitiveProxy* CreateProxyFor(RClass* ProxyType, SPrimitiveComponent* inParentComponent, uint32_t inRenderPass);
+
+	virtual void setMatrixParameter(String parameterName, int shaderID, SMatrix4 Transform) {}
 
 protected:
 

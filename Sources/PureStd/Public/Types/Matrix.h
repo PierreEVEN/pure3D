@@ -239,7 +239,7 @@ struct IMatrix4 final
 		return true;
 	}
 
-	IMatrix4<T> Inverse()
+	IMatrix4<T> Inverse() const
 	{
 		T Coef00 = rows[2][2] * rows[3][3] - rows[3][2] * rows[2][3];
 		T Coef02 = rows[1][2] * rows[3][3] - rows[3][2] * rows[1][3];
@@ -351,7 +351,7 @@ struct IMatrix4 final
 
 	inline IVector4<T>& operator[](const size_t& elem) { return rows[elem]; }
 
-	inline const IMatrix4<T> operator *(const IMatrix4<T>& other) {
+	inline const IMatrix4<T> operator *(const IMatrix4<T>& other) const {
 		const IVector4<T> oa = other.a;
 		const IVector4<T> ob = other.b;
 		const IVector4<T> oc = other.c;
@@ -365,7 +365,7 @@ struct IMatrix4 final
 		return result;
 	}
 
-	inline const IVector4<T> operator *(const IVector4<T>& other) {
+	inline const IVector4<T> operator *(const IVector4<T>& other) const {
 		T Mov0 = other[0];
 		T Mov1 = other[1];
 		IVector4<T> const Mul0 = rows[0] * Mov0;
@@ -380,7 +380,7 @@ struct IMatrix4 final
 		return Add2;
 	}
 
-	inline const IMatrix4<T> operator *(const T& other) {
+	inline const IMatrix4<T> operator *(const T& other) const {
 		return IMatrix4<T>(
 			a * other,
 			b * other,

@@ -63,7 +63,11 @@ void SOpenGlRenderApi::StartOpenGL() {
 	GL_CHECK_ERROR();
 }
 
-void SOpenGlRenderApi::BeginFrame() {}
+void SOpenGlRenderApi::BeginFrame()
+{
+	glEnable(GL_DEPTH_TEST);
+	
+}
 
 void SOpenGlRenderApi::EndFrame() {
 	glFlush();
@@ -201,4 +205,12 @@ std::shared_ptr<SMeshHandle> SOpenGlRenderApi::CreateMesh(const std::vector<SMes
 	glBindVertexArray(0);
 	GL_CHECK_ERROR();
 	return std::make_shared<SOpenGLMeshHandle>(Vbo, Ebo, Vao, static_cast<uint32_t>(Data->Mesh.size()), static_cast<uint32_t>(Data->Triangles.size()));
+}
+
+void SOpenGlRenderApi::setMatrixParameter(String parameterName, int shaderID, SMatrix4 Transform) {
+	glUseProgram(shaderID);
+	GLuint location = glGetUniformLocation(shaderID, parameterName.GetData());
+	GL_CHECK_ERROR();
+	glUniformMatrix4fv(glGetUniformLocation(shaderID, parameterName.GetData()), 1, GL_FALSE, Transform.coords);
+	GL_CHECK_ERROR();
 }

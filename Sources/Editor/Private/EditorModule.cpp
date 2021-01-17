@@ -23,8 +23,6 @@ out vec3 Normal; \
 out vec2 TexCoords; \
  \
 uniform mat4 model; \
-uniform mat4 view; \
-uniform mat4 projection; \
  \
  \
 layout(std140) uniform shader_data \
@@ -148,10 +146,10 @@ public:
 		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetRightVector() * Input.y);
 		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetUpVector() * Input.z);
 	}
-	void CharCallback(int chr) override {}
-	void MouseButtonCallback(int button, int action, int mods) override {}
-	void ScrollCallback(double xOffset, double yOffset) override {
-		Renderer->GetCamera().SetFieldOfView(Renderer->GetCamera().GetFieldOfView() - static_cast<float>(yOffset) * 0.02f);
+	virtual void CharCallback(int chr) {}
+	virtual void MouseButtonCallback(int button, int action, int mods) {}
+	virtual void ScrollCallback(double xOffset, double yOffset) {
+		Renderer->GetCamera().SetFieldOfView(Renderer->GetCamera().GetFieldOfView() - yOffset * 0.02f);
 	}
 
 	void CursorPosCallback(double X, double Y) override {
@@ -198,9 +196,23 @@ MODULE_CONSTRUCTOR() {
 	BasicMeshData.Material = BasicMaterial;
 	IMesh* BasicMesh = SAssetFactory::CreateFromData<SStaticMesh, const std::vector<SMeshData::SVertice>&, const std::vector<uint32_t>&, const std::vector<SMaterial*>&>(DEFAULT_VERTICES, DEFAULT_TRIANGLES, {});
 	if (!BasicMesh) LOG_ASSERT("failed to create mesh");
-	new SMeshComponent(EditorRenderer, BasicMesh, {});
+	SSceneComponent* root = new SMeshComponent(EditorRenderer, BasicMesh, {});
+	
+	SSceneComponent* roo2 = new SMeshComponent(EditorRenderer, BasicMesh, {});
+	roo2->SetRelativeTransform(STransform(SVectorDouble(1, 1, 1)));
+	roo2->AttachTo(root);
 
+	SSceneComponent* comp3 = new SMeshComponent(EditorRenderer, BasicMesh, {});
+	comp3->SetRelativeTransform(STransform(SVectorDouble(1.5, 2, 1)));
+	comp3->AttachTo(roo2);
+
+	SSceneComponent* comp4 = new SMeshComponent(EditorRenderer, BasicMesh, {});
+	comp4->SetRelativeTransform(STransform(SVectorDouble(1, 1.5, -1)));
+	comp4->AttachTo(root);
+	
 	EditorRenderer->GetCamera().SetFieldOfView(120);
+	float test = 0;
+	bool tesz = false;
 	
 	// Temp render loop
 	while (!IRendererApi::Get()->ShouldCloseWindow()) {
@@ -208,5 +220,27 @@ MODULE_CONSTRUCTOR() {
 		IRendererApi::Get()->BeginFrame();
 		EditorRenderer->DrawFrame();
 		IRendererApi::Get()->EndFrame();
+		
+		root->SetRelativeTransform(STransform(SVectorDouble(sin(test), 0, 0)));
+		test += 0.01f;
+
+		if (fmod(test / 10, 1) > 0.5) {
+			if (tesz)
+			{
+				tesz = false;
+				roo2->AttachTo(nullptr);
+				LOG("detach");
+			}
+		}
+		else
+		{
+			if (!tesz)
+			{
+				tesz = true;
+				roo2->AttachTo(root);
+				LOG("attach");
+			}
+		}
+		
 	}
 }

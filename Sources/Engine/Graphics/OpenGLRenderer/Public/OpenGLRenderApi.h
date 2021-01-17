@@ -21,6 +21,8 @@ public:
 	struct GLFWwindow* WindowHandle;
 	virtual bool ShouldCloseWindow();
 
+	void setMatrixParameter(String parameterName, int shaderID, SMatrix4 Transform) override;
+
 protected:
 	SOpenGlRenderApi();
 

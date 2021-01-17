@@ -8,12 +8,13 @@ struct STransform
 public:
 
 	STransform() : Scale3D(1) {}
-	STransform(const SVectorDouble& inLocation) : Location(inLocation), Scale3D(1) {}
-	STransform(const SQuatd& inRotation) : Rotation(inRotation), Scale3D(1) {}
-	STransform(const SVectorDouble& inLocation, const SVectorDouble& inScale3d) : Location(inLocation), Scale3D(inScale3d) {}
-	STransform(const SVectorDouble& inLocation, const SQuatd& inRotation) : Location(inLocation), Rotation(inRotation), Scale3D(1) {}
-	STransform(const SVectorDouble& inLocation, const SQuatd& inRotation, const SVectorDouble& inScale3d) : Location(inLocation), Rotation(inRotation), Scale3D(inScale3d) {}
-
+	STransform(const SVectorDouble& inLocation) : Location(inLocation), Scale3D(1), bIsTransformDirty(true), bAreAxesDirty(false) {}
+	STransform(const SMatrix4Double& inTransform) : TransformationMatrix(inTransform), bIsTransformDirty(false), bAreAxesDirty(true) {}
+	STransform(const SQuatd& inRotation) : Rotation(inRotation), Scale3D(1), bIsTransformDirty(true), bAreAxesDirty(false) {}
+	STransform(const SVectorDouble& inLocation, const SVectorDouble& inScale3d) : Location(inLocation), Scale3D(inScale3d), bIsTransformDirty(true), bAreAxesDirty(false) {}
+	STransform(const SVectorDouble& inLocation, const SQuatd& inRotation) : Location(inLocation), Rotation(inRotation), Scale3D(1), bIsTransformDirty(true), bAreAxesDirty(false) {}
+	STransform(const SVectorDouble& inLocation, const SQuatd& inRotation, const SVectorDouble& inScale3d) : Location(inLocation), Rotation(inRotation), Scale3D(inScale3d), bIsTransformDirty(true), bAreAxesDirty(false) {}
+		
 	inline const SMatrix4Double& GetTransformation() {
 		TryRebuildTransform();
 		return TransformationMatrix;
@@ -70,8 +71,8 @@ private:
 		}
 	}
 
-	bool bIsTransformDirty = true;
-	bool bAreAxesDirty = false;
+	bool bIsTransformDirty;
+	bool bAreAxesDirty;
 
 	SMatrix4Double TransformationMatrix;
 
