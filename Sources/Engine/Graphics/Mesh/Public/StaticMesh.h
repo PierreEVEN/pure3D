@@ -1,15 +1,30 @@
 #pragma once
 #include "Mesh.h"
+#include "MeshFactory.h"
 
 #include "StaticMesh.refl.h"
 
 REFLECT()
-struct SStaticMesh : public IMesh {
+class SStaticMesh : public IMesh {
 
-	SStaticMesh(const SMeshData& InMeshData);
-
+	friend class SStaticMeshFactory;
+	
 	REFLECT_BODY()
 
 
+public:
+
+	SStaticMesh() = default;
 	
+	void Reload() override {}
+	void PostLoad() override;
+
+	RPROPERTY()
+	std::vector<SMeshData::SVertice> Vertices;
+
+	RPROPERTY()
+	std::vector<uint32_t> Triangles;
+
+	RPROPERTY()
+	std::vector<SMaterial*> Materials;
 };

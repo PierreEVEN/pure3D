@@ -3,7 +3,7 @@
 #include "Types/ByteArray.h"
 #include "Asset.refl.h"
 
-class SAssetFactories;
+class SAssetFactory;
 
 REFLECT()
 class SAsset {
@@ -12,19 +12,18 @@ class SAsset {
 
 public:
 
-	friend SAssetFactories;
+	friend SAssetFactory;
 
-	inline RUID GetAssetID() const { return AssetID; }
-	inline const String& GetAssetName() const { return AssetName; }
+	[[nodiscard]] RUID GetAssetId() const { return AssetID; }
+	[[nodiscard]] const String& GetAssetName() const { return AssetName; }
 	
 	void Save();
 
-	void Reload();
+	virtual void Reload() = 0;
 
 protected:
 
-	RCONSTRUCTOR()
-		SAsset() = default;
+	virtual void PostLoad() {}
 
 private:
 

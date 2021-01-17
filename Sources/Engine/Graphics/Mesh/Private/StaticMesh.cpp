@@ -1,5 +1,8 @@
 #include "StaticMesh.h"
 
-SStaticMesh::SStaticMesh(const SMeshData& InMeshData) 
-	: IMesh({ IMesh::SMeshSection(InMeshData, IRendererApi::Get()->CreateMesh(&InMeshData)) }) {}
 
+void SStaticMesh::PostLoad()
+{
+	Sections = { IRendererApi::Get()->CreateMesh(&Vertices, Triangles); };
+	
+}

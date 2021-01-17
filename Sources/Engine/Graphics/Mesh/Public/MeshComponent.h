@@ -6,7 +6,7 @@
 
 class SRenderer;
 struct SMeshProxy;
-struct IMesh;
+class IMesh;
 class SMaterial;
 
 REFLECT()

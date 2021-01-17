@@ -6,10 +6,10 @@
 #include "StaticMesh.h"
 #include "Shader.h"
 #include "RenderApi.h"
-#include "OpenGLRenderApi.h"
 #include "IO/Log.h"
 #include "GlfwInputs.h"
-#include "Camera.h"
+#include "OpenGLRenderApi.h"
+#include "AssetFactory.h"
 
 
 const char* Default_VS = "#version 330 core \n\
@@ -33,7 +33,7 @@ layout(std140) uniform shader_data \
 	mat4 projectionMatrix; \
 	vec4 cameraPosition; \
 	vec4 cameraDirection; \
-	vec2 framebufferResolution; \
+	vec2 frameBufferResolution; \
 	float Time; \
 }; \
  \
@@ -61,7 +61,7 @@ layout(std140) uniform shader_data \
 	mat4 projectionMatrix; \
 	vec4 cameraPosition; \
 	vec4 cameraDirection; \
-	vec2 framebufferResolution; \
+	vec2 frameBufferResolution; \
 	float Time; \
 }; \
  \
@@ -70,13 +70,13 @@ void main() \
 	FragColor = vec4(TexCoords.xy + sin(Time), 0, 1); \
 }";
 
-std::vector<SMeshData::SVertice> Default_Vertices{
+std::vector<SMeshData::SVertice> DEFAULT_VERTICES{
 	SMeshData::SVertice(SVector(-.9f, -.9f, 0), SVector2D(0,0)),
 	SMeshData::SVertice(SVector(.9f, -.9f, 0), SVector2D(1,0)),
 	SMeshData::SVertice(SVector(.9f, .9f, .5f), SVector2D(1,1)),
 	SMeshData::SVertice(SVector(-.9f, .9f, 0), SVector2D(0,1)),
 };
-std::vector<uint32_t> Default_Triangles{
+std::vector<uint32_t> DEFAULT_TRIANGLES{
 	0, 1, 2,
 	0, 2, 3
 };
@@ -92,7 +92,7 @@ public:
 	bool bFirstSet = true;
 	double Pitch = 0, Yaw = 0;
 
-	virtual void KeyCallback(int keycode, int scancode, int action, int mods) override {
+	void KeyCallback(int keycode, int ScanCode, int action, int mods) override {
 		if (action == GLFW_PRESS) {
 			switch (keycode) {
 			case GLFW_KEY_W:
@@ -113,6 +113,8 @@ public:
 			case GLFW_KEY_LEFT_SHIFT:
 				Input.z += 1;
 				break;
+				default:
+					break;
 			}
 		}
 		if (action == GLFW_RELEASE) {
@@ -135,23 +137,24 @@ public:
 			case GLFW_KEY_LEFT_SHIFT:
 				Input.z -= 1;
 				break;
+			default:
+				break;
 			}
 		}
 	}
 
-	virtual void Update() override {
+	void Update() override {
 		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetForwardVector() * Input.x);
 		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetRightVector() * Input.y);
 		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetUpVector() * Input.z);
-
 	}
-	virtual void CharCallback(int chr) {}
-	virtual void MouseButtonCallback(int button, int action, int mods) {}
-	virtual void ScrollCallback(double xOffset, double yOffset) {
-		Renderer->GetCamera().SetFieldOfView(Renderer->GetCamera().GetFieldOfView() - yOffset * 0.02f);
+	void CharCallback(int chr) override {}
+	void MouseButtonCallback(int button, int action, int mods) override {}
+	void ScrollCallback(double xOffset, double yOffset) override {
+		Renderer->GetCamera().SetFieldOfView(Renderer->GetCamera().GetFieldOfView() - static_cast<float>(yOffset) * 0.02f);
 	}
 
-	virtual void CursorPosCallback(double X, double Y) {
+	void CursorPosCallback(double X, double Y) override {
 		double DeltaX = 0;
 		double DeltaY = 0;
 		if (bFirstSet) {
@@ -176,27 +179,29 @@ public:
 
 
 MODULE_CONSTRUCTOR() {
-
-// 	Load AssetManager Module (load assets)
-// 	AssetManager::Get()->LoadAssetLibrary("");
-// 	AssetManager::Get()->GetAsset()
-
+	// Load dependencies
+	ModuleManager::LoadModule("Mesh");
+	ModuleManager::LoadModule("Shaders");
+	
 	IRendererApi::Create<SOpenGlRenderApi>();
 	SRenderer* EditorRenderer = new SOpenGLRenderer();
 	IInputManager::Create<SGlfwInputManager>();
 	SCameraController Controller(EditorRenderer);
 
-	SMaterial BasicMaterial = SMaterial(Default_VS, Default_Fs);
+	
+	SMaterial* BasicMaterial = SAssetFactory::CreateFromData<SMaterial, const String&, const String&>(Default_VS, Default_Fs);
+	if (!BasicMaterial) LOG_ASSERT("failed to create material");
 	// Create some components	
 	SMeshData BasicMeshData = SMeshData();
-	BasicMeshData.Mesh = Default_Vertices;
-	BasicMeshData.Triangles = Default_Triangles;
-	BasicMeshData.Material = &BasicMaterial;
-	IMesh* BasicMesh = new SStaticMesh(BasicMeshData);
+	BasicMeshData.Mesh = DEFAULT_VERTICES;
+	BasicMeshData.Triangles = DEFAULT_TRIANGLES;
+	BasicMeshData.Material = BasicMaterial;
+	IMesh* BasicMesh = SAssetFactory::CreateFromData<SStaticMesh, const std::vector<SMeshData::SVertice>&, const std::vector<uint32_t>&, const std::vector<SMaterial*>&>(DEFAULT_VERTICES, DEFAULT_TRIANGLES, {});
+	if (!BasicMesh) LOG_ASSERT("failed to create mesh");
 	new SMeshComponent(EditorRenderer, BasicMesh, {});
 
 	EditorRenderer->GetCamera().SetFieldOfView(120);
-
+	
 	// Temp render loop
 	while (!IRendererApi::Get()->ShouldCloseWindow()) {
 		IInputManager::Get()->Update();

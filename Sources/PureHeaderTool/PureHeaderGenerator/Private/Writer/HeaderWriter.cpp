@@ -30,7 +30,9 @@ String Writer::GenerateHeader(Parser::SFileData* Data)
 	Result.Br(1);
 	Result.Indent();
 	for (const auto& Type : Data->GetDynamicTypes()) {
-		String TypeDefine = "REFL_DECLARE_TYPENAME_" + Type;
+		String TypeDefine = Type;
+		TypeDefine = String::Replace(TypeDefine, ' ', '_');
+		TypeDefine = "REFL_DECLARE_TYPENAME_" + TypeDefine;
 		for (auto& chr : TypeDefine) if (chr == '<' || chr == '>' || chr == ':' || chr == ',') chr = '_';
 		Result.IfNDef(TypeDefine);
 		Result.Define(TypeDefine);

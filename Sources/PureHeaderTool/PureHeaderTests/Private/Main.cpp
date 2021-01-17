@@ -90,7 +90,7 @@ int main() {
 		ArchiveSerialize.Serialize(output);
 		output.close();
 
-		// Deserialize
+		// DeserializeObject
 		SArchive ArchiveDeserialize;
 		ArchiveDeserialize.LinkObject("MyObject", MyClass, MyObject);
 

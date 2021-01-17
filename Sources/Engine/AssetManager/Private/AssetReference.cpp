@@ -10,7 +10,7 @@ SAssetReference::SAssetReference(RUID InAssetID)
 
 void SAssetReference::SetAsset(SAsset* InAsset) {
 	AssetPtr = InAsset;
-	AssetID = InAsset ? InAsset->GetAssetID() : 0;
+	AssetID = InAsset ? InAsset->GetAssetId() : 0;
 }
 
 void SAssetReference::OnUpdateAssetID(RUID OldId, RUID NewId) {

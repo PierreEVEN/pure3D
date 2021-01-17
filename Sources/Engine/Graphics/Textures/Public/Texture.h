@@ -19,6 +19,10 @@ protected:
 	RCONSTRUCTOR()
 		STexture2D();
 
+	void PostLoad() override {}
+
+	void Reload() override {}
+
 private:
 
 	RPROPERTY()

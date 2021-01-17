@@ -5,30 +5,30 @@ class SCamera {
 
 public:
 
-	SCamera() : CameraTransform(STransform()), FieldOfView(40), NearClipPlane(0.01f), FarClipPlane(1000) {}
+	SCamera() : FieldOfView(40), NearClipPlane(0.01f), FarClipPlane(1000), CameraTransform(STransform()) {}
 
-	SMatrix4 GetPerspective(float AspectRatio) {
+	[[nodiscard]] SMatrix4 GetPerspective(const float AspectRatio) const {
 		return Matrix::MakePerspectiveMatrix(FieldOfView, AspectRatio, NearClipPlane, FarClipPlane);
 	}
 
 	SMatrix4 GetView() {
-		SVectorDouble ForwardVector(CameraTransform.GetRotation().GetForwardVector());
-		SVector Position((float)CameraTransform.GetLocation().x, (float)CameraTransform.GetLocation().y, (float)CameraTransform.GetLocation().z);
+		const SVectorDouble ForwardVector(CameraTransform.GetRotation().GetForwardVector());
+		const SVector Position(static_cast<float>(CameraTransform.GetLocation().x), static_cast<float>(CameraTransform.GetLocation().y), static_cast<float>(CameraTransform.GetLocation().z));
 		return Matrix::MakeLookAtMatrix(
 			Position,
-			Position + SVector((float)ForwardVector.x, (float)ForwardVector.y, (float)ForwardVector.z),
+			Position + SVector(static_cast<float>(ForwardVector.x), static_cast<float>(ForwardVector.y), static_cast<float>(ForwardVector.z)),
 			SVector(0,0,1));
 	}
 
-	inline void SetFieldOfView(float FOV) { FieldOfView = FOV; }
-	inline void SetNearClipPlane(float Near) { NearClipPlane = Near; }
-	inline void SetFarClipPlane(float Far) { FarClipPlane = Far; }
+	void SetFieldOfView(const float Fov) { FieldOfView = Fov; }
+	void SetNearClipPlane(const float Near) { NearClipPlane = Near; }
+	void SetFarClipPlane(const float Far) { FarClipPlane = Far; }
 
-	inline float GetFieldOfView() const { return FieldOfView; }
-	inline float GetNearClipPlane() const { return FarClipPlane; }
-	inline float GetFarClipPlane() const { return NearClipPlane; }
+	[[nodiscard]] float GetFieldOfView() const { return FieldOfView; }
+	[[nodiscard]] float GetNearClipPlane() const { return FarClipPlane; }
+	[[nodiscard]] float GetFarClipPlane() const { return NearClipPlane; }
 
-	inline STransform& GetCameraTransform() { return CameraTransform; }
+	STransform& GetCameraTransform() { return CameraTransform; }
 
 private:
 

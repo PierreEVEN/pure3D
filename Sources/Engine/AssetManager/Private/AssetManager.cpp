@@ -22,9 +22,9 @@ bool AssetManager::IsNewAssetNameValid(const String& NewName) {
 }
 
 void AssetManager::RegisterAsset(SAsset* InAsset) {
-	if (GetAsset(InAsset->GetAssetID())) LOG_ASSERT("Cannot register asset '%s' : Asset name is already used.", InAsset->GetAssetName().GetData());
+	if (GetAsset(InAsset->GetAssetId())) LOG_ASSERT("Cannot register asset '%s' : Asset name is already used.", InAsset->GetAssetName().GetData());
 	if (!IsNewAssetNameValid(InAsset->GetAssetName())) LOG_ASSERT("Cannot register asset '%s' : invalid name", InAsset->GetAssetName().GetData());
-	AssetRegistry[InAsset->GetAssetID()] = InAsset;
+	AssetRegistry[InAsset->GetAssetId()] = InAsset;
 }
 
 AssetManager::~AssetManager() {
@@ -54,13 +54,12 @@ void AssetManager::LoadAsset(const std::filesystem::path& AssetPath) {
 	Archive.DeserializeAndCreateClass(FileData);
 
 	for (const auto& Asset : Archive.GetObjects()) {
-		SAssetFactories::PostLoadData_Internal((SAsset*)Asset.second.ObjectPtr, AssetPath.string().c_str());
 	}
 
 	FileData.close();
 }
 
 void AssetManager::UnRegisterAsset(SAsset* InAsset) {
-	AssetRegistry.erase(InAsset->GetAssetID());
+	AssetRegistry.erase(InAsset->GetAssetId());
 }
 

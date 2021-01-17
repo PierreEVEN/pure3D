@@ -23,7 +23,7 @@ namespace Parser {
 	String ObjectTypeToString(const EObjectType& inType);
 
 	struct SPropertyData {
-		SPropertyData(const String& Type, const String& Name, bool InIsTransient);
+		SPropertyData(String Type, const String& Name, bool InIsTransient);
 		String PropertyType;
 		bool IsDynamicRegisteredType;
 		String PropertyName;

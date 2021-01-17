@@ -29,7 +29,7 @@ struct SMeshData {
 
 
 REFLECT()
-struct IMesh : public SAsset {
+class IMesh : public SAsset {
 
 	REFLECT_BODY()
 
@@ -41,11 +41,9 @@ public:
 		std::shared_ptr<SMeshHandle> MeshHandle;
 	};
 
-	IMesh(std::vector<SMeshSection> InSections) : Sections(InSections) {}
-
 	inline const std::vector<SMeshSection>& GetSections() const { return Sections; }
 
-private:
+protected:
 	std::vector<SMeshSection> Sections;
 };
 

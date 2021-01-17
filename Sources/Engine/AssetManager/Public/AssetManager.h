@@ -11,14 +11,11 @@ DECLARE_DELEGATE_MULTICAST(DOnUpdateAssetID, RUID, RUID);
 
 #define DEFAULT_ASSET_PATH "Content/"
 
-class SAssetFactories;
 
 class AssetManager final {
 
 public:
 	
-	friend SAssetFactories;
-
 	SAsset* GetAsset(RUID AssetID) const;
 	void LoadAssetLibrary(const std::filesystem::path& Path);
 

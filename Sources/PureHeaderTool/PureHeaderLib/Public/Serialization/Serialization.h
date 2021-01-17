@@ -19,7 +19,7 @@ struct SArchive {
 
 	void LinkObject(const String& ObjectName, RType* ObjectType, void* ObjectPtr);
 
-	inline std::unordered_map<RUID, SArchiveObject> GetObjects() const { return LinkedObjects; }
+	[[nodiscard]] std::unordered_map<RUID, SArchiveObject> GetObjects() const { return LinkedObjects; }
 private:
 
 	std::unordered_map<RUID, SArchiveObject> LinkedObjects;

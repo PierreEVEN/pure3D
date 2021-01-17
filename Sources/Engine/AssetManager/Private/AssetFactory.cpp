@@ -2,24 +2,30 @@
 #include "Reflection/ReflectionUtilities.h"
 #include "Asset.h"
 #include "AssetManager.h"
+#include "Serialization/Serialization.h"
 
-inline static std::unordered_map<RClass*, SAssetFactories*> FactoryForClass;
+inline static std::unordered_map<RClass*, SAssetFactory*> FACTORY_FOR_CLASS;
 
-SAssetFactories* SAssetFactories::FindFactory(RClass* InFactoryClass) {
-	const auto& FoundFactory = FactoryForClass.find(InFactoryClass);
-	if (FoundFactory != FactoryForClass.end()) return FoundFactory->second;
+SAssetFactory* SAssetFactory::GetFactory(RClass* InAssetClass) {
+	const auto& FoundFactory = FACTORY_FOR_CLASS.find(InAssetClass);
+	if (FoundFactory != FACTORY_FOR_CLASS.end()) return FoundFactory->second;
 	return nullptr;
 }
 
-void SAssetFactories::PostLoadData_Internal(SAsset* InAsset, const String& InAssetPath) {
-	/** Set asset internal data */
-	InAsset->AssetPath = InAssetPath;
-	InAsset->AssetID = MakeUniqueID(InAsset->GetAssetName());
+SAsset* SAssetFactory::DeserializeObject(std::istream InputStream) {
+	SArchive ObjectArchive;
+	ObjectArchive.DeserializeAndCreateClass(InputStream);
 
-	/** post load internal data */
-	SAssetFactories* Factory = FindFactory(InAsset->GetClass());
-	if (Factory) Factory->PostLoadData(InAsset);
+	if (ObjectArchive.GetObjects().size() != 1) {
+		LOG_ERROR("failed to deserialize asset");
+		return nullptr;
+	}
+	SAsset* Asset = static_cast<SAsset*>(ObjectArchive.GetObjects()[0].ObjectPtr);
+	Asset->PostLoad();
+	
+	return Asset;
+}
 
-	/** Register asset */
-	AssetManager::Get()->RegisterAsset(InAsset);
+void SAssetFactory::RegisterFactory_Internal(RClass* inAssetClass, SAssetFactory* Factory) {
+	FACTORY_FOR_CLASS[inAssetClass] = Factory;
 }

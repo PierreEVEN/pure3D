@@ -21,10 +21,12 @@ String Parser::ObjectTypeToString(const EObjectType& inType) {
 }
 
 
-Parser::SPropertyData::SPropertyData(const String& Type, const String& Name, bool InIsTransient)
-{
+Parser::SPropertyData::SPropertyData(String Type, const String& Name, bool InIsTransient) {
 	IsTransient = InIsTransient;
 	PropertyName = String::RemoveBorderSpaces(Name);
+	bool bIsConst = String::RemoveBorderSpaces(Type).IsStartingWith("const ");
+	if (bIsConst) Type = Type.SubString(strlen("const "));
 	PropertyType = String::Replace(String::Replace(String::RemoveBorderSpaces(Type), ' ', ""), '\t', "");
+	if (bIsConst) PropertyType = "const " + PropertyType;
 	IsDynamicRegisteredType = PropertyType.Contains('<') && !PropertyType.Contains("*") && !PropertyType.Contains("&");
 }

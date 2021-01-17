@@ -157,7 +157,7 @@ std::shared_ptr<STextureHandle> SOpenGlRenderApi::CreateTexture(const uint8_t* T
 	return std::make_shared<SOpenGLTexture2DHandle>(TextureID);
 }
 
-std::shared_ptr<SMeshHandle> SOpenGlRenderApi::CreateMesh(const SMeshData* Data) {
+std::shared_ptr<SMeshHandle> SOpenGlRenderApi::CreateMesh(const std::vector<SMeshData::SVertice>& Vertices, const std::vector<uint32_t>& Triangles) {
 
 	GLuint Vbo, Ebo, Vao;
 

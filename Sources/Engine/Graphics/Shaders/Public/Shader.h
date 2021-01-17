@@ -6,21 +6,22 @@
 #include "Shader.refl.h"
 
 
-
-
-
-
-
-
-
 REFLECT()
 class SMaterial : public SAsset {
 	REFLECT_BODY()
 
+		friend class SShaderFactory;
 public:
-		SMaterial(const String& VertexShader, const String& FragmentShader);
+	[[nodiscard]] const std::shared_ptr<SShaderHandle>& GetHandle() const { return ShaderHandle; }
 
-		inline const std::shared_ptr<SShaderHandle>& GetHandle() const { return ShaderHandle; }
+protected:
+
+	RCONSTRUCTOR()
+		SMaterial() = default;
+
+	void PostLoad() override;
+
+	void Reload() override {}
 
 private:
 
