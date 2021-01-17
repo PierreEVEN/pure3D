@@ -10,6 +10,16 @@ void SOpenGLMeshProxy::Render(SRenderer* Context)
 
 	if (!GLHandle) return;
 
+	SMatrix4 Result;
+	for (int i = 0; i < 16; ++i)
+	{
+		Result.coords[i] = static_cast<float>(Transform.GetTransformation().coords[i]);
+	}
+	
+
+	
+	IRendererApi::Get()->setMatrixParameter("model", dynamic_pointer_cast<SOpenGLShaderHandle>(MaterialHandle)->ShaderHandle, Result);
+	
 	glUseProgram(dynamic_pointer_cast<SOpenGLShaderHandle>(MaterialHandle)->ShaderHandle);
 
 

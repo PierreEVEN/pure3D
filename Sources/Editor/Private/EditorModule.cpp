@@ -23,8 +23,6 @@ out vec3 Normal; \
 out vec2 TexCoords; \
  \
 uniform mat4 model; \
-uniform mat4 view; \
-uniform mat4 projection; \
  \
  \
 layout(std140) uniform shader_data \
@@ -43,7 +41,7 @@ void main() \
 	TexCoords = aTexCoords; \
 	FragPos = vec3(model * vec4(aPos, 1.0)); \
  \
-	vec4 pos = vec4(aPos, 1.0) + vec4(5, 0, -1, 0); \
+	vec4 pos = model * (vec4(aPos, 1.0) + vec4(5, 0, -1, 0)); \
 	gl_Position = projectionMatrix * viewMatrix * pos; \
 }";
 
@@ -140,9 +138,9 @@ public:
 	}
 
 	virtual void Update() override {
-		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetForwardVector() * Input.x);
-		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetRightVector() * Input.y);
-		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetUpVector() * Input.z);
+		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetForwardVector() * Input.x * 0.01);
+		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetRightVector() * Input.y * 0.01);
+		Renderer->GetCamera().GetCameraTransform().SetLocation(Renderer->GetCamera().GetCameraTransform().GetLocation() + Renderer->GetCamera().GetCameraTransform().GetRotation().GetUpVector() * Input.z * 0.01);
 
 	}
 	virtual void CharCallback(int chr) {}
@@ -193,15 +191,52 @@ MODULE_CONSTRUCTOR() {
 	BasicMeshData.Triangles = Default_Triangles;
 	BasicMeshData.Material = &BasicMaterial;
 	IMesh* BasicMesh = new SStaticMesh(BasicMeshData);
-	new SMeshComponent(EditorRenderer, BasicMesh, {});
+	SSceneComponent* root = new SMeshComponent(EditorRenderer, BasicMesh, {});
 
+	SSceneComponent* roo2 = new SMeshComponent(EditorRenderer, BasicMesh, {});
+	roo2->SetRelativeTransform(STransform(SVectorDouble(1, 1, 1)));
+	roo2->AttachTo(root);
+
+	SSceneComponent* comp3 = new SMeshComponent(EditorRenderer, BasicMesh, {});
+	comp3->SetRelativeTransform(STransform(SVectorDouble(1.5, 2, 1)));
+	comp3->AttachTo(roo2);
+
+	SSceneComponent* comp4 = new SMeshComponent(EditorRenderer, BasicMesh, {});
+	comp4->SetRelativeTransform(STransform(SVectorDouble(1, 1.5, -1)));
+	comp4->AttachTo(root);
+	
 	EditorRenderer->GetCamera().SetFieldOfView(120);
 
+	float test = 0;
+	bool tesz = false;
+	
 	// Temp render loop
 	while (!IRendererApi::Get()->ShouldCloseWindow()) {
 		IInputManager::Get()->Update();
 		IRendererApi::Get()->BeginFrame();
 		EditorRenderer->DrawFrame();
 		IRendererApi::Get()->EndFrame();
+
+		root->SetRelativeTransform(STransform(SVectorDouble(sin(test), 0, 0)));
+		test += 0.01f;
+
+		if (fmod(test / 10, 1) > 0.5) {
+			if (tesz)
+			{
+				tesz = false;
+				roo2->AttachTo(nullptr);
+				LOG("detach");
+			}
+		}
+		else
+		{
+			if (!tesz)
+			{
+				tesz = true;
+				roo2->AttachTo(root);
+				LOG("attach");
+			}
+		}
+		
 	}
 }
