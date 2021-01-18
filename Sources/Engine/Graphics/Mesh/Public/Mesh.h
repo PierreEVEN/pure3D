@@ -11,6 +11,8 @@
 #include "PrimitiveProxy.h"
 #include "Mesh.refl.h"
 
+struct SMeshHandle {};
+
 struct SVertex {
 	SVertex(const SVector& inPosition) : Position(inPosition) {}
 	SVertex(const SVector& inPosition, SVector2D inUVS) : Position(inPosition), Uv(inUVS) {}
@@ -48,14 +50,6 @@ struct SMeshSectionData {
 	 * Lods data
 	 */
 	std::vector<Lod> Lods;
-};
-
-struct SMeshHandle {};
-
-class SMeshRenderHelper : public IRendererHelper {
-public:
-	virtual std::shared_ptr<SMeshHandle> CreateMesh() = 0;
-	virtual void DrawMesh(const SMeshHandle& Handle) = 0;
 };
 
 /**
@@ -96,6 +90,18 @@ public:
 	void Render(SRenderer* Context) override;
 };
 
+REFLECT()
+struct SMeshSectionProxy : public IPrimitiveProxy
+{
+	REFLECT_BODY();
+public:
+
+	std::shared_ptr<SMeshHandle> MeshHandle;
+	std::shared_ptr<SShaderHandle> MaterialHandle;
+	SMatrix4Double Transformation;
+	
+};
+
 /**
  * Mesh base structure
  */
@@ -113,4 +119,17 @@ protected:
 	 * Mesh handles
 	 */
 	std::vector<SMeshProxy> LodProxies;	
+};
+
+REFLECT()
+class SMeshRenderHelper : public IRendererHelper
+{
+	REFLECT_BODY();
+public:
+
+	virtual void DrawMesh(SRenderer* Context, const SMeshProxy& Proxy) = 0;
+	virtual std::shared_ptr<SMeshHandle> CreateMeshHandle(const SMeshSectionData::Lod& Lod) = 0;
+
+
+	
 };
