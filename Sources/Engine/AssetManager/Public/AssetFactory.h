@@ -4,7 +4,7 @@
 
 #include "AssetFactory.refl.h"
 
-struct RClass;
+class RClass;
 class SAsset;
 
 REFLECT()

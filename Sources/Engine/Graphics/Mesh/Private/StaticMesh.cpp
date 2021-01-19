@@ -10,7 +10,6 @@ void SStaticMesh::PostLoad() {
 		{
 			SMeshProxy::Lod LodProxy;
 
-			LodProxy.MeshHandle = IRendererApi::Get()->CreateMesh(&Lod);
 			SectionProxy.Lods.push_back(LodProxy);
 		}
 		LodProxies.push_back(SectionProxy);

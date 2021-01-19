@@ -87,7 +87,7 @@ public:
 
 	size_t GetLOD() { return 0; }
 
-	void Render(SRenderer* Context) override;
+	void Render(SRenderer* Context) override {}
 };
 
 REFLECT()
@@ -127,8 +127,8 @@ class SMeshRenderHelper : public IRendererHelper
 	REFLECT_BODY();
 public:
 
-	virtual void DrawMesh(SRenderer* Context, const SMeshProxy& Proxy) = 0;
-	virtual std::shared_ptr<SMeshHandle> CreateMeshHandle(const SMeshSectionData::Lod& Lod) = 0;
+	virtual void DrawMesh(SRenderer* Context, const SMeshProxy& Proxy) {}
+	virtual std::shared_ptr<SMeshHandle> CreateMeshHandle(const SMeshSectionData::Lod& Lod) { return nullptr; }
 
 
 	

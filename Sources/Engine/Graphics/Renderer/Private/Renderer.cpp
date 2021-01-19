@@ -66,7 +66,14 @@ void SRenderPass::QueryRenderedProxies(const std::vector<IPrimitiveProxy*>& Avai
 }
 
 void SRenderPass::DrawProxies(SRenderer* Context) {
-	for (const auto& Proxy : PassProxies) {
-		Proxy->Render(Context);
+	if (PassProxies.empty()) return;
+	RClass* LastClass = PassProxies[0]->GetClass();
+	size_t Begin = 0;
+	for (int i = 0; i < PassProxies.size(); ++i) {
+		if (PassProxies[i]->GetClass() != LastClass || i == PassProxies.size() - 1) {
+			Context->CommandBuilder->GenerateCommands(LastClass, PassProxies.begin() + Begin, PassProxies.begin() + i - 1);
+			LastClass = PassProxies[i]->GetClass();
+			Begin = i;
+		}
 	}
 }

@@ -5,7 +5,7 @@
 #include "ReflectionUtilities.h"
 #include <any>
 
-struct RType;
+class RType;
 
 
 

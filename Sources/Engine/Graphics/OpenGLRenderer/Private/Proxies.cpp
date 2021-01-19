@@ -2,7 +2,7 @@
 #include <GL/gl3w.h>
 #include "Handles.h"
 #include "OpenGLRenderer.h"
-
+/*
 void SOpenGLMeshProxy::Render(SRenderer* Context)
 {
 	std::shared_ptr<SOpenGLMeshHandle> GLHandle = dynamic_pointer_cast<SOpenGLMeshHandle>(MeshHandle);
@@ -29,3 +29,4 @@ void SOpenGLMeshProxy::Render(SRenderer* Context)
 	else
 		glDrawArrays(GL_TRIANGLES, 0, GLHandle->Vertices);
 }
+*/

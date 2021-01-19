@@ -23,7 +23,7 @@ protected:
 	RCONSTRUCTOR()
 		SMaterial() = default;
 
-	void PostLoad() override;
+	void PostLoad() override {}
 
 	void Reload() override {}
 

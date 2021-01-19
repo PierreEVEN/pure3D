@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <functional>
 
 #include "PrimitiveProxy.refl.h"
@@ -24,6 +24,8 @@ public:
 	uint32_t RenderPass = 0;
 	SPrimitiveComponent* ParentComponent;
 	IRendererHelper* RenderHelper = nullptr;
+	int8_t Priority = 0;
+
 
 private:
 

@@ -5,11 +5,16 @@
 #include "Camera.h"
 
 class SceneRootComponent;
-struct RCLass;
+class RCLass;
 struct SRenderPass;
 struct IPrimitiveProxy;
 class SCamera;
 
+
+// A reimplementer a chaque fois
+struct ICommandBuilder {
+	virtual void GenerateCommands(class RClass* ProxyClass, std::vector<IPrimitiveProxy*>::iterator FirstItem, std::vector<IPrimitiveProxy*>::iterator LastItem) = 0;
+};
 
 class SRenderer {
 
@@ -32,6 +37,7 @@ public:
 		float Time;
 	};
 
+	ICommandBuilder* CommandBuilder;
 protected:
 
 	SRenderer();
@@ -71,6 +77,7 @@ private:
 	std::vector<IPrimitiveProxy*> RendererProxies;
 	std::vector<IPrimitiveProxy*> OutdatedProxies;
 	std::vector<SRenderPass*> RenderPasses;
+
 };
 
 

@@ -1,6 +1,8 @@
 #pragma once
+#include <functional>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
+#include <unordered_map>
 
 class SRenderer;
 
@@ -22,8 +24,15 @@ struct SRenderPass {
 	void End() {}
 
 	virtual void QueryRenderedProxies(const std::vector<IPrimitiveProxy*>& AvailableProxies);
-	virtual void SortProxies() {}
+
+	/**
+	 * On trie d'abord par priorité, puis pour chaque sous groupe, on trie par class de proxy, puis pour chaque class on lance la fonction de tri interne
+	 */	
+	virtual void SortProxies();
 	virtual void DrawProxies(SRenderer* Context);
+
+	using SortFunction = std::function<void(std::vector<IPrimitiveProxy*>::const_iterator, std::vector<IPrimitiveProxy*>::const_iterator)>;	
+	std::unordered_map<class RClass*, SortFunction> SortFunctions;
 
 private:
 	uint32_t RenderPass;

@@ -85,7 +85,7 @@ bool SOpenGlRenderApi::ShouldCloseWindow()
 {
 	return glfwWindowShouldClose(WindowHandle);
 }
-
+/*
 std::shared_ptr<SShaderHandle> SOpenGlRenderApi::CompileShader(const String& VertexShader, const String& FragmentShader) {
 	const char* vShaderCode = VertexShader.GetData();
 	const char* fShaderCode = FragmentShader.GetData();
@@ -111,7 +111,6 @@ std::shared_ptr<SShaderHandle> SOpenGlRenderApi::CompileShader(const String& Ver
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
-	/* Bind uniform buffer */
 	int32_t UniformBlockIndex = glGetUniformBlockIndex(ShaderID, "shader_data");
 	if (UniformBlockIndex < 0) {
 		String error = "Error linking shader : cannot find shader_data block index";
@@ -220,3 +219,4 @@ void SOpenGlRenderApi::setMatrixParameter(String parameterName, int shaderID, SM
 	glUniformMatrix4fv(glGetUniformLocation(shaderID, parameterName.GetData()), 1, GL_FALSE, Transform.coords);
 	GL_CHECK_ERROR();
 }
+*/

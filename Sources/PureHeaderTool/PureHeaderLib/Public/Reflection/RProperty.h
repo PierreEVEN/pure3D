@@ -3,7 +3,7 @@
 #include "Types/String.h"
 #include "RClass.h"
 
-struct RType;
+class RType;
 
 struct RProperty : public ReflectionObject {
 

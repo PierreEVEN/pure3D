@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include "Reflection/ReflectionUtilities.h"
 
-struct RType;
+class RType;
 
 struct SArchiveObject {
 	RType* ObjectType;

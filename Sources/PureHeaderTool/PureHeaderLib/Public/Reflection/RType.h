@@ -8,7 +8,7 @@
 #include <unordered_map>
 
 struct ISerializerInterface;
-struct RType;
+class RType;
 
 DECLARE_DELEGATE_MULTICAST(SOnRegisterType, RType*);
 
@@ -20,7 +20,8 @@ enum class ERType {
     ERType_Set
 };
 
-struct RType : public ReflectionObject {
+class RType : public ReflectionObject {
+public:
     /**
      * Get type name
      */

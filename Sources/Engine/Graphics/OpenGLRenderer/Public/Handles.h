@@ -7,10 +7,12 @@ struct SOpenGLShaderHandle : SShaderHandle {
 	GLuint ShaderHandle;
 };
 
+/*
 struct SOpenGLTexture2DHandle : STextureHandle {
 	SOpenGLTexture2DHandle(GLuint inHandle) : ShaderHandle(inHandle) {}
 	GLuint ShaderHandle;
 };
+*/
 
 struct SOpenGLMeshHandle : SMeshHandle {
 	SOpenGLMeshHandle(GLuint inVbo, GLuint inEbo, GLuint inVao, uint32_t inVertices, uint32_t inTriangles) : Vbo(inVbo), Ebo(inEbo), Vao(inVao), Vertices(inVertices), Triangles(inTriangles) {}

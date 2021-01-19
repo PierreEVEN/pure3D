@@ -10,11 +10,10 @@
 #include "IO/Log.h"
 
 struct RProperty;
-struct RClass;
-struct RCastFunction;
+class RCastFunction;
 
-struct RClass : public RType {
-
+class RClass : public RType {
+public:
 	friend RType;
 	using RCastFunc = std::function<void* (const RClass*, void*)>;
 

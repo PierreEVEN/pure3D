@@ -13,5 +13,5 @@ struct SOpenGLMeshProxy : public SMeshProxy {
 		RCONSTRUCTOR()
 		SOpenGLMeshProxy() {}
 public:
-	virtual void Render(SRenderer* Context);
+	virtual void Render(SRenderer* Context) {}
 };
